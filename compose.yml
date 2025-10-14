@@ -1,4 +1,3 @@
-version: '3.4'
 services:
   localstack:
     image: localstack/localstack:3.0.2
@@ -13,7 +12,7 @@ services:
       SERVICES: s3,sqs,sns,firehose
       LOCALSTACK_HOST: 127.0.0.1
     volumes:
-      - '${TMPDIR:-/tmp}/localstack:/var/lib/localstack'
+      - localstack-data:/var/lib/localstack
       - ./compose/start-localstack.sh:/etc/localstack/init/ready.d/start-localstack.sh
     healthcheck:
       test: ['CMD', 'curl', 'localhost:4566']
@@ -23,53 +22,26 @@ services:
     networks:
       - cdp-tenant
 
-  redis:
-    image: redis:7.2.3-alpine3.18
-    ports:
-      - '6379:6379'
-    restart: always
-    networks:
-      - cdp-tenant
-
   mongodb:
-    image: mongo:6.0.13
+    image: mongo:7.0
     networks:
       - cdp-tenant
-    ports:
-      - '27017:27017'
     volumes:
-      - mongodb-data:/data
+      - mongodb-data:/data/db
     restart: always
+    healthcheck:
+      test: ['CMD', 'mongosh', '--eval', 'db.adminCommand("ping")']
+      interval: 5s
+      start_period: 10s
+      retries: 3
 
-  ################################################################################
-
-  # your-frontend:
-  #   image: defradigital/your-frontend:${YOUR_FRONTEND_VERSION:-latest}
-  #   ports:
-  #     - '3000:3000'
-  #   links:
-  #     - 'localstack:localstack'
-  #     - 'redis:redis'
-  #   depends_on:
-  #     localstack:
-  #       condition: service_healthy
-  #     redis:
-  #       condition: service_started
-  #   env_file:
-  #     - 'compose/aws.env'
-  #   environment:
-  #     PORT: 3000
-  #     NODE_ENV: development
-  #     REDIS_HOST: redis
-  #     LOCALSTACK_ENDPOINT: http://localstack:4566
-  #     USE_SINGLE_INSTANCE_CACHE: true
-  #   networks:
-  #     - cdp-tenant
-
-  your-backend:
-    build: ./
+  trade-demo-backend:
+    build:
+      context: .
+      target: development
     ports:
-      - '8080:8080'
+      - '8085:8085'
+      - '5005:5005' # Java debug port
     links:
       - 'localstack:localstack'
       - 'mongodb:mongodb'
@@ -77,21 +49,48 @@ services:
       localstack:
         condition: service_healthy
       mongodb:
-        condition: service_started
+        condition: service_healthy
     env_file:
       - 'compose/aws.env'
     environment:
-      PORT: 8080
+      # Server
+      PORT: 8085
+
+      # Service Identity
+      SERVICE_VERSION: 0.0.0-local
+      ENVIRONMENT: local
+
+      # MongoDB
+      MONGO_URI: mongodb://mongodb:27017
+      MONGO_DATABASE: trade-demo-backend
+
+      # AWS (via LocalStack)
       LOCALSTACK_ENDPOINT: http://localstack:4566
-      MONGO_URI: mongodb://mongodb:27017/
+      AWS_REGION: eu-west-2
+
+      # Logging
+      LOG_LEVEL: DEBUG
+
+      # Metrics (disabled locally)
+      ENABLE_METRICS: false
+
+      # Spring profile (dev = exposes debugging actuator endpoints)
+      SPRING_PROFILES_ACTIVE: dev
+
+      # Java Debug (optional - uncomment to enable remote debugging)
+      # JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     networks:
       - cdp-tenant
+    # Note: No volume mounts for Java (requires rebuild for code changes)
+    # For faster development, use 'mvn spring-boot:run' directly on host
 
 ################################################################################
 
 volumes:
+  localstack-data:
   mongodb-data:
 
 networks:
   cdp-tenant:
     driver: bridge
+    name: cdp-tenant

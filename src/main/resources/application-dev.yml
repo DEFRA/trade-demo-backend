@@ -1,0 +1,17 @@
+# Development profile - exposes additional actuator endpoints for debugging
+# MongoDB URI should be set via MONGO_URI environment variable
+# (defaults are in application.yml)
+
+logging:
+  level:
+    root: DEBUG
+    uk.gov.defra.cdp.trade.demo: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,env
+  endpoint:
+    health:
+      show-details: when-authorized

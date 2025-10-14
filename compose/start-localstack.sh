@@ -1,11 +1,20 @@
 #!/bin/bash
-export AWS_REGION=eu-west-2
-export AWS_DEFAULT_REGION=eu-west-2
-export AWS_ACCESS_KEY_ID=test
-export AWS_SECRET_ACCESS_KEY=test
 
-# S3 buckets
-# aws --endpoint-url=http://localhost:4566 s3 mb s3://my-bucket
+# LocalStack initialization script
+# Runs when LocalStack container becomes ready
+# Creates AWS resources (S3 buckets, SQS queues, etc.) for local development
 
-# SQS queues
-# aws --endpoint-url=http://localhost:4566 sqs create-queue --queue-name my-queue
+set -e
+
+echo "Initializing LocalStack for trade-demo-backend..."
+
+# Wait for LocalStack to be fully ready
+awslocal s3 mb s3://cdp-example-bucket || echo "Bucket already exists"
+
+# Create SQS queue
+awslocal sqs create-queue --queue-name cdp-example-queue || echo "Queue already exists"
+
+# Create SNS topic
+awslocal sns create-topic --name cdp-example-topic || echo "Topic already exists"
+
+echo "LocalStack initialization complete!"
