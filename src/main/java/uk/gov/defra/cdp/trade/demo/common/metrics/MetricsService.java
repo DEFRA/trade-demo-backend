@@ -9,19 +9,19 @@ import uk.gov.defra.cdp.trade.demo.config.CdpConfig;
 
 /**
  * Helper service for recording custom metrics to CloudWatch.
- *
+ * <p>
  * CDP Platform requirement: Services should emit custom business metrics
  * to CloudWatch for monitoring and alerting.
- *
+ * <p>
  * This service provides a simple API matching the Node.js/Python template pattern:
  * - counter(name, value) - Record a counter metric
- *
+ * <p>
  * Features:
  * - Production only (checks ENABLE_METRICS environment variable)
  * - Graceful error handling (never crashes the application)
  * - Automatic namespace (service name) from Spring application name
  * - Standard resolution (1 minute) for cost efficiency
- *
+ * <p>
  * Usage example:
  * <pre>
  * {@code
@@ -84,7 +84,7 @@ public class MetricsService {
 
         } catch (Exception e) {
             // Never crash the application due to metrics errors
-            logger.error("Failed to record counter metric: {}. Error: {}", name, e.getMessage());
+            logger.error("Failed to record counter metric: {}", name, e);
         }
     }
 

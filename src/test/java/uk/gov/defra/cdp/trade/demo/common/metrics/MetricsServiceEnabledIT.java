@@ -1,13 +1,20 @@
 package uk.gov.defra.cdp.trade.demo.common.metrics;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.test.context.TestPropertySource;
 
 /**
@@ -33,12 +40,13 @@ import org.springframework.test.context.TestPropertySource;
 @TestPropertySource(properties = {
     "cdp.metrics.enabled=true"
 })
+@ExtendWith(OutputCaptureExtension.class)
 class MetricsServiceEnabledIT {
 
     @Autowired
     private MetricsService metricsService;
 
-    @Autowired
+    @SpyBean
     private MeterRegistry meterRegistry;
 
     @BeforeEach
@@ -98,5 +106,46 @@ class MetricsServiceEnabledIT {
         assertThat(meterRegistry.getMeters())
             .as("CloudWatchMeterRegistry should contain all registered metrics")
             .hasSizeGreaterThanOrEqualTo(3);
+    }
+
+    @Test
+    void shouldLogFullExceptionWithStackTrace_whenMetricRecordingFails(CapturedOutput output) {
+        // This test PROVES that when an exception occurs during metric recording,
+        // the FULL exception with stack trace is logged (not just the message).
+        //
+        // This directly addresses the production issue where "error sending metric data"
+        // appeared without stack trace, making debugging impossible.
+
+        // Given: MeterRegistry configured to throw exception (simulates CloudWatch API errors)
+        RuntimeException expectedException = new RuntimeException("Simulated CloudWatch API error");
+        doThrow(expectedException)
+            .when(meterRegistry)
+            .counter(eq("test_exception"), any(String.class), any(String.class));
+
+        // When: Attempting to record metric that triggers exception
+        metricsService.counter("test_exception", 1.0);
+
+        // Then: Should log FULL exception with stack trace (not just message)
+        String logs = output.toString();
+
+        assertThat(logs)
+            .as("Should log error message with metric name")
+            .contains("Failed to record counter metric: test_exception");
+
+        assertThat(logs)
+            .as("Should log exception class name")
+            .contains("java.lang.RuntimeException");
+
+        assertThat(logs)
+            .as("Should log exception message")
+            .contains("Simulated CloudWatch API error");
+
+        assertThat(logs)
+            .as("Should log stack trace with class and method names (proves full exception logged)")
+            .contains("at uk.gov.defra.cdp.trade.demo.common.metrics.MetricsService.counter");
+
+        assertThat(logs)
+            .as("Should log stack trace with file and line number (proves full exception logged)")
+            .containsPattern("MetricsService\\.java:\\d+");
     }
 }
