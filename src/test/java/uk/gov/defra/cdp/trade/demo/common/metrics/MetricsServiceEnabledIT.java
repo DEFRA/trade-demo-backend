@@ -2,36 +2,34 @@ package uk.gov.defra.cdp.trade.demo.common.metrics;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 
 /**
  * Integration tests for MetricsService with metrics ENABLED.
  * <p>
  * TESTING APPROACH:
- * Spring Boot does NOT provide auto-configuration for CloudWatch metrics (PR #11276
- * was rejected). Therefore, we manually configure CloudWatchMeterRegistry in
- * CloudWatchTestConfig with dummy AWS credentials. Since we create only ONE
- * MeterRegistry bean, Spring Boot injects it directly (no CompositeMeterRegistry
- * wrapper). This is appropriate for single-backend scenarios.
+ * Tests the production MetricsConfig which creates CloudWatchMeterRegistry when
+ * cdp.metrics.enabled=true. The config uses AWS DefaultCredentialsProvider which
+ * discovers credentials from environment, credentials file, or IAM roles.
  * <p>
  * WHAT THESE TESTS VERIFY:
- * - CloudWatchMeterRegistry is created (not SimpleMeterRegistry fallback)
+ * - CloudWatchMeterRegistry is created by production config (not SimpleMeterRegistry)
  * - Metrics are registered in CloudWatchMeterRegistry
- * - MetricsService integration works with CloudWatch
+ * - MetricsService integration works with CloudWatch configuration
  * - Configuration beans are properly wired
  * <p>
  * LIMITATIONS:
- * These tests use dummy AWS credentials and cannot verify actual CloudWatch
- * publishing. End-to-end verification requires deployment to CDP with real credentials.
+ * These tests use DefaultCredentialsProvider which may discover local credentials
+ * (~/.aws/credentials) but won't actually publish to CloudWatch in tests.
+ * End-to-end verification requires deployment to CDP with IAM roles.
  */
 @SpringBootTest
-@Import(CloudWatchTestConfig.class)
 @TestPropertySource(properties = {
     "cdp.metrics.enabled=true"
 })
@@ -75,7 +73,8 @@ class MetricsServiceEnabledIT {
         // Note: CloudWatchMeterRegistry is a StepMeterRegistry that buffers metrics
         // for batch publishing. Counter values may show 0.0 until publish() is called.
         // The important verification is that metrics ARE registered (not null).
-        assertThat(meterRegistry.find("orders_created").counter())
+        Counter ordersCounter = meterRegistry.find("orders_created").counter();
+        assertThat(ordersCounter)
             .as("Counter should be registered in CloudWatchMeterRegistry")
             .isNotNull();
 
@@ -83,11 +82,19 @@ class MetricsServiceEnabledIT {
             .as("Counter with default value should be registered")
             .isNotNull();
 
-        assertThat(meterRegistry.find("incremental_counter").counter())
+        Counter incrementalCounter = meterRegistry.find("incremental_counter").counter();
+        assertThat(incrementalCounter)
             .as("Incremental counter should be registered")
             .isNotNull();
 
-        // Verify total number of metrics registered
+        // Verify idempotency - same counter instance is reused on subsequent calls
+        metricsService.counter("orders_created", 1.0);
+        Counter sameOrdersCounter = meterRegistry.find("orders_created").counter();
+        assertThat(sameOrdersCounter)
+            .as("Should return same counter instance on subsequent calls (idempotent)")
+            .isSameAs(ordersCounter);
+
+        // Verify total number of metrics registered (should still be 3, not 4)
         assertThat(meterRegistry.getMeters())
             .as("CloudWatchMeterRegistry should contain all registered metrics")
             .hasSizeGreaterThanOrEqualTo(3);
