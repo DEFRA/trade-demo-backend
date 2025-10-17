@@ -69,6 +69,7 @@ management:
         enabled: ${ENABLE_METRICS:false}
         batch-size: 20
         step: 1m
+        region: ${AWS_REGION:eu-west-2}
 
 # Application info (exposed via /info endpoint)
 info:
