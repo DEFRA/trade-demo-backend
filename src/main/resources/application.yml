@@ -40,9 +40,11 @@ logging:
   level:
     root: ${LOG_LEVEL:INFO}
     uk.gov.defra.cdp.trade.demo: ${LOG_LEVEL:INFO}
-    org.springframework: INFO
-    org.springframework.web: DEBUG
-    org.mongodb.driver: WARN
+    uk.gov.defra.cdp.trade.demo.common.metrics: ${LOGGING_LEVEL_UK_GOV_DEFRA_CDP_TRADE_DEMO_COMMON_METRICS:INFO}
+    org.springframework: ${LOGGING_LEVEL_ORG_SPRINGFRAMEWORK:INFO}
+    org.springframework.web: ${LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB:DEBUG}
+    org.mongodb.driver: ${LOGGING_LEVEL_ORG_MONGODB_DRIVER:WARN}
+    io.micrometer.cloudwatch2: ${LOGGING_LEVEL_IO_MICROMETER_CLOUDWATCH2:WARN}
 
 # Actuator endpoints
 # Production: Only health endpoint exposed (secure by default)

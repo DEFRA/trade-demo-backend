@@ -6,19 +6,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
- * Integration tests for MetricsService.
- *
+ * Integration tests for MetricsService with metrics DISABLED (default).
+ * <p>
  * Tests verify that:
- * 1. Metrics are recorded when ENABLE_METRICS=true
- * 2. Metrics are skipped when ENABLE_METRICS=false
- * 3. Service handles errors gracefully (never crashes)
- * 4. Counter metrics are registered in MeterRegistry
+ * 1. Metrics are skipped when ENABLE_METRICS=false (default)
+ * 2. Service handles errors gracefully (never crashes)
+ * 3. Metrics are not registered in MeterRegistry when disabled
+ * <p>
+ * For tests with metrics ENABLED, see MetricsServiceEnabledIT.java
  */
 @SpringBootTest
 class MetricsServiceIT {
@@ -86,82 +86,5 @@ class MetricsServiceIT {
         assertThatCode(() -> metricsService.counter("test_negative", -1.0))
             .as("Should handle negative values without crashing")
             .doesNotThrowAnyException();
-    }
-
-    /**
-     * Integration test with metrics enabled.
-     * This test verifies that metrics ARE recorded when ENABLE_METRICS=true.
-     */
-    @SpringBootTest
-    @TestPropertySource(properties = {
-        "cdp.metrics.enabled=true"
-    })
-    static class MetricsEnabledIT {
-
-        @Autowired
-        private MetricsService metricsService;
-
-        @Autowired
-        private MeterRegistry meterRegistry;
-
-        @BeforeEach
-        void setUp() {
-            meterRegistry.clear();
-        }
-
-        @Test
-        void shouldRecordCounterWhenMetricsEnabled() {
-            // Given: ENABLE_METRICS=true
-
-            // When: Recording a counter metric
-            metricsService.counter("orders_created", 5.0);
-
-            // Then: Metric should be registered and incremented
-            Counter counter = meterRegistry.find("orders_created").counter();
-            assertThat(counter)
-                .as("Counter should be registered when metrics enabled")
-                .isNotNull();
-
-            assertThat(counter.count())
-                .as("Counter value should match recorded value")
-                .isEqualTo(5.0);
-        }
-
-        @Test
-        void shouldRecordCounterWithDefaultValue() {
-            // Given: ENABLE_METRICS=true
-
-            // When: Recording a counter without value
-            metricsService.counter("default_counter");
-
-            // Then: Metric should be registered with value 1.0
-            Counter counter = meterRegistry.find("default_counter").counter();
-            assertThat(counter)
-                .as("Counter should be registered")
-                .isNotNull();
-
-            assertThat(counter.count())
-                .as("Counter should have default value of 1.0")
-                .isEqualTo(1.0);
-        }
-
-        @Test
-        void shouldIncrementExistingCounter() {
-            // Given: ENABLE_METRICS=true and existing counter
-
-            // When: Recording same metric multiple times
-            metricsService.counter("incremental_counter", 2.0);
-            metricsService.counter("incremental_counter", 3.0);
-
-            // Then: Counter should accumulate values
-            Counter counter = meterRegistry.find("incremental_counter").counter();
-            assertThat(counter)
-                .as("Counter should be registered")
-                .isNotNull();
-
-            assertThat(counter.count())
-                .as("Counter should accumulate increments")
-                .isEqualTo(5.0);
-        }
     }
 }
