@@ -20,19 +20,6 @@ A CDP-compliant Spring Boot backend that demonstrates:
 - CloudWatch custom metrics integration
 - Actuator endpoints with production security defaults
 
-### Compliance Status
-
-✅ **DEPLOYMENT READY** - Verified by cdp-compliance-reviewer agent (2025-10-14)
-
-- **22/22 Critical Requirements Met** (100%)
-- **5/5 Important Requirements Met** (100%)
-- **3/3 Testing Requirements Met** (100%)
-- **42 Tests Passing, 0 Failures**
-- **66% Code Coverage** (exceeds 65% minimum)
-- **GitHub Actions Workflows Configured**
-
-All mandatory CDP platform requirements verified. Ready for production deployment.
-
 ---
 
 ## Quick Start
@@ -245,151 +232,47 @@ An AI compliance agent initially flagged security headers as a "critical blocker
 
 ---
 
-# Metrics Debugging Guide
+## CloudWatch Metrics
 
-## Overview
+**Configuration:** Spring Boot does NOT auto-configure CloudWatch metrics. Manual configuration required.
 
-This guide explains how to debug CloudWatch metrics configuration in trade-demo-backend.
+`MetricsConfig.java` (src/main/java/uk/gov/defra/cdp/trade/demo/config/MetricsConfig.java:23-80) creates `CloudWatchMeterRegistry` when `ENABLE_METRICS=true`:
 
-## Quick Start
+```java
+@Configuration
+@ConditionalOnProperty(name = "cdp.metrics.enabled", havingValue = "true")
+public class MetricsConfig {
+    // Creates CloudWatchAsyncClient with AWS DefaultCredentialsProvider
+    // Creates CloudWatchMeterRegistry for metrics export
+}
+```
 
-### Enable Metrics Debugging Locally
+**Environment Variables:**
+- `ENABLE_METRICS=true` - Enables CloudWatch metrics export (default: `false`)
+- `AWS_REGION` - AWS region for CloudWatch (default: `eu-west-2`)
 
-Add to your local `.envrc` or run before starting the app:
+**Credentials:** Uses AWS `DefaultCredentialsProvider` which discovers credentials from:
+1. Environment variables (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`)
+2. AWS credentials file (`~/.aws/credentials`)
+3. EC2 instance profile / ECS task role (production in CDP)
 
+**Publishing:** Metrics buffer and publish to CloudWatch every 1 minute.
+
+**Debugging:** Enable debug logging for metrics troubleshooting:
 ```bash
-export ENABLE_METRICS=true
-export CDP_METRICS_DEBUG=true
-export AWS_REGION=eu-west-2
+# CloudWatch exporter debug logs
 export LOGGING_LEVEL_IO_MICROMETER_CLOUDWATCH2=DEBUG
+
+# MetricsService debug logs
 export LOGGING_LEVEL_UK_GOV_DEFRA_CDP_TRADE_DEMO_COMMON_METRICS=DEBUG
 ```
 
-Then start the application and check logs for:
-- `=== MeterRegistry Debug Information ===`
-- `CloudWatchMeterRegistry detected`
-- Debug logs from `io.micrometer.cloudwatch2`
-
-### Enable Metrics Debugging in CDP
-
-Add to `cdp-app-config/services/trade-demo-backend/dev/trade-demo-backend.env`:
-
-```bash
-CDP_METRICS_DEBUG=true
+Expected logs on startup (when `ENABLE_METRICS=true`):
 ```
-
-Then check CloudWatch Logs for the debug output.
-
-## Configuration Variables
-
-### Required for Metrics
-
-| Variable | Purpose | CDP Provides | Local Default |
-|----------|---------|--------------|---------------|
-| `ENABLE_METRICS` | Enables metrics collection and export | ✓ (in .env files) | `false` |
-| `AWS_REGION` | AWS region for CloudWatch | ✓ (ECS env) | `eu-west-2` |
-| AWS Credentials | IAM role for CloudWatch PutMetricData API | ✓ (ECS task role) | ❌ Not available locally |
-
-### Optional for Debugging
-
-| Variable | Purpose | Default |
-|----------|---------|---------|
-| `CDP_METRICS_DEBUG` | Enables detailed MeterRegistry logging | `false` |
-| `LOGGING_LEVEL_IO_MICROMETER_CLOUDWATCH2` | CloudWatch exporter debug logs | `WARN` |
-| `LOGGING_LEVEL_UK_GOV_DEFRA_CDP_TRADE_DEMO_COMMON_METRICS` | MetricsService debug logs | `INFO` |
-
-**Note on Environment Variable Naming:**
-
-Spring Boot uses relaxed binding to map environment variables to properties. The pattern:
-```
-LOGGING_LEVEL_<PACKAGE_NAME_WITH_UNDERSCORES>=<LEVEL>
-```
-
-Maps to:
-```
-logging.level.<package.name.with.dots>=<LEVEL>
-```
-
-Example:
-- `LOGGING_LEVEL_IO_MICROMETER_CLOUDWATCH2=DEBUG` → `logging.level.io.micrometer.cloudwatch2=DEBUG`
-- `LOGGING_LEVEL_UK_GOV_DEFRA_CDP_TRADE_DEMO_COMMON_METRICS=DEBUG` → `logging.level.uk.gov.defra.cdp.trade.demo.common.metrics=DEBUG`
-
-**Limitation:** Environment variables only work for package-level logging, not individual classes (due to lowercase conversion).
-
-## What Gets Logged
-
-### On Startup (when CDP_METRICS_DEBUG=true)
-
-```
-=== MeterRegistry Debug Information ===
-MeterRegistry class: CompositeMeterRegistry
-CompositeMeterRegistry contains 2 registries:
-  - Registry: SimpleMeterRegistry
-  - Registry: CloudWatchMeterRegistry
-    ✓ CloudWatchMeterRegistry detected
-    Initial metrics count: 0
-Total metrics in registry: 0
-=== End MeterRegistry Debug ===
-```
-
-### When Recording Metrics (DEBUG level enabled)
-
-```
+Creating CloudWatchAsyncClient for region: eu-west-2
+Creating CloudWatchMeterRegistry with namespace: trade-demo-backend, step: PT1M
 MetricsService initialized (enabled: true)
-Recorded counter metric: orders_created = 5.0
-```
-
-### CloudWatch Exporter Publishing (DEBUG level enabled)
-
-```
-Publishing 3 metrics to CloudWatch in namespace trade-demo-backend
-Successfully published metrics to CloudWatch
-```
-
-## Integration Tests
-
-### MetricsServiceEnabledIT
-
-Tests CloudWatch metrics configuration with metrics ENABLED:
-
-```bash
-mvn test -Dtest=MetricsServiceEnabledIT
-```
-
-This verifies:
-- CloudWatchMeterRegistry is created (not SimpleMeterRegistry)
-- Metrics are registered in CloudWatchMeterRegistry
-- Configuration beans are properly wired
-
-### MetricsServiceIT
-
-Tests MetricsService behavior with metrics DISABLED (default):
-
-```bash
-mvn test -Dtest=MetricsServiceIT
-```
-
-This verifies:
-- Metrics are skipped when ENABLE_METRICS=false
-- Service handles errors gracefully
-- No metrics registered when disabled
-
-## Spring Boot Auto-Configuration
-
-### CloudWatch Exporter Conditions
-
-Spring Boot creates `CloudWatchMeterRegistry` when:
-- Dependency `micrometer-registry-cloudwatch2` is on classpath ✓
-- Property `management.metrics.export.cloudwatch.enabled=true` ✓
-- Property `management.metrics.export.cloudwatch.namespace` is set ✓
-- AWS SDK can create `CloudWatchAsyncClient` ✓
-
-### Verification
-
-Check if auto-configuration ran:
-```bash
-# Enable Spring Boot auto-configuration debug
-export LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_BOOT_AUTOCONFIGURE=DEBUG
+publishing metrics for CloudWatchMeterRegistry every 1m
 ```
 ## References
 - [MIGRATION_PLAN.md](MIGRATION_PLAN.md)

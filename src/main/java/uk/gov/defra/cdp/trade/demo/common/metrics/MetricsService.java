@@ -59,6 +59,10 @@ public class MetricsService {
 
     /**
      * Record a counter metric.
+     * <p>
+     * This method is thread-safe and idempotent. The counter is registered on first access
+     * and reused on subsequent calls via MeterRegistry.counter(), which handles registration
+     * internally and returns the same Counter instance for a given name.
      *
      * @param name  Metric name (e.g., "orders_created")
      * @param value Value to increment counter by (default 1)
@@ -70,9 +74,10 @@ public class MetricsService {
         }
 
         try {
-            Counter counter = Counter.builder(name)
-                .description("Custom business metric: " + name)
-                .register(meterRegistry);
+            // MeterRegistry.counter() is thread-safe and idempotent - returns existing counter
+            // or creates new one atomically. This is the idiomatic Micrometer pattern.
+            Counter counter = meterRegistry.counter(name,
+                "description", "Custom business metric: " + name);
 
             counter.increment(value);
             logger.debug("Recorded counter metric: {} = {}", name, value);
