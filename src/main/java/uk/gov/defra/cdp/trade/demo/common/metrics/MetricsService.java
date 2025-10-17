@@ -1,99 +1,53 @@
 package uk.gov.defra.cdp.trade.demo.common.metrics;
 
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import uk.gov.defra.cdp.trade.demo.config.CdpConfig;
+import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
+
+import java.util.Map;
 
 /**
- * Helper service for recording custom metrics to CloudWatch.
+ * Service for recording custom business metrics using AWS Embedded Metrics Format.
  * <p>
- * CDP Platform requirement: Services should emit custom business metrics
- * to CloudWatch for monitoring and alerting.
+ * This interface provides a testable abstraction over AWS EMF library.
+ * Production implementation writes structured JSON logs that CloudWatch
+ * automatically extracts into metrics.
  * <p>
- * This service provides a simple API matching the Node.js/Python template pattern:
- * - counter(name, value) - Record a counter metric
- * <p>
- * Features:
- * - Production only (checks ENABLE_METRICS environment variable)
- * - Graceful error handling (never crashes the application)
- * - Automatic namespace (service name) from Spring application name
- * - Standard resolution (1 minute) for cost efficiency
- * <p>
- * Usage example:
- * <pre>
- * {@code
- * @Service
- * public class OrderService {
- *     private final MetricsService metricsService;
- *
- *     public void createOrder(Order order) {
- *         // ... business logic ...
- *         metricsService.counter("orders_created", 1);
- *     }
- * }
- * }
- * </pre>
- *
- * Implementation notes:
- * - Uses Spring Boot Micrometer (idiomatic Java approach)
- * - Directly exports to CloudWatch API (not EMF log parsing)
- * - Integrates with Spring Boot Actuator metrics
- * - Zero additional dependencies beyond spring-boot-starter-actuator
+ * Test implementation is a no-op to avoid metrics overhead in tests.
  */
-@Service
-public class MetricsService {
-
-    private static final Logger logger = LoggerFactory.getLogger(MetricsService.class);
-
-    private final MeterRegistry meterRegistry;
-    private final CdpConfig cdpConfig;
-
-    public MetricsService(MeterRegistry meterRegistry, CdpConfig cdpConfig) {
-        this.meterRegistry = meterRegistry;
-        this.cdpConfig = cdpConfig;
-        logger.info("MetricsService initialized (enabled: {})", cdpConfig.getMetrics().isEnabled());
-    }
+public interface MetricsService {
 
     /**
-     * Record a counter metric.
-     * <p>
-     * This method is thread-safe and idempotent. The counter is registered on first access
-     * and reused on subsequent calls via MeterRegistry.counter(), which handles registration
-     * internally and returns the same Counter instance for a given name.
+     * Record a counter metric with value 1.
      *
-     * @param name  Metric name (e.g., "orders_created")
-     * @param value Value to increment counter by (default 1)
+     * @param name Metric name (e.g., "orders.created")
      */
-    public void counter(String name, double value) {
-        if (!cdpConfig.getMetrics().isEnabled()) {
-            logger.debug("Metrics disabled, skipping counter: {}", name);
-            return;
-        }
-
-        try {
-            // MeterRegistry.counter() is thread-safe and idempotent - returns existing counter
-            // or creates new one atomically. This is the idiomatic Micrometer pattern.
-            Counter counter = meterRegistry.counter(name,
-                "description", "Custom business metric: " + name);
-
-            counter.increment(value);
-            logger.debug("Recorded counter metric: {} = {}", name, value);
-
-        } catch (Exception e) {
-            // Never crash the application due to metrics errors
-            logger.error("Failed to record counter metric: {}", name, e);
-        }
-    }
+    void counter(String name);
 
     /**
-     * Record a counter metric with default value of 1.
+     * Record a counter metric with custom value.
      *
-     * @param name Metric name (e.g., "orders_created")
+     * @param name Metric name
+     * @param value Metric value
      */
-    public void counter(String name) {
-        counter(name, 1.0);
-    }
+    void counter(String name, double value);
+
+    /**
+     * Record a counter metric with dimensions.
+     *
+     * @param name Metric name
+     * @param value Metric value
+     * @param dimensions CloudWatch dimensions for filtering/grouping
+     */
+    void counter(String name, double value, DimensionSet dimensions);
+
+    /**
+     * Record a metric with context properties.
+     * Properties are searchable in CloudWatch Logs Insights but not sent to CloudWatch Metrics.
+     *
+     * @param name Metric name
+     * @param value Metric value
+     * @param dimensions CloudWatch dimensions
+     * @param properties Context properties (orderId, customerId, etc.)
+     */
+    void counterWithContext(String name, double value, DimensionSet dimensions,
+                           Map<String, Object> properties);
 }

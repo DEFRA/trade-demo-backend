@@ -184,8 +184,8 @@ ENVIRONMENT=local
 
 # Optional
 LOG_LEVEL=INFO
-ACTUATOR_ENDPOINTS=health
-ENABLE_METRICS=false
+AWS_EMF_ENABLED=false
+AWS_EMF_NAMESPACE=trade-demo-backend
 HTTP_PROXY=http://localhost:3128
 ```
 
@@ -232,53 +232,112 @@ An AI compliance agent initially flagged security headers as a "critical blocker
 
 ---
 
-## CloudWatch Metrics
+## Custom Metrics
 
-**Configuration:** Spring Boot does NOT auto-configure CloudWatch metrics. Manual configuration required.
+This service uses **AWS Embedded Metrics Format (EMF)** for custom business metrics, matching the CDP Node.js and .NET patterns.
 
-`MetricsConfig.java` (src/main/java/uk/gov/defra/cdp/trade/demo/config/MetricsConfig.java:23-80) creates `CloudWatchMeterRegistry` when `ENABLE_METRICS=true`:
+### How It Works
+
+EMF writes structured JSON logs that CloudWatch **automatically extracts** into metrics:
 
 ```java
-@Configuration
-@ConditionalOnProperty(name = "cdp.metrics.enabled", havingValue = "true")
-public class MetricsConfig {
-    // Creates CloudWatchAsyncClient with AWS DefaultCredentialsProvider
-    // Creates CloudWatchMeterRegistry for metrics export
+@Autowired
+private MetricsService metricsService;
+
+public void processOrder(Order order) {
+    long startTime = System.currentTimeMillis();
+
+    // Business logic...
+
+    // Record simple counter
+    metricsService.counter("orders.processed");
+
+    // Record counter with dimensions for filtering
+    metricsService.counter("orders.processed", 1.0,
+        DimensionSet.of("orderType", order.getType())
+    );
+
+    // Record metric with searchable context properties
+    metricsService.counterWithContext("order.processing.time",
+        System.currentTimeMillis() - startTime,
+        DimensionSet.of("orderType", order.getType()),
+        Map.of(
+            "orderId", order.getId(),
+            "customerId", order.getCustomerId()
+        )
+    );
 }
 ```
 
-**Environment Variables:**
-- `ENABLE_METRICS=true` - Enables CloudWatch metrics export (default: `false`)
-- `AWS_REGION` - AWS region for CloudWatch (default: `eu-west-2`)
+### Benefits
 
-**Credentials:** Uses AWS `DefaultCredentialsProvider` which discovers credentials from:
-1. Environment variables (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`)
-2. AWS credentials file (`~/.aws/credentials`)
-3. EC2 instance profile / ECS task role (production in CDP)
+- **No CloudWatch API calls** - Writes logs only, CloudWatch extracts metrics
+- **Queryable context** - Properties searchable in CloudWatch Logs Insights
+- **High throughput** - Non-blocking, no `"error sending metric data"` failures
+- **CDP-compliant** - Matches Node.js and .NET template patterns
 
-**Publishing:** Metrics buffer and publish to CloudWatch every 1 minute.
+### Configuration
 
-**Debugging:** Enable debug logging for metrics troubleshooting:
+**Enable EMF (optional, disabled by default):**
+- `AWS_EMF_ENABLED=true`
+
+**When EMF is enabled, these variables are used:**
+- `AWS_EMF_NAMESPACE` - CloudWatch namespace (REQUIRED, fails startup if missing)
+- `AWS_EMF_SERVICE_NAME` - Service name (optional, default: `trade-demo-backend`)
+- `AWS_EMF_SERVICE_TYPE` - Service type (optional, default: `SpringBootApp`)
+
+**Example:**
 ```bash
-# CloudWatch exporter debug logs
-export LOGGING_LEVEL_IO_MICROMETER_CLOUDWATCH2=DEBUG
-
-# MetricsService debug logs
-export LOGGING_LEVEL_UK_GOV_DEFRA_CDP_TRADE_DEMO_COMMON_METRICS=DEBUG
+AWS_EMF_ENABLED=true
+AWS_EMF_NAMESPACE=trade-demo-backend
+AWS_EMF_SERVICE_NAME=trade-demo-backend
+AWS_EMF_SERVICE_TYPE=SpringBootApp
 ```
 
-Expected logs on startup (when `ENABLE_METRICS=true`):
+### Viewing Metrics
+
+**CloudWatch Metrics:**
+1. Navigate to CloudWatch → Metrics
+2. Select namespace: `trade-demo-backend`
+3. Metrics appear automatically from logs
+
+**CloudWatch Logs Insights:**
+Query detailed context:
 ```
-Creating CloudWatchAsyncClient for region: eu-west-2
-Creating CloudWatchMeterRegistry with namespace: trade-demo-backend, step: PT1M
-MetricsService initialized (enabled: true)
-publishing metrics for CloudWatchMeterRegistry every 1m
+fields @timestamp, orderId, customerId, order.processing.time
+| filter orderId = "12345"
+| sort @timestamp desc
+```
+
+### Standard Metrics
+
+Micrometer automatically collects standard metrics via Spring Boot Actuator:
+- JVM metrics (memory, threads, GC)
+- HTTP metrics (request counts, durations)
+- Database metrics (connection pool, query times)
+
+**View metrics:**
+- **Development**: `/metrics` (when using dev profile: `--spring.profiles.active=dev`)
+- **Production**: Metrics endpoint not exposed (security by default)
+
+### Testing
+
+Metrics are **disabled in test profile** using `NoOpMetricsService`.
+No mocking required - inject `MetricsService` and call normally:
+
+```java
+@Autowired
+private MetricsService metricsService;
+
+@Test
+void testOrderProcessing() {
+    metricsService.counter("test.metric");  // Silent no-op in tests
+}
 ```
 ## References
 - [MIGRATION_PLAN.md](MIGRATION_PLAN.md)
 - **Spring Boot 3.2:** https://docs.spring.io/spring-boot/docs/3.2.x/reference/html/
 - **GitHub Actions setup-java:** https://github.com/actions/setup-java
 - [Spring Boot Actuator Metrics](https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html#actuator.metrics)
-- [Micrometer CloudWatch](https://micrometer.io/docs/registry/cloudwatch)
-- [AWS SDK Credential Provider Chain](https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/credentials.html#credentials-chain)
+- [AWS Embedded Metrics Java](https://github.com/awslabs/aws-embedded-metrics-java)
 - [CDP Custom Metrics Documentation](../../cdp-documentation/how-to/custom-metrics.md)

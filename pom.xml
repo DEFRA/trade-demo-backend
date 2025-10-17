@@ -58,10 +58,11 @@
             <version>1.6.0</version>
         </dependency>
 
-        <!-- Micrometer for CloudWatch Metrics -->
+        <!-- AWS Embedded Metrics for CloudWatch -->
         <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-cloudwatch2</artifactId>
+            <groupId>software.amazon.cloudwatchlogs</groupId>
+            <artifactId>aws-embedded-metrics</artifactId>
+            <version>4.2.0</version>
         </dependency>
 
         <!-- Testing -->
