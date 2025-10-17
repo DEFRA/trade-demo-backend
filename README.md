@@ -245,9 +245,157 @@ An AI compliance agent initially flagged security headers as a "critical blocker
 
 ---
 
-## References
+# Metrics Debugging Guide
 
-- **Implementation Plan:** `IMPLEMENTATION_PLAN.md`
+## Overview
+
+This guide explains how to debug CloudWatch metrics configuration in trade-demo-backend.
+
+## Quick Start
+
+### Enable Metrics Debugging Locally
+
+Add to your local `.envrc` or run before starting the app:
+
+```bash
+export ENABLE_METRICS=true
+export CDP_METRICS_DEBUG=true
+export AWS_REGION=eu-west-2
+export LOGGING_LEVEL_IO_MICROMETER_CLOUDWATCH2=DEBUG
+export LOGGING_LEVEL_UK_GOV_DEFRA_CDP_TRADE_DEMO_COMMON_METRICS=DEBUG
+```
+
+Then start the application and check logs for:
+- `=== MeterRegistry Debug Information ===`
+- `CloudWatchMeterRegistry detected`
+- Debug logs from `io.micrometer.cloudwatch2`
+
+### Enable Metrics Debugging in CDP
+
+Add to `cdp-app-config/services/trade-demo-backend/dev/trade-demo-backend.env`:
+
+```bash
+CDP_METRICS_DEBUG=true
+```
+
+Then check CloudWatch Logs for the debug output.
+
+## Configuration Variables
+
+### Required for Metrics
+
+| Variable | Purpose | CDP Provides | Local Default |
+|----------|---------|--------------|---------------|
+| `ENABLE_METRICS` | Enables metrics collection and export | ✓ (in .env files) | `false` |
+| `AWS_REGION` | AWS region for CloudWatch | ✓ (ECS env) | `eu-west-2` |
+| AWS Credentials | IAM role for CloudWatch PutMetricData API | ✓ (ECS task role) | ❌ Not available locally |
+
+### Optional for Debugging
+
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `CDP_METRICS_DEBUG` | Enables detailed MeterRegistry logging | `false` |
+| `LOGGING_LEVEL_IO_MICROMETER_CLOUDWATCH2` | CloudWatch exporter debug logs | `WARN` |
+| `LOGGING_LEVEL_UK_GOV_DEFRA_CDP_TRADE_DEMO_COMMON_METRICS` | MetricsService debug logs | `INFO` |
+
+**Note on Environment Variable Naming:**
+
+Spring Boot uses relaxed binding to map environment variables to properties. The pattern:
+```
+LOGGING_LEVEL_<PACKAGE_NAME_WITH_UNDERSCORES>=<LEVEL>
+```
+
+Maps to:
+```
+logging.level.<package.name.with.dots>=<LEVEL>
+```
+
+Example:
+- `LOGGING_LEVEL_IO_MICROMETER_CLOUDWATCH2=DEBUG` → `logging.level.io.micrometer.cloudwatch2=DEBUG`
+- `LOGGING_LEVEL_UK_GOV_DEFRA_CDP_TRADE_DEMO_COMMON_METRICS=DEBUG` → `logging.level.uk.gov.defra.cdp.trade.demo.common.metrics=DEBUG`
+
+**Limitation:** Environment variables only work for package-level logging, not individual classes (due to lowercase conversion).
+
+## What Gets Logged
+
+### On Startup (when CDP_METRICS_DEBUG=true)
+
+```
+=== MeterRegistry Debug Information ===
+MeterRegistry class: CompositeMeterRegistry
+CompositeMeterRegistry contains 2 registries:
+  - Registry: SimpleMeterRegistry
+  - Registry: CloudWatchMeterRegistry
+    ✓ CloudWatchMeterRegistry detected
+    Initial metrics count: 0
+Total metrics in registry: 0
+=== End MeterRegistry Debug ===
+```
+
+### When Recording Metrics (DEBUG level enabled)
+
+```
+MetricsService initialized (enabled: true)
+Recorded counter metric: orders_created = 5.0
+```
+
+### CloudWatch Exporter Publishing (DEBUG level enabled)
+
+```
+Publishing 3 metrics to CloudWatch in namespace trade-demo-backend
+Successfully published metrics to CloudWatch
+```
+
+## Integration Tests
+
+### MetricsServiceEnabledIT
+
+Tests CloudWatch metrics configuration with metrics ENABLED:
+
+```bash
+mvn test -Dtest=MetricsServiceEnabledIT
+```
+
+This verifies:
+- CloudWatchMeterRegistry is created (not SimpleMeterRegistry)
+- Metrics are registered in CloudWatchMeterRegistry
+- Configuration beans are properly wired
+
+### MetricsServiceIT
+
+Tests MetricsService behavior with metrics DISABLED (default):
+
+```bash
+mvn test -Dtest=MetricsServiceIT
+```
+
+This verifies:
+- Metrics are skipped when ENABLE_METRICS=false
+- Service handles errors gracefully
+- No metrics registered when disabled
+
+## Spring Boot Auto-Configuration
+
+### CloudWatch Exporter Conditions
+
+Spring Boot creates `CloudWatchMeterRegistry` when:
+- Dependency `micrometer-registry-cloudwatch2` is on classpath ✓
+- Property `management.metrics.export.cloudwatch.enabled=true` ✓
+- Property `management.metrics.export.cloudwatch.namespace` is set ✓
+- AWS SDK can create `CloudWatchAsyncClient` ✓
+
+### Verification
+
+Check if auto-configuration ran:
+```bash
+# Enable Spring Boot auto-configuration debug
+export LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_BOOT_AUTOCONFIGURE=DEBUG
+```
+## References
+- [MIGRATION_PLAN.md](MIGRATION_PLAN.md)
 - **Spring Boot 3.2:** https://docs.spring.io/spring-boot/docs/3.2.x/reference/html/
 - **GitHub Actions setup-java:** https://github.com/actions/setup-java
-- **CDP Templates:** cdp-node-backend-template, cdp-python-backend-template, cdp-dotnet-backend-template
+- [Spring Boot Actuator Metrics](https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html#actuator.metrics)
+- [Micrometer CloudWatch](https://micrometer.io/docs/registry/cloudwatch)
+- [AWS SDK Credential Provider Chain](https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/credentials.html#credentials-chain)
+- [CDP Custom Metrics Documentation](../../cdp-documentation/how-to/custom-metrics.md)
