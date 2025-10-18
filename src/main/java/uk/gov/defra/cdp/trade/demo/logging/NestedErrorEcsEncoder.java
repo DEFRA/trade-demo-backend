@@ -3,13 +3,13 @@ package uk.gov.defra.cdp.trade.demo.logging;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.classic.spi.ThrowableProxy;
-import co.elastic.logging.JsonUtils;
 import co.elastic.logging.logback.EcsEncoder;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.StringWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.regex.Pattern;
 
 /**
  * Custom ECS encoder that outputs nested error objects instead of flat error.* fields.
@@ -46,13 +46,7 @@ import java.util.regex.Pattern;
  */
 public class NestedErrorEcsEncoder extends EcsEncoder {
 
-    // Pre-compiled regex patterns for performance
-    private static final Pattern ERROR_TYPE_PATTERN = Pattern.compile(",?\"error\\.type\":\"(?:[^\"]|\\\\\")*\"");
-    private static final Pattern ERROR_MESSAGE_PATTERN = Pattern.compile(",?\"error\\.message\":\"(?:[^\"]|\\\\\")*\"");
-    private static final Pattern ERROR_STACK_TRACE_STRING_PATTERN = Pattern.compile(",?\"error\\.stack_trace\":\"(?:[^\"]|\\\\\")*\"");
-    private static final Pattern ERROR_STACK_TRACE_ARRAY_PATTERN = Pattern.compile(",?\"error\\.stack_trace\":\\[[^\\]]*\\]");
-    private static final Pattern MULTIPLE_COMMAS_PATTERN = Pattern.compile(",+");
-    private static final Pattern TRAILING_COMMA_PATTERN = Pattern.compile(",}");
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Override
     public byte[] encode(ILoggingEvent event) {
@@ -80,6 +74,8 @@ public class NestedErrorEcsEncoder extends EcsEncoder {
      * 2. Adds a nested "error" object with type, message, stack_trace sub-fields
      * 3. Preserves all other ECS fields unchanged
      *
+     * Uses Jackson for robust JSON parsing to avoid regex catastrophic backtracking.
+     *
      * Package-private for testing.
      *
      * @param json Original JSON from parent EcsEncoder
@@ -95,86 +91,58 @@ public class NestedErrorEcsEncoder extends EcsEncoder {
             return json;
         }
 
-        // Remove the closing brace and newline
-        if (json.endsWith("}\n")) {
-            json = json.substring(0, json.length() - 2);
-        } else if (json.endsWith("}")) {
-            json = json.substring(0, json.length() - 1);
-        }
+        try {
+            // Parse JSON using Jackson
+            json = json.trim();
+            ObjectNode root = (ObjectNode) OBJECT_MAPPER.readTree(json);
 
-        // Remove flat error.* fields using pre-compiled patterns
-        // These patterns handle both presence and absence of fields
-        json = ERROR_TYPE_PATTERN.matcher(json).replaceAll("");
-        json = ERROR_MESSAGE_PATTERN.matcher(json).replaceAll("");
+            // Remove flat error.* fields
+            root.remove("error.type");
+            root.remove("error.message");
+            root.remove("error.stack_trace");
 
-        // Handle error.stack_trace as both string and array formats
-        // String format: "error.stack_trace":"escaped\nstack\ntrace"
-        json = ERROR_STACK_TRACE_STRING_PATTERN.matcher(json).replaceAll("");
-        // Array format: "error.stack_trace":["line1","line2"]
-        json = ERROR_STACK_TRACE_ARRAY_PATTERN.matcher(json).replaceAll("");
+            // Create nested error object
+            ObjectNode errorNode = OBJECT_MAPPER.createObjectNode();
 
-        // Remove any trailing commas left by field removal
-        json = MULTIPLE_COMMAS_PATTERN.matcher(json).replaceAll(",");
-        json = TRAILING_COMMA_PATTERN.matcher(json).replaceAll("}");
+            // Extract the actual Throwable if available
+            Throwable throwable = extractThrowable(throwableProxy);
 
-        // Build nested error object
-        StringBuilder builder = new StringBuilder(json);
+            if (throwable != null) {
+                // Add type field
+                errorNode.put("type", throwable.getClass().getName());
 
-        // Add comma before error object if the JSON doesn't end with opening brace or comma
-        if (!json.endsWith("{") && !json.endsWith(",")) {
-            builder.append(",");
-        }
+                // Add message field if present
+                String message = throwable.getMessage();
+                if (message != null && !message.isEmpty()) {
+                    errorNode.put("message", message);
+                }
 
-        // Add nested error object
-        builder.append("\"error\":{");
+                // Add stack_trace field
+                errorNode.put("stack_trace", getStackTraceAsString(throwable));
+            } else {
+                // Fallback to proxy information if actual throwable unavailable
+                errorNode.put("type", throwableProxy.getClassName());
 
-        // Extract the actual Throwable if available
-        Throwable throwable = extractThrowable(throwableProxy);
+                String message = throwableProxy.getMessage();
+                if (message != null && !message.isEmpty()) {
+                    errorNode.put("message", message);
+                }
 
-        if (throwable != null) {
-            // Add type field
-            builder.append("\"type\":\"");
-            JsonUtils.quoteAsString(throwable.getClass().getName(), builder);
-            builder.append("\"");
-
-            // Add message field if present
-            String message = throwable.getMessage();
-            if (message != null && !message.isEmpty()) {
-                builder.append(",\"message\":\"");
-                JsonUtils.quoteAsString(message, builder);
-                builder.append("\"");
+                // Note: Stack trace from proxy is limited, prefer actual throwable
+                errorNode.put("stack_trace", "(stack trace unavailable from proxy)");
             }
 
-            // Add stack_trace field
-            builder.append(",\"stack_trace\":\"");
-            JsonUtils.quoteAsString(getStackTraceAsString(throwable), builder);
-            builder.append("\"");
-        } else {
-            // Fallback to proxy information if actual throwable unavailable
-            builder.append("\"type\":\"");
-            JsonUtils.quoteAsString(throwableProxy.getClassName(), builder);
-            builder.append("\"");
+            // Add nested error object to root
+            root.set("error", errorNode);
 
-            String message = throwableProxy.getMessage();
-            if (message != null && !message.isEmpty()) {
-                builder.append(",\"message\":\"");
-                JsonUtils.quoteAsString(message, builder);
-                builder.append("\"");
-            }
+            // Serialize back to JSON with newline
+            return OBJECT_MAPPER.writeValueAsString(root) + "\n";
 
-            // Note: Stack trace from proxy is limited, prefer actual throwable
-            builder.append(",\"stack_trace\":\"");
-            JsonUtils.quoteAsString("(stack trace unavailable from proxy)", builder);
-            builder.append("\"");
+        } catch (Exception e) {
+            // If JSON parsing fails, return original JSON
+            // This is a fallback to ensure logging doesn't break
+            return json.endsWith("\n") ? json : json + "\n";
         }
-
-        // Close error object
-        builder.append("}");
-
-        // Close root JSON object
-        builder.append("}\n");
-
-        return builder.toString();
     }
 
     /**
