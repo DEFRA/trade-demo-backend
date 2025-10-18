@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * ENVIRONMENT VARIABLES:
  * - AWS_EMF_ENABLED: Enable/disable EMF (default: false)
+ * - AWS_EMF_ENVIRONMENT: EMF output mode (default: Local, forces stdout)
  * - AWS_EMF_NAMESPACE: CloudWatch namespace (required if enabled)
  * - AWS_EMF_SERVICE_NAME: Service identification (optional, default: trade-demo-backend)
  * - AWS_EMF_SERVICE_TYPE: Service type (optional, default: SpringBootApp)
@@ -40,6 +41,9 @@ public class EmfMetricsConfig {
     @Value("${aws.emf.namespace:}")
     private String namespace;
 
+    @Value("${aws.emf.environment:Local}")
+    private String emfEnvironment;
+
     @Value("${aws.emf.service.name:trade-demo-backend}")
     private String serviceName;
 
@@ -52,6 +56,7 @@ public class EmfMetricsConfig {
     public void configureEmf() {
         log.info("Initializing AWS Embedded Metrics Format");
         log.info("EMF namespace: {}", namespace);
+        log.info("EMF environment: {}", emfEnvironment);
         log.info("EMF service: {} ({})", serviceName, serviceType);
 
         if (namespace == null || namespace.isBlank()) {
@@ -62,6 +67,7 @@ public class EmfMetricsConfig {
 
         // Set environment variables that EMF library reads
         // This is the proper way to configure EMF - it reads from environment
+        System.setProperty("AWS_EMF_ENVIRONMENT", emfEnvironment);
         System.setProperty("AWS_EMF_NAMESPACE", namespace);
         System.setProperty("AWS_EMF_SERVICE_NAME", serviceName);
         System.setProperty("AWS_EMF_SERVICE_TYPE", serviceType);
