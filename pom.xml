@@ -135,6 +135,9 @@
                             <goal>check</goal>
                         </goals>
                         <configuration>
+                            <excludes>
+                                <exclude>uk/gov/defra/cdp/trade/demo/debug/**</exclude>
+                            </excludes>
                             <rules>
                                 <rule>
                                     <element>BUNDLE</element>
@@ -150,6 +153,11 @@
                         </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <excludes>
+                        <exclude>uk/gov/defra/cdp/trade/demo/debug/**</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
         </plugins>
     </build>

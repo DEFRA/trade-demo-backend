@@ -334,6 +334,125 @@ void testOrderProcessing() {
     metricsService.counter("test.metric");  // Silent no-op in tests
 }
 ```
+
+---
+
+## Debugging Production Logs
+
+### Accessing OpenSearch Dashboards
+
+CDP logs are available in OpenSearch Dashboards:
+
+- **Dev**: `https://logs.dev.cdp-int.defra.cloud/_dashboards`
+- **Test**: `https://logs.test.cdp-int.defra.cloud/_dashboards`
+- **Prod**: `https://logs.prod.cdp-int.defra.cloud/_dashboards`
+
+### Verifying Stack Traces
+
+Stack traces only appear in OpenSearch when exceptions are logged correctly. Verify your service logs stack traces properly:
+
+**Check if error.stack_trace field exists:**
+```json
+GET /cdp-logs-*/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "term": { "service.name.keyword": "trade-demo-backend" } },
+        { "exists": { "field": "error.stack_trace" } }
+      ]
+    }
+  },
+  "size": 1,
+  "_source": ["error.*", "message", "@timestamp", "service.version"]
+}
+```
+
+**Expected result if working correctly:**
+- `hits.total.value` > 0
+- `_source` contains `error.stack_trace`, `error.type`, `error.message`
+
+**If 0 results but errors are being logged:**
+Your code is using the WRONG logging pattern. Check that all `logger.error()` calls pass the exception object as the final parameter:
+
+```java
+// CORRECT - Stack traces appear in OpenSearch
+logger.error("Failed to process: {}", id, exception);
+
+// WRONG - NO stack traces in OpenSearch
+logger.error("Failed to process: {}. Error: {}", id, exception.getMessage());
+```
+
+### Querying Logs in Grafana
+
+If your organization uses Grafana with OpenSearch datasource:
+
+**Find errors with stack traces:**
+```lucene
+service.name:"trade-demo-backend" AND log.level:"ERROR" AND _exists_:error.stack_trace
+```
+
+**Find all errors (to verify service is logging):**
+```lucene
+service.name:"trade-demo-backend" AND log.level:"ERROR"
+```
+
+**View specific error types:**
+```lucene
+service.name:"trade-demo-backend" AND error.type:"java.lang.IllegalArgumentException"
+```
+
+### Verifying Field Mappings
+
+Check which error fields are available in OpenSearch:
+
+```json
+GET /cdp-logs-*/_mapping/field/error.*
+```
+
+This shows all `error.*` field mappings. The `error.stack_trace` field should be type `text` with a `keyword` subfield:
+
+```json
+{
+  "cdp-logs-2025.10.18": {
+    "mappings": {
+      "error.stack_trace": {
+        "full_name": "error.stack_trace",
+        "mapping": {
+          "stack_trace": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### Common Issues
+
+**No error.* fields in logs:**
+- Code is logging `exception.getMessage()` instead of `exception` object
+- Review all `catch` blocks and verify `logger.error()` calls
+- See ECS logging section in `.claude/agents/java-code-researcher.md`
+
+**Field mapping exists but no data:**
+- Verify deployed version includes correct logging code
+- Check service.version in logs matches expected deployment
+
+**Logs not appearing:**
+- Check ECS task is running: `aws ecs list-tasks --cluster <cluster> --service-name trade-demo-backend`
+- Verify CloudWatch log group exists: `/aws/ecs/trade-demo-backend`
+- Check Data Prepper is processing logs (CDP platform issue - contact support)
+
+---
+
 ## References
 - [MIGRATION_PLAN.md](MIGRATION_PLAN.md)
 - **Spring Boot 3.2:** https://docs.spring.io/spring-boot/docs/3.2.x/reference/html/
