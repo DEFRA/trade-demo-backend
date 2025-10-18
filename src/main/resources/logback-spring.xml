@@ -6,7 +6,7 @@
     <!-- Service version from system property (set by LoggingConfiguration) -->
     <property name="SERVICE_VERSION" value="${service.version:-unknown}"/>
 
-    <!-- Console appender with ECS JSON format -->
+    <!-- Console appender with standard ECS JSON format (flat error.* fields) -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <!-- Filter out /health endpoint to reduce noise -->
         <filter class="uk.gov.defra.cdp.trade.demo.logging.HealthCheckFilter"/>
@@ -18,10 +18,27 @@
         </encoder>
     </appender>
 
+    <!-- Console appender with NESTED error object format for CDP Data Prepper compatibility -->
+    <appender name="NESTED_ERROR_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- Filter out /health endpoint to reduce noise -->
+        <filter class="uk.gov.defra.cdp.trade.demo.logging.HealthCheckFilter"/>
+
+        <encoder class="uk.gov.defra.cdp.trade.demo.logging.NestedErrorEcsEncoder">
+            <serviceName>${spring.application.name:-trade-demo-backend}</serviceName>
+            <serviceVersion>${SERVICE_VERSION}</serviceVersion>
+            <!-- Custom encoder that transforms flat error.* to nested error {} -->
+        </encoder>
+    </appender>
+
     <!-- Root logger - all logs to console in ECS JSON format -->
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
     </root>
+
+    <!-- Nested error logger - for experiments proving CDP Data Prepper compatibility -->
+    <logger name="uk.gov.defra.cdp.trade.demo.debug.nested" level="DEBUG" additivity="false">
+        <appender-ref ref="NESTED_ERROR_CONSOLE"/>
+    </logger>
 
     <!-- Spring Framework logging -->
     <logger name="org.springframework" level="INFO"/>
