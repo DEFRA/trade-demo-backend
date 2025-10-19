@@ -216,26 +216,6 @@ docker compose down -v
 docker compose ps
 ```
 
-
-## Important Note: Security Headers
-
-**HTTP security headers (HSTS, X-Frame-Options, X-Content-Type-Options, X-XSS-Protection) are NOT included in this implementation and are NOT required by CDP.**
-
-Research findings (2025-10-14):
-- **CDP Documentation:** No mention of security headers in platform requirements
-- **Template Analysis:** Only 1 of 3 backend templates (Node.js) implements security headers
-  - Python backend: ❌ No security headers
-  - .NET backend: ❌ No security headers
-  - Node.js backend: ✅ Has security headers (Hapi.js framework convenience)
-- **Context:** Security headers are frontend/browser concerns, not backend API requirements
-- **Production Evidence:** Python and .NET services run successfully in CDP without security headers
-
-An AI compliance agent initially flagged security headers as a "critical blocker," leading to their implementation. However, systematic research of CDP documentation and all three backend templates revealed this was a false positive. Security headers were subsequently removed from this codebase.
-
-**Lesson:** When AI agents flag requirements, verify against official documentation and cross-check ALL reference implementations before implementing. See `IMPLEMENTATION_PLAN.md` section 2.9 for detailed rationale.
-
----
-
 ## Custom Metrics
 
 This service uses **AWS Embedded Metrics Format (EMF)** for custom business metrics, matching the CDP Node.js and .NET patterns.
@@ -273,8 +253,6 @@ public void processOrder(Order order) {
 }
 ```
 
-### Benefits
-
 - **No CloudWatch API calls** - Writes logs only, CloudWatch extracts metrics
 - **Queryable context** - Properties searchable in CloudWatch Logs Insights
 - **High throughput** - Non-blocking, no `"error sending metric data"` failures
@@ -299,22 +277,6 @@ AWS_EMF_NAMESPACE=trade-demo-backend
 AWS_EMF_SERVICE_NAME=trade-demo-backend
 AWS_EMF_SERVICE_TYPE=SpringBootApp
 ```
-
-### Viewing Metrics
-
-**CloudWatch Metrics:**
-1. Navigate to CloudWatch → Metrics
-2. Select namespace: `trade-demo-backend`
-3. Metrics appear automatically from logs
-
-**CloudWatch Logs Insights:**
-Query detailed context:
-```
-fields @timestamp, orderId, customerId, order.processing.time
-| filter orderId = "12345"
-| sort @timestamp desc
-```
-
 ### Standard Metrics
 
 Micrometer automatically collects standard metrics via Spring Boot Actuator:
@@ -355,7 +317,8 @@ CDP logs are available in OpenSearch Dashboards:
 
 ### Verifying Stack Traces
 
-Stack traces only appear in OpenSearch when exceptions are logged correctly. Verify your service logs stack traces properly:
+Stack traces only appear in OpenSearch when exceptions are logged correctly. 
+Verify your service logs stack traces properly:
 
 **Check if error.stack_trace field exists:**
 ```json
@@ -379,7 +342,8 @@ GET /cdp-logs-*/_search
 - `_source` contains `error.stack_trace`, `error.type`, `error.message`
 
 **If 0 results but errors are being logged:**
-Your code is using the WRONG logging pattern. Check that all `logger.error()` calls pass the exception object as the final parameter:
+Your code is using the WRONG logging pattern. Check that all `logger.error()` calls pass the 
+exception object as the final parameter:
 
 ```java
 // CORRECT - Stack traces appear in OpenSearch
@@ -443,11 +407,13 @@ This shows all `error.*` field mappings. The `error.stack_trace` field should be
 
 ### Platform Limitation: Java Error Stack Traces (IMPORTANT)
 
-**Issue:** CDP's Data Prepper pipeline filters out Java error stack traces due to a structural incompatibility between Java's `logback-ecs-encoder` (flat fields) and the platform's `select_entries` whitelist (nested objects).
+**Issue:** CDP's Data Prepper pipeline filters out Java error stack traces due to a structural 
+incompatibility between Java's `logback-ecs-encoder` (flat fields) and the platform's `select_entries` 
+whitelist (nested objects).
 
 **Root Cause:**
-- **Node.js services (Pino)** output: `"error": { "type": "...", "message": "...", "stack_trace": "..." }` (nested object ✅)
-- **Java services (Logback)** output: `"error.type": "..."`, `"error.message": "..."`, `"error.stack_trace": "..."` (flat fields ❌)
+- **Node.js services (Pino)** output: `"error": { "type": "...", "message": "...", "stack_trace": "..." }` (nested object)
+- **Java services (Logback)** output: `"error.type": "..."`, `"error.message": "..."`, `"error.stack_trace": "..."` (flat fields)
 - **Data Prepper whitelist** uses slash notation (`error/type`, `error/message`, `error/stack_trace`) which matches nested objects but NOT flat fields
 
 **Impact:** Java services using standard `logback-ecs-encoder` will NOT have `error.*` fields in OpenSearch, making error debugging difficult.
