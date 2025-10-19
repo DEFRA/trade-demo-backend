@@ -6,7 +6,9 @@ Spring Boot 3.2.11 backend for the Core Delivery Platform (CDP). Demonstrates CD
 
 ---
 
-> **Migration Note:** This repository was migrated from C# ASP.NET to Java Spring Boot on 2025-10-14. The original .NET code is preserved in the `dotnet-original-code` branch. All GitHub OIDC infrastructure and deployment workflows were preserved. The migration maintains 100% CDP compliance with 22/22 critical requirements met.
+> **Migration Note:** This repository was migrated from C# ASP.NET to Java Spring Boot on 2025-10-14. 
+> The original .NET code is preserved in the `dotnet-original-code` branch. All GitHub OIDC infrastructure 
+> and deployment workflows were preserved. 
 
 ---
 
@@ -19,6 +21,7 @@ A CDP-compliant Spring Boot backend that demonstrates:
 - HTTP proxy configuration for outbound requests
 - CloudWatch custom metrics integration
 - Actuator endpoints with production security defaults
+- EMF (AWS Embedded Metrics Format) for custom business metrics
 
 ---
 
@@ -116,7 +119,7 @@ Best when testing full Docker environment or handing off to frontend team.
 ```bash
 # Terminal 1: Start everything via frontend Makefile
 cd ../trade-demo-frontend
-make dev        # Starts backend (Docker) + frontend (native)
+make mongo      # Starts backend (Docker) + frontend (native)
 
 # After backend code changes:
 cd ../trade-demo-backend
@@ -185,6 +188,7 @@ ENVIRONMENT=local
 # Optional
 LOG_LEVEL=INFO
 AWS_EMF_ENABLED=false
+AWS_EMF_ENVIRONMENT=Local
 AWS_EMF_NAMESPACE=trade-demo-backend
 HTTP_PROXY=http://localhost:3128
 ```
@@ -282,6 +286,7 @@ public void processOrder(Order order) {
 - `AWS_EMF_ENABLED=true`
 
 **When EMF is enabled, these variables are used:**
+- `AWS_EMF_ENVIRONMENT` - Output mode (REQUIRED, default: `Local`) - Forces stdout for CloudWatch Logs
 - `AWS_EMF_NAMESPACE` - CloudWatch namespace (REQUIRED, fails startup if missing)
 - `AWS_EMF_SERVICE_NAME` - Service name (optional, default: `trade-demo-backend`)
 - `AWS_EMF_SERVICE_TYPE` - Service type (optional, default: `SpringBootApp`)
@@ -289,6 +294,7 @@ public void processOrder(Order order) {
 **Example:**
 ```bash
 AWS_EMF_ENABLED=true
+AWS_EMF_ENVIRONMENT=Local
 AWS_EMF_NAMESPACE=trade-demo-backend
 AWS_EMF_SERVICE_NAME=trade-demo-backend
 AWS_EMF_SERVICE_TYPE=SpringBootApp
