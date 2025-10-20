@@ -10,7 +10,7 @@ import java.util.Map;
 
 /**
  * Scans environment variables for TRUSTSTORE_* entries containing base64-encoded certificates.
- *
+ * <p>
  * CDP platform pattern: Custom CA certificates are provided as base64-encoded PEM certificates
  * in environment variables prefixed with TRUSTSTORE_ (e.g., TRUSTSTORE_INTERNAL_CA).
  */

@@ -20,14 +20,14 @@ import java.util.List;
 
 /**
  * Configures SSL/TLS for the CDP Java Backend Template.
- *
+ * <p>
  * Creates a custom SSLContext that combines:
  * 1. Default JVM trust store certificates
  * 2. Custom CDP TRUSTSTORE_* certificates
- *
+ * <p>
  * This SSLContext is used by MongoDB client, RestTemplate, WebClient, and any other
  * HTTP/TLS clients in the application.
- *
+ * <p>
  * The configuration runs at HIGHEST_PRECEDENCE to ensure the SSLContext is available
  * before other beans (like MongoClient) are created.
  */
