@@ -16,13 +16,16 @@ import java.util.concurrent.TimeUnit;
 /**
  * Configuration for AWS Embedded Metrics Format (EMF).
  * <p>
- * Configures EMF library with namespace and service identification.
- * Ensures graceful shutdown to flush buffered metrics.
+ * Validates EMF configuration and ensures graceful shutdown to flush buffered metrics.
  * <p>
- * ENVIRONMENT VARIABLES:
+ * IMPORTANT: Environment variables must be set BEFORE JVM starts (e.g., in ECS task definition).
+ * The EMF library reads configuration at static initialization time. Using System.setProperty()
+ * in @PostConstruct is too late - the library has already initialized by then.
+ * <p>
+ * ENVIRONMENT VARIABLES (must be set by CDP platform):
  * - AWS_EMF_ENABLED: Enable/disable EMF (default: false)
- * - AWS_EMF_ENVIRONMENT: EMF output mode (default: Local, forces stdout)
- * - AWS_EMF_NAMESPACE: CloudWatch namespace (required if enabled)
+ * - AWS_EMF_ENVIRONMENT: EMF output mode (default: Local for dev, auto-detect ECS on CDP)
+ * - AWS_EMF_NAMESPACE: CloudWatch namespace (required if enabled, e.g., "trade-demo-backend")
  * - AWS_EMF_SERVICE_NAME: Service identification (optional, default: trade-demo-backend)
  * - AWS_EMF_SERVICE_TYPE: Service type (optional, default: SpringBootApp)
  * <p>
@@ -31,6 +34,13 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * VALIDATION:
  * Validates AWS_EMF_NAMESPACE is set at startup (fail-fast).
+ * <p>
+ * HOW IT WORKS ON CDP:
+ * 1. CDP sets environment variables before JVM starts
+ * 2. EMF library reads them at static initialization
+ * 3. EMF auto-detects ECS environment → connects to CloudWatch Agent sidecar on port 25888
+ * 4. CloudWatch Agent ships metrics to CloudWatch Metrics
+ * 5. Grafana queries CloudWatch Metrics
  */
 @Configuration
 @ConditionalOnProperty(value = "aws.emf.enabled", havingValue = "true", matchIfMissing = false)
@@ -54,27 +64,23 @@ public class EmfMetricsConfig {
 
     @PostConstruct
     public void configureEmf() {
-        log.info("Initializing AWS Embedded Metrics Format");
+        log.info("Validating AWS Embedded Metrics Format configuration");
         log.info("EMF namespace: {}", namespace);
         log.info("EMF environment: {}", emfEnvironment);
         log.info("EMF service: {} ({})", serviceName, serviceType);
 
         if (namespace == null || namespace.isBlank()) {
             throw new IllegalStateException(
-                "AWS_EMF_NAMESPACE must be set when AWS_EMF_ENABLED=true"
+                "AWS_EMF_NAMESPACE must be set when AWS_EMF_ENABLED=true. " +
+                "This must be configured as an environment variable before JVM starts."
             );
         }
 
-        // Set environment variables that EMF library reads
-        // This is the proper way to configure EMF - it reads from environment
-        System.setProperty("AWS_EMF_ENVIRONMENT", emfEnvironment);
-        System.setProperty("AWS_EMF_NAMESPACE", namespace);
-        System.setProperty("AWS_EMF_SERVICE_NAME", serviceName);
-        System.setProperty("AWS_EMF_SERVICE_TYPE", serviceType);
-
+        // Create environment instance to initialize EMF library
+        // Note: EMF library has already read environment variables at static initialization time
         environment = new DefaultEnvironment(EnvironmentConfigurationProvider.getConfig());
 
-        log.info("AWS Embedded Metrics Format initialized successfully");
+        log.info("AWS Embedded Metrics Format configuration validated successfully");
     }
 
     @PreDestroy
