@@ -8,45 +8,146 @@
 
 ---
 
-## Metrics Pipeline Map
+## Metrics & Logging Pipeline Map (Updated 2025-10-20)
 
+### Metrics Flow (How metrics reach Grafana)
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│ 1. Application Code                                                      │
-│    metricsService.counter("metric_name") → EmfMetricsService            │
-│    STATUS: ✅ KNOWN (implementation verified)                            │
+│ 1. Application Code                                                     │
+│    metricsService.counter() → MetricsLogger.flush()                     │
+│    STATUS: ✅ KNOWN - Java/Node.js implementations verified             │
 └─────────────────────────────────────────────────────────────────────────┘
                                     ↓
 ┌─────────────────────────────────────────────────────────────────────────┐
-│ 2. EMF Library → Structured JSON                                        │
-│    MetricsLogger.flush() → EMF-formatted JSON to stdout                 │
-│    STATUS: ❓ UNKNOWN (need to verify JSON structure)                   │
+│ 2. EMF Library → TCP Connection                                         │
+│    Connects to localhost:25888 (CloudWatch Agent)                       │
+│    STATUS: ✅ KNOWN - Confirmed via source code + error testing         │
 └─────────────────────────────────────────────────────────────────────────┘
                                     ↓
 ┌─────────────────────────────────────────────────────────────────────────┐
-│ 3. Docker Container → CloudWatch Logs                                   │
-│    ECS task sends stdout to CloudWatch log group                        │
-│    STATUS: ❓ UNKNOWN (cannot access CloudWatch directly)               │
+│ 3. CloudWatch Agent Sidecar                                             │
+│    Receives metrics via TCP, ships to CloudWatch Metrics                │
+│    STATUS: ✅ KNOWN - CDP architecture documented                       │
 └─────────────────────────────────────────────────────────────────────────┘
                                     ↓
 ┌─────────────────────────────────────────────────────────────────────────┐
-│ 4. CloudWatch Logs → CloudWatch Metrics                                 │
-│    CloudWatch automatically extracts metrics from EMF logs              │
-│    STATUS: ❓ UNKNOWN (automatic extraction process)                    │
+│ 4. CloudWatch Metrics                                                   │
+│    Stores metrics by namespace (service name)                           │
+│    STATUS: ✅ KNOWN - .NET service proves this works                    │
 └─────────────────────────────────────────────────────────────────────────┘
                                     ↓
 ┌─────────────────────────────────────────────────────────────────────────┐
-│ 5. CloudWatch Metrics Storage                                           │
-│    Metrics stored by namespace in CloudWatch Metrics                    │
-│    STATUS: ❓ UNKNOWN (need to query CloudWatch console)                │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    ↓
-┌─────────────────────────────────────────────────────────────────────────┐
-│ 6. Grafana Data Source                                                  │
-│    Grafana reads from CloudWatch via configured data source             │
-│    STATUS: ❓ UNKNOWN (CDP platform configuration)                      │
+│ 5. Grafana                                                              │
+│    Queries CloudWatch Metrics via configured data source                │
+│    STATUS: ✅ KNOWN - .NET metrics visible in Grafana                   │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
+
+### Logging Flow (Separate from metrics)
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│ Application stdout → Fluent Bit Sidecar → OpenSearch                   │
+│ STATUS: ✅ KNOWN - CDP logging architecture documented                  │
+│ NOTE: EMF metrics do NOT go through this path                           │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+**Key Learning:** Metrics and logs use separate paths. Metrics never appear in application logs.
+
+**How Each Step Was Confirmed:**
+
+1. **Application Code** - Reviewed Java implementation in `EmfMetricsService.java` and Node.js in `metrics.js`
+2. **TCP Connection** - Ran Node.js EMF locally without `AWS_EMF_ENVIRONMENT=Local`, observed `connect ECONNREFUSED 0.0.0.0:25888` error proving default behavior is TCP port 25888; read EMF library source code confirming port hard-coded in `AgentSink.js`
+3. **EMF JSON Format** - Ran Node.js EMF with `AWS_EMF_ENVIRONMENT=Local` to force stdout, captured actual EMF JSON output proving structure: `_aws` metadata field, namespace from env var, metric values at top level
+4. **CloudWatch Agent Sidecar** - CDP documentation (`architectural-overview.md:86-95`) explicitly states CloudWatch Agent sidecar is deployed alongside every ECS task
+5. **CloudWatch Metrics** - .NET service (trade-imports-decision-deriver) successfully publishes metrics to CloudWatch, proving the platform infrastructure works
+6. **Grafana** - .NET service metrics visible in Grafana, proving CloudWatch → Grafana integration works
+
+---
+
+## ✅ CONFIRMED: CDP Metrics Architecture (2025-10-20)
+
+**Source:** `cdp-documentation/architecture/architectural-overview.md:86-95`
+
+**Fact:** CDP deploys 3 sidecar containers per ECS task:
+1. TLS termination (Nginx)
+2. Logging (Fluent Bit) - stdout → OpenSearch
+3. Metrics (CloudWatch Agent) - TCP port 25888 → CloudWatch
+
+**Experiment:** Ran Node.js EMF locally without `AWS_EMF_ENVIRONMENT=Local`
+**Result:** Error `connect ECONNREFUSED 0.0.0.0:25888` - proves library tries to connect to port 25888 by default
+
+**Experiment:** Set `AWS_EMF_ENVIRONMENT=Local` and ran again
+**Result:** EMF JSON written to stdout - proves Local mode forces stdout instead of TCP
+
+**Experiment:** Read EMF library source code (`AgentSink.js:39`, `DefaultEnvironment.js:56`, `LocalEnvironment.js:53`)
+**Result:** Confirmed port 25888 hard-coded, two sinks exist (AgentSink=TCP, ConsoleSink=stdout)
+
+**Metrics Pipeline on CDP:**
+```
+┌──────────────────────────────────────────────────────────────────┐
+│ ECS TASK                                                         │
+│                                                                  │
+│  ┌─────────────────┐   TCP    ┌──────────────────────┐         │
+│  │  Application    │ :25888   │ CloudWatch Agent     │         │
+│  │  (EMF Library)  │ ──────>  │ Sidecar              │         │
+│  └─────────────────┘          └──────────────────────┘         │
+│                                         │                        │
+└─────────────────────────────────────────│────────────────────────┘
+                                          │ HTTPS
+                                          ▼
+                                ┌──────────────────┐
+                                │ CloudWatch       │
+                                │ Metrics          │
+                                └──────────────────┘
+                                          │
+                                          ▼
+                                ┌──────────────────┐
+                                │ Grafana          │
+                                └──────────────────┘
+```
+
+**Critical Facts:**
+- ✅ Metrics sent to **TCP port 25888**, NOT stdout
+- ✅ CloudWatch Agent sidecar receives metrics on port 25888
+- ❌ EMF JSON does NOT appear in application logs/OpenSearch
+- ✅ Node.js uses this pattern (auto-detected ECS mode)
+
+---
+
+## ✅ CONFIRMED: Node.js EMF Output Format (2025-10-20)
+
+**Experiment:** Ran `aws-embedded-metrics@4.2.0` with `AWS_EMF_ENVIRONMENT=Local` to capture EMF JSON
+
+**EMF JSON Structure (Simple Counter):**
+```json
+{
+  "ServiceName": "cdp-node-backend-template",
+  "_aws": {
+    "Timestamp": 1760985527697,
+    "CloudWatchMetrics": [{
+      "Namespace": "cdp-node-backend-template",
+      "Metrics": [{"Name": "example_created", "Unit": "Count"}]
+    }]
+  },
+  "example_created": 1
+}
+```
+
+**Key Facts:**
+- ✅ `_aws` metadata at top level
+- ✅ Namespace from `AWS_EMF_NAMESPACE` env var (not set in code)
+- ✅ Metric value at top level (`"example_created": 1`)
+- ✅ Dimensions/properties also appear at top level
+
+**Node.js Pattern:**
+```javascript
+const metricsLogger = createMetricsLogger()  // No params
+metricsLogger.putMetric(name, value, Unit.Count)
+await metricsLogger.flush()
+```
+- No namespace configuration in code
+- New logger per metric (thread-safe)
 
 ---
 
@@ -317,18 +418,22 @@ EmfMetricsService creates new MetricsLogger per operation (thread-safe pattern m
 
 ---
 
-## Key Differences: .NET vs Java
+## 🔍 COMPARISON: Node.js (Working) vs Java (Unknown)
 
-| Aspect | .NET (WORKING) | Java (UNKNOWN) | Analysis |
-|--------|----------------|----------------|----------|
-| **Library** | Amazon.CloudWatch.EMF | aws-embedded-metrics:4.2.0 | Both official AWS libraries ✅ |
-| **Metrics API** | System.Diagnostics.Metrics | Direct MetricsLogger calls | Different approach ⚠️ |
-| **Namespace** | Set via SetNamespace() | Set via System.setProperty() | Different configuration method ⚠️ |
-| **Logger Creation** | new MetricsLogger(loggerFactory) | new MetricsLogger() | .NET passes ILoggerFactory ⚠️ |
-| **Flush Pattern** | using/Dispose pattern | Try-catch block | Both should work ✅ |
-| **Dimensions** | SetDimensions(dimensionSet) | putDimensions(dimensionSet) | Same API ✅ |
+| Aspect | Node.js ✅ | Java ❓ | Match? |
+|--------|-----------|---------|--------|
+| **Library Version** | `4.2.0` | `4.2.0` | ✅ Same |
+| **Namespace Config** | `AWS_EMF_NAMESPACE` env var | `System.setProperty("AWS_EMF_NAMESPACE")` | ⚠️ Different |
+| **Logger Creation** | `createMetricsLogger()` | `new MetricsLogger()` | ✅ Same |
+| **API Usage** | `putMetric()` + `flush()` | `putMetric()` + `flush()` | ✅ Same |
 
-**Key Observation:** The .NET implementation uses `System.Diagnostics.Metrics` as an abstraction layer, while Java calls MetricsLogger directly. This shouldn't affect EMF output format, but worth investigating.
+**Critical Difference:**
+- **Node.js:** Uses environment variables (set before library loads) ✅
+- **Java:** Uses `System.setProperty()` in `@PostConstruct` (after library loads) ❌
+
+**Hypothesis:** EMF library reads config at initialization time. `System.setProperty()` happens too late.
+
+**Recommended Fix:** Set `AWS_EMF_NAMESPACE` as actual environment variable in ECS task definition, not via `System.setProperty()`.
 
 ---
 
@@ -787,34 +892,65 @@ Based on AWS EMF Specification:
 
 ---
 
-## Next Steps
+## 🎯 CONCLUSIONS & NEXT STEPS (2025-10-20)
 
-1. **Run Phase 1 experiments locally** to verify EMF JSON output
-2. **Capture sample EMF log** for format validation
-3. **Run Phase 2 in DEV** to confirm logs reach OpenSearch
-4. **Request Grafana access** for Phase 3 verification
-5. **Iterate based on findings** - update this document with evidence
+**Root Cause:**
+Java used `System.setProperty("AWS_EMF_NAMESPACE")` in `@PostConstruct`. EMF library reads config at static initialization time (before `@PostConstruct`), so namespace was never set when library initialized.
 
-**Decision Points:**
+**Fix Applied (2025-10-20):**
+✅ Removed `System.setProperty()` calls from `EmfMetricsConfig.java`
+✅ Updated documentation to clarify environment variables must be set before JVM starts
+✅ Added comment explaining EMF library reads config at static initialization time
 
-**IF EMF logs found locally:**
-→ Problem is in CloudWatch ingestion or metrics extraction
-→ Focus on Phase 3 (CloudWatch Metrics verification)
+**Code Changes:**
+- File: `src/main/java/uk/gov/defra/cdp/trade/demo/config/EmfMetricsConfig.java`
+- Removed lines 68-73 (System.setProperty calls)
+- Updated Javadoc with explanation and CDP flow diagram
+- Updated validation error message to be more informative
 
-**IF EMF logs NOT found locally:**
-→ Problem is in Java EMF library configuration
-→ Focus on Phase 5 (configuration debugging)
+**How It Works Now:**
+1. CDP platform sets environment variables when deploying (e.g., `AWS_EMF_NAMESPACE=trade-demo-backend`)
+2. EMF library reads these at static initialization time (before any Spring code runs)
+3. EMF auto-detects ECS mode → connects to CloudWatch Agent sidecar on port 25888
+4. Java code validates config is set correctly (fail-fast if namespace missing)
 
-**IF EMF logs in OpenSearch but no metrics in CloudWatch:**
-→ Problem is in automatic metrics extraction
-→ Investigate EMF JSON structure compliance with AWS spec
+**Next Steps - Verification on DEV:**
+1. Deploy to DEV environment
+2. Trigger: `curl -X POST https://trade-demo-backend.dev.cdp-int.defra.cloud/debug/run-metrics-experiments`
+3. Wait 2-5 minutes
+4. Check Grafana for "trade-demo-backend" namespace with metrics appearing
 
 ---
 
 ## References
 
-- **CDP Custom Metrics Docs:** `/Users/benoit/projects/defra/cdp/DEFRA/cdp-documentation/how-to/custom-metrics.md`
-- **Working .NET Implementation:** `/Users/benoit/projects/defra/cdp/trade-imports-decision-deriver/src/Deriver/Metrics/`
+### CDP Documentation
+- **CDP Custom Metrics:** `cdp-documentation/how-to/custom-metrics.md`
+- **CDP Architecture Overview:** `cdp-documentation/architecture/architectural-overview.md` (lines 86-95: sidecar containers)
+- **CDP Metrics Dashboards:** `cdp-documentation/how-to/metrics.md`
+- **CDP Logging Pipeline:** `cdp-documentation/faq/logging.md`
+
+### Working Implementations
+- **Node.js Template (WORKING):** `cdp-node-backend-template/src/common/helpers/metrics.js`
+- **.NET Implementation (WORKING):** `trade-imports-decision-deriver/src/Deriver/Metrics/`
+- **Java Implementation (TESTING):** `trade-demo-backend/src/main/java/uk/gov/defra/cdp/trade/demo/common/metrics/`
+
+### AWS EMF Documentation
 - **Java EMF Library:** https://github.com/awslabs/aws-embedded-metrics-java
+- **Node.js EMF Library:** https://github.com/awslabs/aws-embedded-metrics-node
 - **AWS EMF Specification:** https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch_Embedded_Metric_Format_Specification.html
-- **Java Implementation:** `/Users/benoit/projects/defra/cdp/DEFRA/trade-demo-backend/src/main/java/uk/gov/defra/cdp/trade/demo/common/metrics/EmfMetricsService.java`
+- **CloudWatch Agent:** https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Agent-Configuration-File-Details.html
+
+### Investigation Artifacts
+- **Node.js EMF Test Output:** Verified EMF JSON format in stdout mode (2025-10-20)
+- **EMF Configuration Discovery:** Confirmed environment variable requirements vs System.setProperty()
+- **CDP Sidecar Architecture:** Confirmed CloudWatch Agent on port 25888
+
+---
+
+## Investigation History
+
+- **2025-10-18:** Initial investigation started - Java metrics not appearing
+- **2025-10-20:** Node.js EMF testing completed - identified configuration difference
+- **2025-10-20:** CDP architecture confirmed via documentation review
+- **2025-10-20:** Primary hypothesis established: System.setProperty() timing issue

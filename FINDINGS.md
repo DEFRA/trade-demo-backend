@@ -10,13 +10,13 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│ 1. Application Code                                                      │
+│ 1. Application Code                                                     │
 │    Logger.error("message", exception) → logback-ecs-encoder             │
-│    STATUS: ✅ KNOWN (verified locally)                                   │
+│    STATUS: ✅ KNOWN (verified locally)                                  │
 └─────────────────────────────────────────────────────────────────────────┘
                                     ↓
 ┌─────────────────────────────────────────────────────────────────────────┐
-│ 2. ECS Encoder → JSON Output                                            │
+│ 2. ECS Encoder → JSON Output                                             │
 │    Serializes to stdout with error.type, error.message, error.stack_trace│
 │    STATUS: ✅ KNOWN locally, ❓ UNKNOWN in DEV container                 │
 └─────────────────────────────────────────────────────────────────────────┘
@@ -40,7 +40,7 @@
 └─────────────────────────────────────────────────────────────────────────┘
                                     ↓
 ┌─────────────────────────────────────────────────────────────────────────┐
-│ 6. OpenSearch Storage                                                    │
+│ 6. OpenSearch Storage                                                   │
 │    Logs indexed in cdp-logs-* indices                                   │
 │    STATUS: ✅ KNOWN (can query directly)                                │
 └─────────────────────────────────────────────────────────────────────────┘
