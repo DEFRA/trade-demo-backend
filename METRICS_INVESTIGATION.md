@@ -954,3 +954,56 @@ Java used `System.setProperty("AWS_EMF_NAMESPACE")` in `@PostConstruct`. EMF lib
 - **2025-10-20:** Node.js EMF testing completed - identified configuration difference
 - **2025-10-20:** CDP architecture confirmed via documentation review
 - **2025-10-20:** Primary hypothesis established: System.setProperty() timing issue
+- **2025-10-21:** CORRECTION - Reviewed official CDP documentation and working examples
+
+---
+
+## ⚠️ CORRECTION (2025-10-21)
+
+**Previous Conclusion Was Incorrect**
+
+The investigation concluded that explicit AWS_EMF_* environment variables were required in cdp-app-config. This was **incorrect** and contradicts official CDP documentation.
+
+**Official CDP Documentation** (`cdp-documentation/how-to/custom-metrics.md`):
+- Line 96-98: "The credentials required for reporting custom metrics are injected automatically into your service's container when it is running on the platform. **No extra setup is required.**"
+- Line 102-106: "Any metric reported by your service will automatically be stored under a namespace matching your service's name. **No extra configuration is required for this to happen.**"
+
+**Evidence from Working Services:**
+- `trade-imports-decision-deriver` (.NET) - Zero AWS_EMF_* configuration in cdp-app-config, metrics working in Grafana
+- `cdp-example-node-backend` - No AWS_EMF_* configuration
+- All Node.js example projects - No AWS_EMF_* configuration
+
+**Platform Behavior:**
+The CDP platform includes these variables in `PLATFORM_GLOBAL_SECRET_KEYS` (see `cdp-app-config/environments/*/defaults.env`):
+- `AWS_EMF_AGENT_ENDPOINT`
+- `AWS_EMF_LOG_GROUP_NAME`
+- `AWS_EMF_LOG_STREAM_NAME`
+- `AWS_EMF_NAMESPACE`
+- `AWS_EMF_SERVICE_NAME`
+
+This indicates the **platform automatically sets these values** for all services.
+
+**Correct Approach:**
+1. Use `aws-embedded-metrics` library (version 4.2.0+)
+2. Create `new MetricsLogger()` instances
+3. Call `putMetric()` and `flush()`
+4. **NO environment variables needed in cdp-app-config**
+5. Platform automatically:
+   - Sets namespace to service name
+   - Provides CloudWatch credentials
+   - Configures CloudWatch Agent connection
+
+**Code Changes:**
+- ✅ Keep: Removed `System.setProperty()` calls (correct fix)
+- ❌ Remove: All AWS_EMF_* variables from cdp-app-config (incorrect addition)
+
+**Why the Confusion:**
+The investigation incorrectly assumed explicit configuration was needed because:
+1. EMF library source code showed it reads environment variables
+2. Didn't verify working examples had zero configuration
+3. Created documentation based on assumptions rather than official guidance
+
+**Action Items:**
+- PR #1867: Remove all AWS_EMF_* environment variables from cdp-app-config
+- Trust CDP platform to inject configuration automatically
+- Follow official documentation: "No extra setup is required"
