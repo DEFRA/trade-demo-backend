@@ -292,47 +292,56 @@ spring:
 
 ## 11. Metrics (AWS Embedded Metrics Format)
 
-**CDP Requirement:** AWS EMF configured. AWS_EMF_ENVIRONMENT=Local for Java services (forces stdout). EMF namespace matches service name. Metrics written to stdout as JSON.
+**CDP Requirement:** Custom metrics via AWS Embedded Metrics Format library. Platform automatically injects configuration. No environment variables required in cdp-app-config.
 
-**Implementation:** EmfMetricsConfig active when AWS_EMF_ENABLED=true. Sets System properties including AWS_EMF_ENVIRONMENT=Local. Validates AWS_EMF_NAMESPACE at startup. EmfMetricsService creates MetricsLogger per operation.
+**Official CDP Documentation** (`how-to/custom-metrics.md`):
+> "The credentials required for reporting custom metrics are injected automatically into your service's container when it is running on the platform. No extra setup is required."
+>
+> "Any metric reported by your service will automatically be stored under a namespace matching your service's name. No extra configuration is required for this to happen."
+
+**Implementation:** EmfMetricsService creates new MetricsLogger instance per operation for thread safety. Platform automatically provides AWS_EMF_NAMESPACE, AWS_EMF_SERVICE_NAME, and CloudWatch credentials.
 
 **Source:**
-- EMF configuration: `src/main/java/uk/gov/defra/cdp/trade/demo/config/EmfMetricsConfig.java:36-93`
-- Environment configuration: `EmfMetricsConfig.java:70`
-- Namespace validation: `EmfMetricsConfig.java:62-66`
 - Metrics service: `src/main/java/uk/gov/defra/cdp/trade/demo/common/metrics/EmfMetricsService.java`
-- Application configuration: `src/main/resources/application.yml:35-41`
-
-```yaml
-aws:
-  emf:
-    enabled: ${AWS_EMF_ENABLED:false}
-    environment: ${AWS_EMF_ENVIRONMENT:Local}  # Critical for Java - forces stdout
-    namespace: ${AWS_EMF_NAMESPACE:}
-```
+- Dependency: `pom.xml` - `aws-embedded-metrics` version 4.2.0
 
 ```java
-@Configuration
-@ConditionalOnProperty(value = "aws.emf.enabled", havingValue = "true")
-public class EmfMetricsConfig {
-    @PostConstruct
-    public void configureEmf() {
-        if (namespace == null || namespace.isBlank()) {
-            throw new IllegalStateException(
-                "AWS_EMF_NAMESPACE must be set when AWS_EMF_ENABLED=true"
-            );
-        }
+@Service
+@Profile("!test")
+public class EmfMetricsService implements MetricsService {
+    @Override
+    public void counterWithContext(String name, double value, DimensionSet dimensions,
+                                   Map<String, Object> properties) {
+        try {
+            MetricsLogger metrics = new MetricsLogger();  // Platform provides config
 
-        // Critical: Force Local environment for stdout output
-        System.setProperty("AWS_EMF_ENVIRONMENT", emfEnvironment);
-        System.setProperty("AWS_EMF_NAMESPACE", namespace);
-        System.setProperty("AWS_EMF_SERVICE_NAME", serviceName);
-        System.setProperty("AWS_EMF_SERVICE_TYPE", serviceType);
+            if (dimensions != null) {
+                metrics.putDimensions(dimensions);
+            }
+
+            metrics.putMetric(name, value, Unit.COUNT);
+
+            if (properties != null) {
+                properties.forEach(metrics::putProperty);
+            }
+
+            metrics.flush();  // Sends to CloudWatch Agent sidecar
+        } catch (Exception e) {
+            logger.error("Failed to record metric: {}", name, e);
+        }
     }
 }
 ```
 
-**Java EMF Library Behavior:** Without AWS_EMF_ENVIRONMENT=Local, library defaults to Agent mode (sends to tcp://127.0.0.1:25888) instead of stdout. This configuration is critical for CloudWatch Metrics integration.
+**Platform Behavior:**
+- Automatically sets `AWS_EMF_NAMESPACE` to service name ("trade-demo-backend")
+- Provides CloudWatch credentials via IAM role
+- EMF library auto-detects ECS environment
+- Connects to CloudWatch Agent sidecar on TCP port 25888
+- Metrics appear in CloudWatch Metrics under service namespace
+- Visible in Grafana dashboards
+
+**Configuration:** NONE required in cdp-app-config (platform handles automatically)
 
 ---
 
