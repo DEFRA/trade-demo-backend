@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * ENVIRONMENT VARIABLES (must be set by CDP platform):
  * - AWS_EMF_ENABLED: Enable/disable EMF (default: false)
- * - AWS_EMF_ENVIRONMENT: EMF output mode (default: Local for dev, auto-detect ECS on CDP)
+ * - AWS_EMF_ENVIRONMENT: EMF output mode (REQUIRED on CDP: "ECS" to force TCP connection)
  * - AWS_EMF_NAMESPACE: CloudWatch namespace (required if enabled, e.g., "trade-demo-backend")
  * - AWS_EMF_SERVICE_NAME: Service identification (optional, default: trade-demo-backend)
  * - AWS_EMF_SERVICE_TYPE: Service type (optional, default: SpringBootApp)
@@ -36,9 +36,9 @@ import java.util.concurrent.TimeUnit;
  * Validates AWS_EMF_NAMESPACE is set at startup (fail-fast).
  * <p>
  * HOW IT WORKS ON CDP:
- * 1. CDP sets environment variables before JVM starts
+ * 1. CDP sets environment variables before JVM starts (AWS_EMF_ENVIRONMENT=ECS)
  * 2. EMF library reads them at static initialization
- * 3. EMF auto-detects ECS environment → connects to CloudWatch Agent sidecar on port 25888
+ * 3. ECS mode forces EMF to connect to CloudWatch Agent sidecar via TCP on port 25888
  * 4. CloudWatch Agent ships metrics to CloudWatch Metrics
  * 5. Grafana queries CloudWatch Metrics
  */

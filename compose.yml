@@ -71,7 +71,7 @@ services:
       # Logging
       LOG_LEVEL: DEBUG
 
-      # Metrics (disabled locally)
+      # Metrics (disabled locally by default)
       ENABLE_METRICS: false
 
       # Spring profile (dev = exposes debugging actuator endpoints)

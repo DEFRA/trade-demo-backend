@@ -6,6 +6,20 @@
 
 ---
 
+> **⚠️ HISTORICAL DOCUMENT - INCORRECT ASSUMPTIONS**
+>
+> This document represents our initial investigation based on the INCORRECT assumption that EMF should write to stdout on CDP.
+>
+> **ACTUAL SOLUTION DISCOVERED (2025-10-20):**
+> - EMF on CDP uses **TCP connection to CloudWatch Agent sidecar** on port 25888
+> - Must explicitly set `AWS_EMF_ENVIRONMENT=ECS` in cdp-app-config (auto-detection unreliable)
+> - ECS mode forces TCP Agent connection, NOT stdout
+> - See `CDP-COMPLIANCE.md` Section 11 for correct implementation
+>
+> This document is preserved for historical reference showing the investigation process.
+
+---
+
 ## The Problem
 
 The Java AWS Embedded Metrics library (`aws-embedded-metrics:4.2.0`) is **NOT writing EMF JSON to stdout**. Instead, it's trying to send metrics to a CloudWatch agent endpoint.

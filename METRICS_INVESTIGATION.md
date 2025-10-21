@@ -908,11 +908,13 @@ Java used `System.setProperty("AWS_EMF_NAMESPACE")` in `@PostConstruct`. EMF lib
 - Updated Javadoc with explanation and CDP flow diagram
 - Updated validation error message to be more informative
 
-**How It Works Now:**
-1. CDP platform sets environment variables when deploying (e.g., `AWS_EMF_NAMESPACE=trade-demo-backend`)
+**How It Works Now (Updated 2025-10-20):**
+1. CDP platform sets environment variables including `AWS_EMF_ENVIRONMENT=ECS` (via cdp-app-config)
 2. EMF library reads these at static initialization time (before any Spring code runs)
-3. EMF auto-detects ECS mode → connects to CloudWatch Agent sidecar on port 25888
+3. ECS mode explicitly forces EMF to connect to CloudWatch Agent sidecar via TCP on port 25888
 4. Java code validates config is set correctly (fail-fast if namespace missing)
+
+**Critical:** Must explicitly set `AWS_EMF_ENVIRONMENT=ECS` in cdp-app-config. Auto-detection is unreliable.
 
 **Next Steps - Verification on DEV:**
 1. Deploy to DEV environment

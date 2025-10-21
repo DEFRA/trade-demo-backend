@@ -292,23 +292,29 @@ spring:
 
 ## 11. Metrics (AWS Embedded Metrics Format)
 
-**CDP Requirement:** AWS EMF configured. AWS_EMF_ENVIRONMENT=Local for Java services (forces stdout). EMF namespace matches service name. Metrics written to stdout as JSON.
+**CDP Requirement:** Custom metrics shipped to CloudWatch Metrics via CloudWatch Agent sidecar. EMF library must be explicitly configured with ECS mode to connect to sidecar on TCP port 25888. Namespace must match service name.
 
-**Implementation:** EmfMetricsConfig active when AWS_EMF_ENABLED=true. Sets System properties including AWS_EMF_ENVIRONMENT=Local. Validates AWS_EMF_NAMESPACE at startup. EmfMetricsService creates MetricsLogger per operation.
+**Critical Discovery:** EMF metrics are NOT written to stdout on CDP. Instead:
+1. EMF library is explicitly set to ECS mode via `AWS_EMF_ENVIRONMENT=ECS`
+2. Opens TCP connection to CloudWatch Agent sidecar on port 25888
+3. CloudWatch Agent sidecar ships metrics to CloudWatch Metrics
+4. Grafana queries CloudWatch Metrics (NOT OpenSearch logs)
+
+**Implementation:** EmfMetricsConfig validates configuration at startup. Environment variables must be set by CDP platform BEFORE JVM starts (cdp-app-config repository). EmfMetricsService creates MetricsLogger per operation for thread safety.
 
 **Source:**
-- EMF configuration: `src/main/java/uk/gov/defra/cdp/trade/demo/config/EmfMetricsConfig.java:36-93`
-- Environment configuration: `EmfMetricsConfig.java:70`
-- Namespace validation: `EmfMetricsConfig.java:62-66`
+- EMF validation: `src/main/java/uk/gov/defra/cdp/trade/demo/config/EmfMetricsConfig.java:65-84`
 - Metrics service: `src/main/java/uk/gov/defra/cdp/trade/demo/common/metrics/EmfMetricsService.java`
 - Application configuration: `src/main/resources/application.yml:35-41`
+- Platform configuration: `cdp-app-config/services/trade-demo-backend/dev/trade-demo-backend.env`
 
-```yaml
-aws:
-  emf:
-    enabled: ${AWS_EMF_ENABLED:false}
-    environment: ${AWS_EMF_ENVIRONMENT:Local}  # Critical for Java - forces stdout
-    namespace: ${AWS_EMF_NAMESPACE:}
+**Environment Variables (set in cdp-app-config):**
+```bash
+AWS_EMF_ENABLED=true
+AWS_EMF_ENVIRONMENT=ECS  # CRITICAL: Forces TCP connection to CloudWatch Agent on port 25888
+AWS_EMF_NAMESPACE=trade-demo-backend
+AWS_EMF_SERVICE_NAME=trade-demo-backend
+AWS_EMF_SERVICE_TYPE=SpringBootApp
 ```
 
 ```java
@@ -317,22 +323,34 @@ aws:
 public class EmfMetricsConfig {
     @PostConstruct
     public void configureEmf() {
+        // Validates configuration - does NOT set environment variables
         if (namespace == null || namespace.isBlank()) {
             throw new IllegalStateException(
-                "AWS_EMF_NAMESPACE must be set when AWS_EMF_ENABLED=true"
+                "AWS_EMF_NAMESPACE must be set when AWS_EMF_ENABLED=true. " +
+                "This must be configured as an environment variable before JVM starts."
             );
         }
 
-        // Critical: Force Local environment for stdout output
-        System.setProperty("AWS_EMF_ENVIRONMENT", emfEnvironment);
-        System.setProperty("AWS_EMF_NAMESPACE", namespace);
-        System.setProperty("AWS_EMF_SERVICE_NAME", serviceName);
-        System.setProperty("AWS_EMF_SERVICE_TYPE", serviceType);
+        // Create environment instance - library has already read config
+        environment = new DefaultEnvironment(EnvironmentConfigurationProvider.getConfig());
     }
 }
 ```
 
-**Java EMF Library Behavior:** Without AWS_EMF_ENVIRONMENT=Local, library defaults to Agent mode (sends to tcp://127.0.0.1:25888) instead of stdout. This configuration is critical for CloudWatch Metrics integration.
+**How Metrics Flow on CDP:**
+```
+Application → EMF Library → TCP :25888 → CloudWatch Agent Sidecar → CloudWatch Metrics → Grafana
+```
+
+**Key Facts:**
+- ✅ MUST explicitly set `AWS_EMF_ENVIRONMENT=ECS` in cdp-app-config
+- ✅ ECS mode forces EMF to connect to CloudWatch Agent sidecar on TCP port 25888
+- ✅ Environment variables must be set in cdp-app-config BEFORE deployment
+- ❌ DO NOT use System.setProperty() - EMF reads config at static initialization time
+- ❌ DO NOT set AWS_EMF_ENVIRONMENT=Local - forces stdout mode (breaks metrics on CDP)
+- ❌ EMF JSON does NOT appear in application logs or OpenSearch (uses TCP, not stdout)
+
+**Investigation:** See `METRICS_INVESTIGATION.md` for detailed analysis confirming this behavior.
 
 ---
 

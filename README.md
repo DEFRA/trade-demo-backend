@@ -222,7 +222,7 @@ This service uses **AWS Embedded Metrics Format (EMF)** for custom business metr
 
 ### How It Works
 
-EMF writes structured JSON logs that CloudWatch **automatically extracts** into metrics:
+On CDP, EMF sends structured JSON metrics via TCP to the CloudWatch Agent sidecar, which extracts and publishes metrics to CloudWatch:
 
 ```java
 @Autowired
@@ -253,7 +253,14 @@ public void processOrder(Order order) {
 }
 ```
 
-- **No CloudWatch API calls** - Writes logs only, CloudWatch extracts metrics
+**Flow on CDP Platform:**
+1. Application calls `metricsService.counter()` or `counterWithContext()`
+2. EMF library sends structured JSON via TCP to CloudWatch Agent sidecar (port 25888)
+3. CloudWatch Agent extracts metrics and publishes to CloudWatch Metrics
+4. Metrics appear in Grafana dashboards
+
+**Benefits:**
+- **No CloudWatch API calls** - EMF handles transmission via local sidecar
 - **Queryable context** - Properties searchable in CloudWatch Logs Insights
 - **High throughput** - Non-blocking, no `"error sending metric data"` failures
 - **CDP-compliant** - Matches Node.js and .NET template patterns
@@ -264,18 +271,25 @@ public void processOrder(Order order) {
 - `AWS_EMF_ENABLED=true`
 
 **When EMF is enabled, these variables are used:**
-- `AWS_EMF_ENVIRONMENT` - Output mode (REQUIRED, default: `Local`) - Forces stdout for CloudWatch Logs
+- `AWS_EMF_ENVIRONMENT` - Output mode (REQUIRED for CDP: `ECS`) - Forces TCP connection to CloudWatch Agent
 - `AWS_EMF_NAMESPACE` - CloudWatch namespace (REQUIRED, fails startup if missing)
 - `AWS_EMF_SERVICE_NAME` - Service name (optional, default: `trade-demo-backend`)
 - `AWS_EMF_SERVICE_TYPE` - Service type (optional, default: `SpringBootApp`)
 
-**Example:**
+**CDP Platform Configuration (set in cdp-app-config):**
 ```bash
 AWS_EMF_ENABLED=true
-AWS_EMF_ENVIRONMENT=Local
+AWS_EMF_ENVIRONMENT=ECS  # Forces TCP to CloudWatch Agent on port 25888
 AWS_EMF_NAMESPACE=trade-demo-backend
 AWS_EMF_SERVICE_NAME=trade-demo-backend
 AWS_EMF_SERVICE_TYPE=SpringBootApp
+```
+
+**Local Development (stdout for testing):**
+```bash
+AWS_EMF_ENABLED=true
+AWS_EMF_ENVIRONMENT=Local  # Writes EMF JSON to stdout (for debugging only)
+AWS_EMF_NAMESPACE=trade-demo-backend
 ```
 ### Standard Metrics
 
