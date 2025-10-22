@@ -169,3 +169,6 @@ coverage.xml
 *.backup
 *.old
 *.orig
+
+# Claude Code session preferences (local only)
+CLAUDE.md
