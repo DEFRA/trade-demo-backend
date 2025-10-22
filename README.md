@@ -405,42 +405,7 @@ This shows all `error.*` field mappings. The `error.stack_trace` field should be
 }
 ```
 
-### Platform Limitation: Java Error Stack Traces (IMPORTANT)
-
-**Issue:** CDP's Data Prepper pipeline filters out Java error stack traces due to a structural 
-incompatibility between Java's `logback-ecs-encoder` (flat fields) and the platform's `select_entries` 
-whitelist (nested objects).
-
-**Root Cause:**
-- **Node.js services (Pino)** output: `"error": { "type": "...", "message": "...", "stack_trace": "..." }` (nested object)
-- **Java services (Logback)** output: `"error.type": "..."`, `"error.message": "..."`, `"error.stack_trace": "..."` (flat fields)
-- **Data Prepper whitelist** uses slash notation (`error/type`, `error/message`, `error/stack_trace`) which matches nested objects but NOT flat fields
-
-**Impact:** Java services using standard `logback-ecs-encoder` will NOT have `error.*` fields in OpenSearch, making error debugging difficult.
-
-**Workaround (Experimental):**
-
-This service includes an **experimental** `NestedErrorEcsEncoder` that transforms flat error.* fields to nested error objects, matching the Node.js format:
-
-```xml
-<!-- logback-spring.xml -->
-<encoder class="uk.gov.defra.cdp.trade.demo.logging.NestedErrorEcsEncoder">
-    <serviceName>${spring.application.name}</serviceName>
-    <serviceVersion>${SERVICE_VERSION}</serviceVersion>
-</encoder>
-```
-
-The custom encoder:
-- ✅ Extends standard EcsEncoder (preserves all ECS fields)
-- ✅ Transforms error.* flat fields to nested error {} object
-- ✅ Performance-optimized with pre-compiled regex patterns
-- ✅ Fully tested (9 unit tests, 100% encoder coverage)
-- ⚠️ Experimental quality - requires production hardening
-
-**Testing the Workaround:**
-
-Verify the fix works in DEV by running the side-by-side comparison experiment:
-
+---
 
 ## Available Experiments
 
@@ -499,17 +464,6 @@ curl -X POST http://localhost:8085/debug/run-error-experiments \
 
 Returns: Experiment summary with OpenSearch query to verify stack traces
 
-**Run nested error format experiments:**
-
-Tests 3 nested error scenarios using both flat (standard) and nested (custom) ECS encoders. Logs same exceptions to both loggers for direct comparison in OpenSearch.
-
-```bash
-curl -X POST http://localhost:8085/debug/run-nested-error-experiment \
-  -H "x-cdp-request-id: test-trace-123"
-```
-
-Returns: Verification steps and OpenSearch query to compare error field structures
-
 **Run metrics experiments:**
 
 Tests 7 EMF CloudWatch metrics scenarios including simple counters, dimensions, context properties, and batched emissions.
@@ -536,39 +490,11 @@ Returns: Current service configuration for troubleshooting
 
 ---
 
-```bash
-# 1. Deploy to DEV (encoder already configured in separate logger)
-# 2. Run experiment endpoint
-curl -X POST https://trade-demo-backend.dev.cdp-int.defra.cloud/debug/run-nested-error-experiment
-
-# 3. Query OpenSearch for results
-GET /cdp-logs-*/_search
-{
-  "query": { "match": { "message": "NESTED_EXP" } },
-  "_source": ["message", "error.*", "error", "log.level", "@timestamp"]
-}
-
-# 4. Compare results:
-# - [FLAT FORMAT] logs: No error.stack_trace (filtered by Data Prepper) ❌
-# - [NESTED FORMAT] logs: Has error.stack_trace (passes through Data Prepper) ✅
-```
-
-**Long-term Solutions:**
-
-1. **Platform Fix (Recommended):** CDP platform team adds `rename_keys` processor to Data Prepper pipeline to handle flat dotted fields
-2. **Application Fix:** Production-harden the custom encoder if platform fix delayed
-3. **Upstream Fix:** Request `logback-ecs-encoder` library to support nested error objects
-
-**See Also:** [FINDINGS.md](FINDINGS.md) for complete technical analysis and empirical proof.
-
----
-
-### Common Issues
+## Common Issues
 
 **No error.* fields in logs:**
-- **Java-specific platform limitation:** See "Platform Limitation: Java Error Stack Traces" above
 - Code is logging `exception.getMessage()` instead of `exception` object
-- Review all `catch` blocks and verify `logger.error()` calls
+- Review all `catch` blocks and verify `logger.error()` calls pass the exception object as final parameter
 - See ECS logging section in `.claude/agents/java-code-researcher.md`
 
 **Field mapping exists but no data:**

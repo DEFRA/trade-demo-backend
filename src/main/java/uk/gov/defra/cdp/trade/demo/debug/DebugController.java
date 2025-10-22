@@ -28,9 +28,6 @@ public class DebugController {
 
     private static final Logger logger = LoggerFactory.getLogger(DebugController.class);
 
-    // Separate logger for nested error format experiments
-    private static final Logger nestedLogger = LoggerFactory.getLogger("uk.gov.defra.cdp.trade.demo.debug.nested");
-
     private final MetricsService metricsService;
 
     @Value("${spring.application.name:trade-demo-backend}")
@@ -106,66 +103,6 @@ public class DebugController {
         response.put("verification_query", "GET /cdp-logs-*/_search { \"query\": { \"match\": { \"message\": \"_EXP_\" } } }");
 
         logger.info("Completed error logging experiments");
-        return ResponseEntity.ok(response);
-    }
-
-    /**
-     * Run nested error format experiments to prove CDP Data Prepper compatibility.
-     *
-     * This endpoint logs the SAME exceptions using BOTH flat (standard) and nested (custom)
-     * error formats for direct comparison in OpenSearch. This proves that:
-     * - Flat error.* fields are filtered out by Data Prepper select_entries
-     * - Nested error {} objects pass through and appear in OpenSearch
-     *
-     * After running, query OpenSearch to compare:
-     * 1. Flat format (standard logger): error.* fields missing
-     * 2. Nested format (nested logger): error.stack_trace present
-     */
-    @PostMapping("/run-nested-error-experiment")
-    public ResponseEntity<Map<String, Object>> runNestedErrorExperiment() {
-        logger.info("Starting nested error format experiment");
-
-        // EXPERIMENT 1: Simple exception logged to BOTH loggers
-        try {
-            throw new RuntimeException("NESTED_EXP_1: Testing nested error format");
-        } catch (Exception e) {
-            logger.error("NESTED_EXP_1: [FLAT FORMAT] Exception logged with standard encoder", e);
-            nestedLogger.error("NESTED_EXP_1: [NESTED FORMAT] Exception logged with custom encoder", e);
-        }
-
-        // EXPERIMENT 2: Exception with nested cause
-        try {
-            throw new IllegalStateException("NESTED_EXP_2: Outer exception",
-                new NullPointerException("NESTED_EXP_2: Inner cause"));
-        } catch (Exception e) {
-            logger.error("NESTED_EXP_2: [FLAT FORMAT] Nested exception", e);
-            nestedLogger.error("NESTED_EXP_2: [NESTED FORMAT] Nested exception", e);
-        }
-
-        // EXPERIMENT 3: Exception with null message
-        try {
-            throw new RuntimeException((String) null);
-        } catch (Exception e) {
-            logger.error("NESTED_EXP_3: [FLAT FORMAT] Exception with null message", e);
-            nestedLogger.error("NESTED_EXP_3: [NESTED FORMAT] Exception with null message", e);
-        }
-
-        Map<String, Object> response = new LinkedHashMap<>();
-        response.put("status", "completed");
-        response.put("experiments_run", 3);
-        response.put("format_types", new String[]{"flat (standard EcsEncoder)", "nested (NestedErrorEcsEncoder)"});
-        response.put("search_key", "NESTED_EXP");
-        response.put("verification_steps", Map.of(
-            "step_1", "Query OpenSearch for 'message:NESTED_EXP_1'",
-            "step_2", "Check FLAT FORMAT logs - should NOT have error.stack_trace in OpenSearch",
-            "step_3", "Check NESTED FORMAT logs - should HAVE error.stack_trace in OpenSearch",
-            "step_4", "Compare local logs - both should have error fields locally"
-        ));
-        response.put("opensearch_query",
-            "GET /cdp-logs-*/_search { \"query\": { \"match\": { \"message\": \"NESTED_EXP\" } }, \"_source\": [\"message\", \"error.*\", \"error\", \"log.level\", \"@timestamp\"] }");
-        response.put("timestamp", Instant.now().toString());
-
-        logger.info("Completed nested error format experiment");
         return ResponseEntity.ok(response);
     }
 

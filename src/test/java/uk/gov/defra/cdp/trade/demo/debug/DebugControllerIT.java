@@ -19,8 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Integration test for DebugController.
  *
- * Verifies that the nested error experiment endpoint is properly wired
- * and that the NestedErrorEcsEncoder is configured correctly.
+ * Verifies that debug endpoints are properly wired and functional.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
@@ -37,28 +36,6 @@ class DebugControllerIT {
 
     @Autowired
     private TestRestTemplate restTemplate;
-
-    @Test
-    void shouldRunNestedErrorExperimentSuccessfully() {
-        // When: Running the nested error experiment
-        ResponseEntity<Map> response = restTemplate.postForEntity(
-            "/debug/run-nested-error-experiment",
-            null,
-            Map.class
-        );
-
-        // Then: Should return 200 OK
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-
-        // And: Response should contain experiment metadata
-        Map<String, Object> body = response.getBody();
-        assertNotNull(body, "Response body should not be null");
-        assertEquals("completed", body.get("status"));
-        assertEquals(3, body.get("experiments_run"));
-
-        // And: Should indicate both flat and nested formats were logged
-        assertTrue(body.containsKey("format_types"));
-    }
 
     @Test
     void shouldRunErrorExperimentsSuccessfully() {
