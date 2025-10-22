@@ -441,6 +441,101 @@ The custom encoder:
 
 Verify the fix works in DEV by running the side-by-side comparison experiment:
 
+
+## Available Experiments
+
+The service exposes two types of endpoints: production-ready CRUD operations and temporary debug experiments for verifying CDP compliance.
+
+### Example API (Production CRUD Operations)
+
+Standard REST API demonstrating CDP-compliant CRUD operations with MongoDB. All endpoints support trace ID propagation via `x-cdp-request-id` header.
+
+**Create an example:**
+```bash
+curl -X POST http://localhost:8085/example \
+  -H "Content-Type: application/json" \
+  -H "x-cdp-request-id: test-trace-123" \
+  -d '{"name": "test-example", "value": "test-value"}'
+```
+
+**List all examples:**
+```bash
+curl http://localhost:8085/example \
+  -H "x-cdp-request-id: test-trace-123"
+```
+
+**Get example by ID:**
+```bash
+curl http://localhost:8085/example/{id} \
+  -H "x-cdp-request-id: test-trace-123"
+```
+
+**Update example:**
+```bash
+curl -X PUT http://localhost:8085/example/{id} \
+  -H "Content-Type: application/json" \
+  -H "x-cdp-request-id: test-trace-123" \
+  -d '{"name": "updated-name", "value": "updated-value"}'
+```
+
+**Delete example:**
+```bash
+curl -X DELETE http://localhost:8085/example/{id} \
+  -H "x-cdp-request-id: test-trace-123"
+```
+
+### Debug Experiments (CDP Compliance Verification)
+
+Temporary endpoints for verifying error logging, stack traces, and CloudWatch metrics integration. These endpoints are excluded from test coverage and intended to be removed after verification.
+
+**Run error logging experiments:**
+
+Tests 4 error scenarios comparing local exception handling vs GlobalExceptionHandler. Verifies stack traces appear correctly in logs.
+
+```bash
+curl -X POST http://localhost:8085/debug/run-error-experiments \
+  -H "x-cdp-request-id: test-trace-123"
+```
+
+Returns: Experiment summary with OpenSearch query to verify stack traces
+
+**Run nested error format experiments:**
+
+Tests 3 nested error scenarios using both flat (standard) and nested (custom) ECS encoders. Logs same exceptions to both loggers for direct comparison in OpenSearch.
+
+```bash
+curl -X POST http://localhost:8085/debug/run-nested-error-experiment \
+  -H "x-cdp-request-id: test-trace-123"
+```
+
+Returns: Verification steps and OpenSearch query to compare error field structures
+
+**Run metrics experiments:**
+
+Tests 7 EMF CloudWatch metrics scenarios including simple counters, dimensions, context properties, and batched emissions.
+
+```bash
+curl -X POST http://localhost:8085/debug/run-metrics-experiments \
+  -H "x-cdp-request-id: test-trace-123"
+```
+
+Returns: Status, metric count, EMF namespace, and CloudWatch verification path
+
+**Get debug info:**
+
+Returns current service configuration including service name/version, environment, EMF enabled status, namespace, and logging encoder type.
+
+```bash
+curl http://localhost:8085/debug/info \
+  -H "x-cdp-request-id: test-trace-123"
+```
+
+Returns: Current service configuration for troubleshooting
+
+**Note:** Debug endpoints emit structured ECS JSON logs with trace IDs that can be queried in OpenSearch Dashboards or CloudWatch Logs Insights.
+
+---
+
 ```bash
 # 1. Deploy to DEV (encoder already configured in separate logger)
 # 2. Run experiment endpoint
