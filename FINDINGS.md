@@ -1,11 +1,3 @@
-# Error Stack Trace Investigation - Findings
-
-**Issue:** Exception stack traces logged by trade-demo-backend do not appear in OpenSearch with `error.*` fields, while other CDP services (like land-grants-api) successfully log stack traces.
-
-**Investigation Date:** 2025-10-18
-
----
-
 ## Logging Pipeline Map
 
 ```

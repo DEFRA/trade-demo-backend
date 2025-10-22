@@ -405,75 +405,96 @@ This shows all `error.*` field mappings. The `error.stack_trace` field should be
 }
 ```
 
-### Platform Limitation: Java Error Stack Traces (IMPORTANT)
+---
 
-**Issue:** CDP's Data Prepper pipeline filters out Java error stack traces due to a structural 
-incompatibility between Java's `logback-ecs-encoder` (flat fields) and the platform's `select_entries` 
-whitelist (nested objects).
+## Available Experiments
 
-**Root Cause:**
-- **Node.js services (Pino)** output: `"error": { "type": "...", "message": "...", "stack_trace": "..." }` (nested object)
-- **Java services (Logback)** output: `"error.type": "..."`, `"error.message": "..."`, `"error.stack_trace": "..."` (flat fields)
-- **Data Prepper whitelist** uses slash notation (`error/type`, `error/message`, `error/stack_trace`) which matches nested objects but NOT flat fields
+The service exposes two types of endpoints: production-ready CRUD operations and temporary debug experiments for verifying CDP compliance.
 
-**Impact:** Java services using standard `logback-ecs-encoder` will NOT have `error.*` fields in OpenSearch, making error debugging difficult.
+### Example API (Production CRUD Operations)
 
-**Workaround (Experimental):**
+Standard REST API demonstrating CDP-compliant CRUD operations with MongoDB. All endpoints support trace ID propagation via `x-cdp-request-id` header.
 
-This service includes an **experimental** `NestedErrorEcsEncoder` that transforms flat error.* fields to nested error objects, matching the Node.js format:
-
-```xml
-<!-- logback-spring.xml -->
-<encoder class="uk.gov.defra.cdp.trade.demo.logging.NestedErrorEcsEncoder">
-    <serviceName>${spring.application.name}</serviceName>
-    <serviceVersion>${SERVICE_VERSION}</serviceVersion>
-</encoder>
+**Create an example:**
+```bash
+curl -X POST http://localhost:8085/example \
+  -H "Content-Type: application/json" \
+  -H "x-cdp-request-id: test-trace-123" \
+  -d '{"name": "test-example", "value": "test-value"}'
 ```
 
-The custom encoder:
-- ✅ Extends standard EcsEncoder (preserves all ECS fields)
-- ✅ Transforms error.* flat fields to nested error {} object
-- ✅ Performance-optimized with pre-compiled regex patterns
-- ✅ Fully tested (9 unit tests, 100% encoder coverage)
-- ⚠️ Experimental quality - requires production hardening
+**List all examples:**
+```bash
+curl http://localhost:8085/example \
+  -H "x-cdp-request-id: test-trace-123"
+```
 
-**Testing the Workaround:**
+**Get example by ID:**
+```bash
+curl http://localhost:8085/example/{id} \
+  -H "x-cdp-request-id: test-trace-123"
+```
 
-Verify the fix works in DEV by running the side-by-side comparison experiment:
+**Update example:**
+```bash
+curl -X PUT http://localhost:8085/example/{id} \
+  -H "Content-Type: application/json" \
+  -H "x-cdp-request-id: test-trace-123" \
+  -d '{"name": "updated-name", "value": "updated-value"}'
+```
+
+**Delete example:**
+```bash
+curl -X DELETE http://localhost:8085/example/{id} \
+  -H "x-cdp-request-id: test-trace-123"
+```
+
+### Debug Experiments (CDP Compliance Verification)
+
+Temporary endpoints for verifying error logging, stack traces, and CloudWatch metrics integration. These endpoints are excluded from test coverage and intended to be removed after verification.
+
+**Run error logging experiments:**
+
+Tests 4 error scenarios comparing local exception handling vs GlobalExceptionHandler. Verifies stack traces appear correctly in logs.
 
 ```bash
-# 1. Deploy to DEV (encoder already configured in separate logger)
-# 2. Run experiment endpoint
-curl -X POST https://trade-demo-backend.dev.cdp-int.defra.cloud/debug/run-nested-error-experiment
-
-# 3. Query OpenSearch for results
-GET /cdp-logs-*/_search
-{
-  "query": { "match": { "message": "NESTED_EXP" } },
-  "_source": ["message", "error.*", "error", "log.level", "@timestamp"]
-}
-
-# 4. Compare results:
-# - [FLAT FORMAT] logs: No error.stack_trace (filtered by Data Prepper) ❌
-# - [NESTED FORMAT] logs: Has error.stack_trace (passes through Data Prepper) ✅
+curl -X POST http://localhost:8085/debug/run-error-experiments \
+  -H "x-cdp-request-id: test-trace-123"
 ```
 
-**Long-term Solutions:**
+Returns: Experiment summary with OpenSearch query to verify stack traces
 
-1. **Platform Fix (Recommended):** CDP platform team adds `rename_keys` processor to Data Prepper pipeline to handle flat dotted fields
-2. **Application Fix:** Production-harden the custom encoder if platform fix delayed
-3. **Upstream Fix:** Request `logback-ecs-encoder` library to support nested error objects
+**Run metrics experiments:**
 
-**See Also:** [FINDINGS.md](FINDINGS.md) for complete technical analysis and empirical proof.
+Tests 7 EMF CloudWatch metrics scenarios including simple counters, dimensions, context properties, and batched emissions.
+
+```bash
+curl -X POST http://localhost:8085/debug/run-metrics-experiments \
+  -H "x-cdp-request-id: test-trace-123"
+```
+
+Returns: Status, metric count, EMF namespace, and CloudWatch verification path
+
+**Get debug info:**
+
+Returns current service configuration including service name/version, environment, EMF enabled status, namespace, and logging encoder type.
+
+```bash
+curl http://localhost:8085/debug/info \
+  -H "x-cdp-request-id: test-trace-123"
+```
+
+Returns: Current service configuration for troubleshooting
+
+**Note:** Debug endpoints emit structured ECS JSON logs with trace IDs that can be queried in OpenSearch Dashboards or CloudWatch Logs Insights.
 
 ---
 
-### Common Issues
+## Common Issues
 
 **No error.* fields in logs:**
-- **Java-specific platform limitation:** See "Platform Limitation: Java Error Stack Traces" above
 - Code is logging `exception.getMessage()` instead of `exception` object
-- Review all `catch` blocks and verify `logger.error()` calls
+- Review all `catch` blocks and verify `logger.error()` calls pass the exception object as final parameter
 - See ECS logging section in `.claude/agents/java-code-researcher.md`
 
 **Field mapping exists but no data:**
