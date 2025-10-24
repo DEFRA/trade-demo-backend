@@ -3,6 +3,7 @@ package uk.gov.defra.cdp.trade.demo.example;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -23,9 +24,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/example")
 @Tag(name = "Example API", description = "CRUD operations for examples (CDP compliance demonstration)")
+@Slf4j
 public class ExampleController {
-
-    private static final Logger logger = LoggerFactory.getLogger(ExampleController.class);
 
     private final ExampleService exampleService;
 
@@ -43,7 +43,7 @@ public class ExampleController {
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create example", description = "Creates a new example with unique name")
     public ExampleEntity create(@Valid @RequestBody ExampleEntity entity) {
-        logger.info("POST /example - Creating example with name: {}", entity.getName());
+        log.info("POST /example - Creating example with name: {}", entity.getName());
         return exampleService.create(entity);
     }
 
@@ -55,7 +55,7 @@ public class ExampleController {
     @GetMapping
     @Operation(summary = "List examples", description = "Returns all examples")
     public List<ExampleEntity> findAll() {
-        logger.debug("GET /example - Fetching all examples");
+        log.debug("GET /example - Fetching all examples");
         return exampleService.findAll();
     }
 
@@ -68,7 +68,7 @@ public class ExampleController {
     @GetMapping("/{id}")
     @Operation(summary = "Get example by ID", description = "Returns a single example by ID")
     public ExampleEntity findById(@PathVariable String id) {
-        logger.debug("GET /example/{} - Fetching example", id);
+        log.debug("GET /example/{} - Fetching example", id);
         return exampleService.findById(id);
     }
 
@@ -82,7 +82,7 @@ public class ExampleController {
     @PutMapping("/{id}")
     @Operation(summary = "Update example", description = "Updates an existing example")
     public ExampleEntity update(@PathVariable String id, @Valid @RequestBody ExampleEntity entity) {
-        logger.info("PUT /example/{} - Updating example", id);
+        log.info("PUT /example/{} - Updating example", id);
         return exampleService.update(id, entity);
     }
 
@@ -95,7 +95,7 @@ public class ExampleController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Delete example", description = "Deletes an example by ID")
     public void delete(@PathVariable String id) {
-        logger.info("DELETE /example/{} - Deleting example", id);
+        log.info("DELETE /example/{} - Deleting example", id);
         exampleService.delete(id);
     }
 }

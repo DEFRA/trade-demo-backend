@@ -1,7 +1,9 @@
 package uk.gov.defra.cdp.trade.demo.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.ssl.SslBundles;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,30 +35,34 @@ import java.time.Duration;
  * are trusted and that distributed tracing works across service boundaries.
  */
 @Configuration
+@Slf4j
 public class RestClientConfig {
 
-  private static final Logger logger = LoggerFactory.getLogger(RestClientConfig.class);
   private final ClientHttpRequestFactory customRequestFactory;
   private final TraceIdPropagationInterceptor traceIdInterceptor;
-
+  
   public RestClientConfig(
-      SSLContext customSslContext, TraceIdPropagationInterceptor traceIdInterceptor) {
-    logger.info("Configuring HTTP clients with custom SSL context and trace ID propagation");
+      SslBundles sslBundles, TraceIdPropagationInterceptor traceIdInterceptor) {
+    log.info("Configuring HTTP clients with custom SSL context and trace ID propagation");
 
-    // Create Java HttpClient with custom SSL context
-    HttpClient httpClient =
-        HttpClient.newBuilder()
-            .sslContext(customSslContext)
-            .connectTimeout(Duration.ofSeconds(10))
-            .build();
-
+      // Create Java HttpClient with custom SSL context
+      
+    HttpClient.Builder builder = HttpClient.newBuilder()
+        .connectTimeout(Duration.ofSeconds(10));
+    
+    if (sslBundles != null) {
+        builder.sslContext(sslBundles.getBundle("client").createSslContext());
+        log.info("Creating the SSLContext");
+    }
+    HttpClient httpClient = builder.build();
+    
     // Create request factory using JDK HttpClient
     JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory(httpClient);
     factory.setReadTimeout(Duration.ofSeconds(30));
 
     this.customRequestFactory = factory;
     this.traceIdInterceptor = traceIdInterceptor;
-    logger.info("HTTP clients configured with custom SSL context and trace ID propagation");
+    log.info("HTTP clients configured with custom SSL context and trace ID propagation");
   }
 
   /**
@@ -82,7 +88,7 @@ public class RestClientConfig {
    */
   @Bean
   public RestClient.Builder restClientBuilder() {
-    logger.debug("Creating RestClient.Builder with custom SSL context and trace ID propagation");
+    log.debug("Creating RestClient.Builder with custom SSL context and trace ID propagation");
     return RestClient.builder()
         .requestFactory(customRequestFactory)
         .requestInterceptor(traceIdInterceptor);
@@ -106,7 +112,7 @@ public class RestClientConfig {
    */
   @Bean
   public RestTemplateBuilder restTemplateBuilder() {
-    logger.debug("Creating RestTemplateBuilder with custom SSL context and trace ID propagation");
+    log.debug("Creating RestTemplateBuilder with custom SSL context and trace ID propagation");
     return new RestTemplateBuilder()
         .requestFactory(() -> customRequestFactory)
         .interceptors(traceIdInterceptor);

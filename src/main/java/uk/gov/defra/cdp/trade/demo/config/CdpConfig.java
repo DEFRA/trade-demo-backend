@@ -1,6 +1,9 @@
 package uk.gov.defra.cdp.trade.demo.config;
 
 import jakarta.validation.constraints.NotEmpty;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
@@ -9,11 +12,14 @@ import org.springframework.validation.annotation.Validated;
  * CDP platform configuration properties.
  * Reads from 'cdp.*' properties in application.yml which are populated from environment variables.
  */
+@Setter
+@Getter
 @Configuration
 @ConfigurationProperties(prefix = "cdp")
 @Validated
 public class CdpConfig {
 
+    // Getters and setters
     @NotEmpty(message = "cdp.environment must be set (ENVIRONMENT env var)")
     private String environment = "local";
 
@@ -23,47 +29,6 @@ public class CdpConfig {
     private TracingConfig tracing = new TracingConfig();
     private ProxyConfig proxy = new ProxyConfig();
     private MetricsConfig metrics = new MetricsConfig();
-
-    // Getters and setters
-    public String getEnvironment() {
-        return environment;
-    }
-
-    public void setEnvironment(String environment) {
-        this.environment = environment;
-    }
-
-    public String getServiceVersion() {
-        return serviceVersion;
-    }
-
-    public void setServiceVersion(String serviceVersion) {
-        this.serviceVersion = serviceVersion;
-    }
-
-    public TracingConfig getTracing() {
-        return tracing;
-    }
-
-    public void setTracing(TracingConfig tracing) {
-        this.tracing = tracing;
-    }
-
-    public ProxyConfig getProxy() {
-        return proxy;
-    }
-
-    public void setProxy(ProxyConfig proxy) {
-        this.proxy = proxy;
-    }
-
-    public MetricsConfig getMetrics() {
-        return metrics;
-    }
-
-    public void setMetrics(MetricsConfig metrics) {
-        this.metrics = metrics;
-    }
 
     /**
      * Request tracing configuration.

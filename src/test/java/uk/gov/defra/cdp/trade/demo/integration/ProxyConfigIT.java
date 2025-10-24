@@ -1,4 +1,4 @@
-package uk.gov.defra.cdp.trade.demo.config;
+package uk.gov.defra.cdp.trade.demo.integration;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.net.ProxySelector;
+import uk.gov.defra.cdp.trade.demo.config.ProxyConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,8 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Note: These tests use JUnit's @BeforeAll/@AfterAll to set/clear environment
  * variables at the OS level before Spring context starts.
  */
-@SpringBootTest
-class ProxyConfigIT {
+class ProxyConfigIT extends IntegrationBase{
 
     private static final String ORIGINAL_HTTP_PROXY = System.getenv("HTTP_PROXY");
 

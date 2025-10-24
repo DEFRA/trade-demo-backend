@@ -1,6 +1,7 @@
 package uk.gov.defra.cdp.trade.demo.config;
 
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
@@ -36,16 +37,15 @@ import java.net.URI;
  * - Set HTTP_PROXY for testing proxy behavior locally
  */
 @Configuration
+@Slf4j
 public class ProxyConfig {
-
-    private static final Logger logger = LoggerFactory.getLogger(ProxyConfig.class);
 
     @PostConstruct
     public void configureProxy() {
         String httpProxy = System.getenv("HTTP_PROXY");
 
         if (httpProxy == null || httpProxy.isEmpty()) {
-            logger.info("No HTTP_PROXY configured - using direct connections");
+            log.info("No HTTP_PROXY configured - using direct connections");
             return;
         }
 
@@ -55,7 +55,7 @@ public class ProxyConfig {
             int proxyPort = proxyUri.getPort();
 
             if (proxyHost == null || proxyPort == -1) {
-                logger.warn("Invalid HTTP_PROXY format: {}. Expected http://host:port", httpProxy);
+                log.warn("Invalid HTTP_PROXY format: {}. Expected http://host:port", httpProxy);
                 return;
             }
 
@@ -70,10 +70,10 @@ public class ProxyConfig {
                 new InetSocketAddress(proxyHost, proxyPort)
             ));
 
-            logger.info("HTTP proxy configured: {}:{}", proxyHost, proxyPort);
+            log.info("HTTP proxy configured: {}:{}", proxyHost, proxyPort);
 
         } catch (IllegalArgumentException e) {
-            logger.error("Failed to parse HTTP_PROXY: {}. Error: {}",
+            log.error("Failed to parse HTTP_PROXY: {}. Error: {}",
                 httpProxy, e.getMessage());
         }
     }

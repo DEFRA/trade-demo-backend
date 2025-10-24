@@ -1,4 +1,4 @@
-package uk.gov.defra.cdp.trade.demo.example;
+package uk.gov.defra.cdp.trade.demo.integration;
 
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +19,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 import java.util.UUID;
+import uk.gov.defra.cdp.trade.demo.example.ExampleRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -37,11 +38,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * This is executable documentation proving the template meets all CDP requirements.
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-@Testcontainers
 @ExtendWith(OutputCaptureExtension.class)
-class ExampleComplianceIT {
+class ExampleComplianceIT extends IntegrationBase {
 
     @Container
     static MongoDBContainer mongoDBContainer = new MongoDBContainer(DockerImageName.parse("mongo:7.0"));

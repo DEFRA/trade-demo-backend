@@ -1,5 +1,6 @@
 package uk.gov.defra.cdp.trade.demo.common.metrics;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -32,10 +33,9 @@ import java.util.Map;
  * - Safe to use from multiple threads concurrently
  */
 @Service
-@Profile("!test")
+@Slf4j
+@Profile("!integration-test")
 public class EmfMetricsService implements MetricsService {
-
-    private static final Logger logger = LoggerFactory.getLogger(EmfMetricsService.class);
 
     @Override
     public void counter(String name) {
@@ -77,7 +77,7 @@ public class EmfMetricsService implements MetricsService {
         } catch (Exception e) {
             // Never crash application due to metrics errors
             // Log full exception with stack trace for debugging
-            logger.error("Failed to record metric: {}", name, e);
+            log.error("Failed to record metric: {}", name, e);
         }
     }
 }

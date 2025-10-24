@@ -1,4 +1,4 @@
-package uk.gov.defra.cdp.trade.demo.config;
+package uk.gov.defra.cdp.trade.demo.integration;
 
 import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
@@ -8,12 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,19 +16,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Integration tests for MongoDB configuration.
  * Uses Testcontainers to spin up a real MongoDB instance.
  */
-@SpringBootTest
-@Testcontainers
-class MongoConfigIT {
-
-    @Container
-    static MongoDBContainer mongoDBContainer = new MongoDBContainer(DockerImageName.parse("mongo:7.0"));
-
-    @DynamicPropertySource
-    static void setProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
-        registry.add("spring.data.mongodb.ssl.enabled", () -> "false");
-    }
-
+class MongoConfigIT extends IntegrationBase {
+    
     @Autowired
     private MongoTemplate mongoTemplate;
 

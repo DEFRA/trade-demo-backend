@@ -1,5 +1,6 @@
 package uk.gov.defra.cdp.trade.demo.common.error;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -29,9 +30,9 @@ import java.util.Map;
  * - Logs errors with trace ID for troubleshooting
  */
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     private static final String MDC_TRACE_ID = "trace.id";
 
     /**
@@ -40,7 +41,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidationException(MethodArgumentNotValidException ex) {
         String traceId = MDC.get(MDC_TRACE_ID);
-        logger.warn("Validation error (trace: {}): {}", traceId, ex.getMessage());
+        log.warn("Validation error (trace: {}): {}", traceId, ex.getMessage());
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
             HttpStatus.BAD_REQUEST,
@@ -71,7 +72,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     public ProblemDetail handleNotFoundException(NotFoundException ex) {
         String traceId = MDC.get(MDC_TRACE_ID);
-        logger.warn("Resource not found (trace: {}): {}", traceId, ex.getMessage());
+        log.warn("Resource not found (trace: {}): {}", traceId, ex.getMessage());
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
             HttpStatus.NOT_FOUND,
@@ -94,7 +95,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ConflictException.class)
     public ProblemDetail handleConflictException(ConflictException ex) {
         String traceId = MDC.get(MDC_TRACE_ID);
-        logger.warn("Resource conflict (trace: {}): {}", traceId, ex.getMessage());
+        log.warn("Resource conflict (trace: {}): {}", traceId, ex.getMessage());
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
             HttpStatus.CONFLICT,
@@ -126,7 +127,7 @@ public class GlobalExceptionHandler {
     })
     public ProblemDetail handleException(Exception ex) {
         String traceId = MDC.get(MDC_TRACE_ID);
-        logger.error("Unexpected error (trace: {}): {}", traceId, ex.getMessage(), ex);
+        log.error("Unexpected error (trace: {}): {}", traceId, ex.getMessage(), ex);
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
             HttpStatus.INTERNAL_SERVER_ERROR,

@@ -2,6 +2,7 @@ package uk.gov.defra.cdp.trade.demo.config;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,11 +43,10 @@ import java.util.concurrent.TimeUnit;
  * 4. CloudWatch Agent ships metrics to CloudWatch Metrics
  * 5. Grafana queries CloudWatch Metrics
  */
+@Slf4j
 @Configuration
 @ConditionalOnProperty(value = "aws.emf.enabled", havingValue = "true", matchIfMissing = false)
 public class EmfMetricsConfig {
-
-    private static final Logger log = LoggerFactory.getLogger(EmfMetricsConfig.class);
 
     @Value("${aws.emf.namespace:}")
     private String namespace;
