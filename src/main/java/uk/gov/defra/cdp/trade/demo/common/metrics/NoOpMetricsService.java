@@ -21,7 +21,7 @@ import java.util.Map;
  * No mocking required - this implementation does nothing.
  */
 @Service
-@Profile("test")
+@Profile("integration-test")
 public class NoOpMetricsService implements MetricsService {
 
     @Override

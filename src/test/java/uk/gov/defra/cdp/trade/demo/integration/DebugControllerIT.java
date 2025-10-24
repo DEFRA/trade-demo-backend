@@ -1,4 +1,4 @@
-package uk.gov.defra.cdp.trade.demo.debug;
+package uk.gov.defra.cdp.trade.demo.integration;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,18 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * Verifies that debug endpoints are properly wired and functional.
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Testcontainers
-class DebugControllerIT {
-
-    @Container
-    static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0.14");
-
-    @DynamicPropertySource
-    static void setProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
-        registry.add("spring.data.mongodb.database", () -> "test-db");
-    }
+class DebugControllerIT extends IntegrationBase {
 
     @Autowired
     private TestRestTemplate restTemplate;

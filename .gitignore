@@ -170,5 +170,7 @@ coverage.xml
 *.old
 *.orig
 
-# Claude Code session preferences (local only)
-CLAUDE.md
+#misc
+.editorconfig
+.envrc
+.tool-versions

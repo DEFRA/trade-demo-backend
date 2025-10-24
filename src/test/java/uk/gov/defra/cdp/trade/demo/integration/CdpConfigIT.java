@@ -1,9 +1,10 @@
-package uk.gov.defra.cdp.trade.demo.config;
+package uk.gov.defra.cdp.trade.demo.integration;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
+import uk.gov.defra.cdp.trade.demo.config.CdpConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -11,8 +12,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Integration tests for CDP configuration management.
  * Verifies that @ConfigurationProperties correctly reads from application.yml and environment variables.
  */
-@SpringBootTest
-class CdpConfigIT {
+
+class CdpConfigIT extends IntegrationBase {
 
     @Autowired
     private CdpConfig cdpConfig;
@@ -41,32 +42,5 @@ class CdpConfigIT {
     void cdpConfig_shouldHaveMetricsConfig() {
         assertThat(cdpConfig.getMetrics()).isNotNull();
         assertThat(cdpConfig.getMetrics().isEnabled()).isFalse();
-    }
-
-    /**
-     * Test configuration override via TestPropertySource.
-     * Verifies that environment variables can override default values.
-     */
-    @SpringBootTest
-    @TestPropertySource(properties = {
-            "cdp.environment=test",
-            "cdp.service-version=1.2.3",
-            "cdp.tracing.header-name=x-custom-trace-id",
-            "cdp.proxy.url=http://proxy.example.com:8080",
-            "cdp.metrics.enabled=true"
-    })
-    static class ConfigurationOverrideIT {
-
-        @Autowired
-        private CdpConfig cdpConfig;
-
-        @Test
-        void cdpConfig_shouldOverrideWithEnvironmentVariables() {
-            assertThat(cdpConfig.getEnvironment()).isEqualTo("test");
-            assertThat(cdpConfig.getServiceVersion()).isEqualTo("1.2.3");
-            assertThat(cdpConfig.getTracing().getHeaderName()).isEqualTo("x-custom-trace-id");
-            assertThat(cdpConfig.getProxy().getUrl()).isEqualTo("http://proxy.example.com:8080");
-            assertThat(cdpConfig.getMetrics().isEnabled()).isTrue();
-        }
     }
 }

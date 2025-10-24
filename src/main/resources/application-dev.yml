@@ -15,3 +15,8 @@ management:
   endpoint:
     health:
       show-details: when-authorized
+spring:
+  data:
+    mongodb:
+      ssl:
+        enabled: false

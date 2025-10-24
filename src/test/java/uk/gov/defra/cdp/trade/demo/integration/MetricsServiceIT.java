@@ -1,4 +1,4 @@
-package uk.gov.defra.cdp.trade.demo.common.metrics;
+package uk.gov.defra.cdp.trade.demo.integration;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +7,8 @@ import org.springframework.test.context.ActiveProfiles;
 import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
 
 import java.util.Map;
+import uk.gov.defra.cdp.trade.demo.common.metrics.MetricsService;
+import uk.gov.defra.cdp.trade.demo.common.metrics.NoOpMetricsService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -16,9 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * In test profile, expects NoOpMetricsService to be injected.
  * This test verifies Spring profile switching and dependency injection work correctly.
  */
-@SpringBootTest
-@ActiveProfiles("test")
-class MetricsServiceIT {
+class MetricsServiceIT extends IntegrationBase {
 
     @Autowired
     private MetricsService metricsService;
