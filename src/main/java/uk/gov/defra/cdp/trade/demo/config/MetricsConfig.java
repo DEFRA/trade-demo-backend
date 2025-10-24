@@ -2,6 +2,7 @@ package uk.gov.defra.cdp.trade.demo.config;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -22,9 +23,8 @@ import org.springframework.context.annotation.Configuration;
  * When enabled, Spring Boot Actuator auto-configures appropriate registries.
  */
 @Configuration
+@Slf4j
 public class MetricsConfig {
-
-    private static final Logger log = LoggerFactory.getLogger(MetricsConfig.class);
 
     /**
      * Fallback MeterRegistry when metrics are disabled.

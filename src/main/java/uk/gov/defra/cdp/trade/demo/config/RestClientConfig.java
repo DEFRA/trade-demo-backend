@@ -38,13 +38,12 @@ import java.time.Duration;
 @Slf4j
 public class RestClientConfig {
 
-  private static final Logger logger = LoggerFactory.getLogger(RestClientConfig.class);
   private final ClientHttpRequestFactory customRequestFactory;
   private final TraceIdPropagationInterceptor traceIdInterceptor;
   
   public RestClientConfig(
       SslBundles sslBundles, TraceIdPropagationInterceptor traceIdInterceptor) {
-    logger.info("Configuring HTTP clients with custom SSL context and trace ID propagation");
+    log.info("Configuring HTTP clients with custom SSL context and trace ID propagation");
 
       // Create Java HttpClient with custom SSL context
       
@@ -63,7 +62,7 @@ public class RestClientConfig {
 
     this.customRequestFactory = factory;
     this.traceIdInterceptor = traceIdInterceptor;
-    logger.info("HTTP clients configured with custom SSL context and trace ID propagation");
+    log.info("HTTP clients configured with custom SSL context and trace ID propagation");
   }
 
   /**
@@ -89,7 +88,7 @@ public class RestClientConfig {
    */
   @Bean
   public RestClient.Builder restClientBuilder() {
-    logger.debug("Creating RestClient.Builder with custom SSL context and trace ID propagation");
+    log.debug("Creating RestClient.Builder with custom SSL context and trace ID propagation");
     return RestClient.builder()
         .requestFactory(customRequestFactory)
         .requestInterceptor(traceIdInterceptor);
@@ -113,7 +112,7 @@ public class RestClientConfig {
    */
   @Bean
   public RestTemplateBuilder restTemplateBuilder() {
-    logger.debug("Creating RestTemplateBuilder with custom SSL context and trace ID propagation");
+    log.debug("Creating RestTemplateBuilder with custom SSL context and trace ID propagation");
     return new RestTemplateBuilder()
         .requestFactory(() -> customRequestFactory)
         .interceptors(traceIdInterceptor);
