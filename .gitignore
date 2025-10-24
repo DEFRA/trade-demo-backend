@@ -174,3 +174,6 @@ coverage.xml
 .editorconfig
 .envrc
 .tool-versions
+
+# AI reference files
+Claude.md

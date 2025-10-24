@@ -18,7 +18,7 @@ spring:
         max-wait-time-ms: ${MONGO_POOL_MAX_WAIT_TIME_MS:2000}
         max-connection-idle-time-ms: ${MONGO_POOL_MAX_IDLE_TIME_MS:60000}
       ssl:
-        enabled: false
+        enabled: true
         bundle: client
   lifecycle:
     timeout-per-shutdown-phase: 30s
@@ -27,7 +27,8 @@ spring:
       pem:
         client:
           truststore:
-            certificate: ${TRUSTSTORE_BOBBINS:}
+            certificate: ${TRUSTSTORE_:}
+            
 # CDP platform configuration
 cdp:
   environment: ${ENVIRONMENT:local}
@@ -52,10 +53,10 @@ aws:
 logging:
   level:
     root: ${LOG_LEVEL:INFO}
-    uk.gov.defra.cdp.trade.demo: ${LOG_LEVEL:INFO}
+    uk.gov.defra.cdp.trade.demo: ${LOG_LEVEL:DEBUG}
     uk.gov.defra.cdp.trade.demo.common.metrics: ${LOGGING_LEVEL_UK_GOV_DEFRA_CDP_TRADE_DEMO_COMMON_METRICS:INFO}
     org.springframework: ${LOGGING_LEVEL_ORG_SPRINGFRAMEWORK:INFO}
-    org.springframework.web: ${LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB:DEBUG}
+    org.springframework.web: ${LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB:INFO}
     org.mongodb.driver: ${LOGGING_LEVEL_ORG_MONGODB_DRIVER:WARN}
 
 # Actuator endpoints
