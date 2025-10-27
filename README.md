@@ -1,14 +1,11 @@
 # Trade Demo Backend
 
-Spring Boot 3.2.11 backend for the Core Delivery Platform (CDP). Demonstrates CDP compliance patterns with modern Java idioms.
-
-**Stack:** Java 21 • Spring Boot 3.2.11 • Maven • MongoDB
+Spring Boot 3.2.11 backend for the Core Delivery Platform (CDP)
 
 ---
 
-> **Migration Note:** This repository was migrated from C# ASP.NET to Java Spring Boot on 2025-10-14. 
-> The original .NET code is preserved in the `dotnet-original-code` branch. All GitHub OIDC infrastructure 
-> and deployment workflows were preserved. 
+> **Migration Note:** This repository was migrated from C# ASP.NET. 
+> The original .NET code is preserved in the `dotnet-original-code` branch
 
 ---
 
@@ -17,11 +14,8 @@ Spring Boot 3.2.11 backend for the Core Delivery Platform (CDP). Demonstrates CD
 A CDP-compliant Spring Boot backend that demonstrates:
 - Full CRUD operations with MongoDB
 - ECS JSON logging with trace ID propagation
-- TLS/SSL certificate management for CDP internal services
 - HTTP proxy configuration for outbound requests
-- CloudWatch custom metrics integration
 - Actuator endpoints with production security defaults
-- EMF (AWS Embedded Metrics Format) for custom business metrics
 
 ---
 
@@ -163,40 +157,6 @@ The frontend propagates `x-cdp-request-id` headers for distributed tracing.
 
 ---
 
-## Architecture
-
-### CDP Compliance
-
-- **Logging** - ECS JSON format with required fields (log.level, trace.id, service.version, http.*, url.full)
-- **Tracing** - Propagates `x-cdp-request-id` header across requests
-- **Certificates** - Loads custom CAs from `TRUSTSTORE_*` environment variables
-- **Proxy** - Routes outbound HTTP/HTTPS through `HTTP_PROXY` (CDP auto-configured)
-- **Metrics** - Emits custom CloudWatch metrics (production only)
-- **Database** - MongoDB with TLS/SSL and IAM authentication support
-
-### Configuration
-Externalized via environment variables following CDP patterns:
-
-```bash
-# Required
-PORT=8085
-MONGO_URI=mongodb://localhost:27017
-MONGO_DATABASE=trade-demo-backend
-SERVICE_VERSION=0.0.0-local
-ENVIRONMENT=local
-
-# Optional
-LOG_LEVEL=INFO
-AWS_EMF_ENABLED=false
-AWS_EMF_ENVIRONMENT=Local
-AWS_EMF_NAMESPACE=trade-demo-backend
-HTTP_PROXY=http://localhost:3128
-```
-
-See `application.yml` for all configuration options.
-
----
-
 ### Useful Docker Commands
 
 ```bash
@@ -216,67 +176,6 @@ docker compose down -v
 docker compose ps
 ```
 
-## Custom Metrics
-
-This service uses **AWS Embedded Metrics Format (EMF)** for custom business metrics, matching the CDP Node.js and .NET patterns.
-
-### How It Works
-
-EMF writes structured JSON logs that CloudWatch **automatically extracts** into metrics:
-
-```java
-@Autowired
-private MetricsService metricsService;
-
-public void processOrder(Order order) {
-    long startTime = System.currentTimeMillis();
-
-    // Business logic...
-
-    // Record simple counter
-    metricsService.counter("orders.processed");
-
-    // Record counter with dimensions for filtering
-    metricsService.counter("orders.processed", 1.0,
-        DimensionSet.of("orderType", order.getType())
-    );
-
-    // Record metric with searchable context properties
-    metricsService.counterWithContext("order.processing.time",
-        System.currentTimeMillis() - startTime,
-        DimensionSet.of("orderType", order.getType()),
-        Map.of(
-            "orderId", order.getId(),
-            "customerId", order.getCustomerId()
-        )
-    );
-}
-```
-
-- **No CloudWatch API calls** - Writes logs only, CloudWatch extracts metrics
-- **Queryable context** - Properties searchable in CloudWatch Logs Insights
-- **High throughput** - Non-blocking, no `"error sending metric data"` failures
-- **CDP-compliant** - Matches Node.js and .NET template patterns
-
-### Configuration
-
-**Enable EMF (optional, disabled by default):**
-- `AWS_EMF_ENABLED=true`
-
-**When EMF is enabled, these variables are used:**
-- `AWS_EMF_ENVIRONMENT` - Output mode (REQUIRED, default: `Local`) - Forces stdout for CloudWatch Logs
-- `AWS_EMF_NAMESPACE` - CloudWatch namespace (REQUIRED, fails startup if missing)
-- `AWS_EMF_SERVICE_NAME` - Service name (optional, default: `trade-demo-backend`)
-- `AWS_EMF_SERVICE_TYPE` - Service type (optional, default: `SpringBootApp`)
-
-**Example:**
-```bash
-AWS_EMF_ENABLED=true
-AWS_EMF_ENVIRONMENT=Local
-AWS_EMF_NAMESPACE=trade-demo-backend
-AWS_EMF_SERVICE_NAME=trade-demo-backend
-AWS_EMF_SERVICE_TYPE=SpringBootApp
-```
 ### Standard Metrics
 
 Micrometer automatically collects standard metrics via Spring Boot Actuator:
@@ -304,54 +203,6 @@ void testOrderProcessing() {
 ```
 
 ---
-
-## Debugging Production Logs
-
-### Accessing OpenSearch Dashboards
-
-CDP logs are available in OpenSearch Dashboards:
-
-- **Dev**: `https://logs.dev.cdp-int.defra.cloud/_dashboards`
-- **Test**: `https://logs.test.cdp-int.defra.cloud/_dashboards`
-- **Prod**: `https://logs.prod.cdp-int.defra.cloud/_dashboards`
-
-### Verifying Stack Traces
-
-Stack traces only appear in OpenSearch when exceptions are logged correctly. 
-Verify your service logs stack traces properly:
-
-**Check if error.stack_trace field exists:**
-```json
-GET /cdp-logs-*/_search
-{
-  "query": {
-    "bool": {
-      "must": [
-        { "term": { "service.name.keyword": "trade-demo-backend" } },
-        { "exists": { "field": "error.stack_trace" } }
-      ]
-    }
-  },
-  "size": 1,
-  "_source": ["error.*", "message", "@timestamp", "service.version"]
-}
-```
-
-**Expected result if working correctly:**
-- `hits.total.value` > 0
-- `_source` contains `error.stack_trace`, `error.type`, `error.message`
-
-**If 0 results but errors are being logged:**
-Your code is using the WRONG logging pattern. Check that all `logger.error()` calls pass the 
-exception object as the final parameter:
-
-```java
-// CORRECT - Stack traces appear in OpenSearch
-logger.error("Failed to process: {}", id, exception);
-
-// WRONG - NO stack traces in OpenSearch
-logger.error("Failed to process: {}. Error: {}", id, exception.getMessage());
-```
 
 ### Querying Logs in Grafana
 
@@ -451,23 +302,6 @@ curl -X DELETE http://localhost:8085/example/{id} \
 
 ### Debug Experiments (CDP Compliance Verification)
 
-Temporary endpoints for verifying error logging, stack traces, and CloudWatch metrics integration. These endpoints are excluded from test coverage and intended to be removed after verification.
-
-**Run error logging experiments:**
-
-Tests 4 error scenarios comparing local exception handling vs GlobalExceptionHandler. Verifies stack traces appear correctly in logs.
-
-```bash
-curl -X POST http://localhost:8085/debug/run-error-experiments \
-  -H "x-cdp-request-id: test-trace-123"
-```
-
-Returns: Experiment summary with OpenSearch query to verify stack traces
-
-**Run metrics experiments:**
-
-Tests 7 EMF CloudWatch metrics scenarios including simple counters, dimensions, context properties, and batched emissions.
-
 ```bash
 curl -X POST http://localhost:8085/debug/run-metrics-experiments \
   -H "x-cdp-request-id: test-trace-123"
@@ -487,31 +321,4 @@ curl http://localhost:8085/debug/info \
 Returns: Current service configuration for troubleshooting
 
 **Note:** Debug endpoints emit structured ECS JSON logs with trace IDs that can be queried in OpenSearch Dashboards or CloudWatch Logs Insights.
-
 ---
-
-## Common Issues
-
-**No error.* fields in logs:**
-- Code is logging `exception.getMessage()` instead of `exception` object
-- Review all `catch` blocks and verify `logger.error()` calls pass the exception object as final parameter
-- See ECS logging section in `.claude/agents/java-code-researcher.md`
-
-**Field mapping exists but no data:**
-- Verify deployed version includes correct logging code
-- Check service.version in logs matches expected deployment
-
-**Logs not appearing:**
-- Check ECS task is running: `aws ecs list-tasks --cluster <cluster> --service-name trade-demo-backend`
-- Verify CloudWatch log group exists: `/aws/ecs/trade-demo-backend`
-- Check Data Prepper is processing logs (CDP platform issue - contact support)
-
----
-
-## References
-- [MIGRATION_PLAN.md](MIGRATION_PLAN.md)
-- **Spring Boot 3.2:** https://docs.spring.io/spring-boot/docs/3.2.x/reference/html/
-- **GitHub Actions setup-java:** https://github.com/actions/setup-java
-- [Spring Boot Actuator Metrics](https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html#actuator.metrics)
-- [AWS Embedded Metrics Java](https://github.com/awslabs/aws-embedded-metrics-java)
-- [CDP Custom Metrics Documentation](../../cdp-documentation/how-to/custom-metrics.md)
