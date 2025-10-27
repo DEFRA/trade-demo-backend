@@ -4,7 +4,8 @@
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
     <!-- Service version from system property (set by LoggingConfiguration) -->
-    <property name="SERVICE_VERSION" value="${cdp.service-version:-unknown}"/>
+<!--    <property name="SERVICE_VERSION" value="${service.version:-unknown}"/>-->
+    <springProperty name="service.version" source="${cdp.service-version}"/>
 
     <!-- Console appender with standard ECS JSON format (flat error.* fields) -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
