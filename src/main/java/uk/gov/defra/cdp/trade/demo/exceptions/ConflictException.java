@@ -1,4 +1,4 @@
-package uk.gov.defra.cdp.trade.demo.example;
+package uk.gov.defra.cdp.trade.demo.exceptions;
 
 /**
  * Exception thrown when a resource conflict occurs (e.g., duplicate key).

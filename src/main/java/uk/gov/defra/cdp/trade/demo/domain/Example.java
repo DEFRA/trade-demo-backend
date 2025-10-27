@@ -1,4 +1,4 @@
-package uk.gov.defra.cdp.trade.demo.example;
+package uk.gov.defra.cdp.trade.demo.domain;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -8,7 +8,6 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 /**
  * Example entity demonstrating MongoDB persistence with CDP compliance.
@@ -22,7 +21,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @Document(collection = "examples")
 @Data
 @NoArgsConstructor
-public class ExampleEntity {
+public class Example {
 
     @Id
     private String id;
@@ -38,7 +37,7 @@ public class ExampleEntity {
 
     private LocalDateTime created;
 
-    public ExampleEntity(String name, String value) {
+    public Example(String name, String value) {
         this.name = name;
         this.value = value;
         this.created = LocalDateTime.now();

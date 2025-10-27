@@ -1,15 +1,17 @@
-package uk.gov.defra.cdp.trade.demo.example;
+package uk.gov.defra.cdp.trade.demo.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import uk.gov.defra.cdp.trade.demo.common.metrics.MetricsService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import uk.gov.defra.cdp.trade.demo.exceptions.ConflictException;
+import uk.gov.defra.cdp.trade.demo.domain.Example;
+import uk.gov.defra.cdp.trade.demo.domain.repository.ExampleRepository;
+import uk.gov.defra.cdp.trade.demo.exceptions.NotFoundException;
 
 /**
  * Service layer for Example CRUD operations.
@@ -35,7 +37,7 @@ public class ExampleService {
      * @return the created example with generated ID
      * @throws ConflictException if an example with the same name already exists
      */
-    public ExampleEntity create(ExampleEntity entity) {
+    public Example create(Example entity) {
         log.info("Creating example with name: {}", entity.getName());
 
         // Check for duplicate name
@@ -47,7 +49,7 @@ public class ExampleService {
         entity.setCreated(LocalDateTime.now());
 
         try {
-            ExampleEntity saved = repository.save(entity);
+            Example saved = repository.save(entity);
             metricsService.counter("example_created");
             log.info("Created example with id: {}", saved.getId());
             return saved;
@@ -64,9 +66,9 @@ public class ExampleService {
      *
      * @return list of all examples
      */
-    public List<ExampleEntity> findAll() {
+    public List<Example> findAll() {
         log.debug("Fetching all examples");
-        List<ExampleEntity> examples = repository.findAll();
+        List<Example> examples = repository.findAll();
         log.debug("Found {} examples", examples.size());
         return examples;
     }
@@ -78,7 +80,7 @@ public class ExampleService {
      * @return the example
      * @throws NotFoundException if the example does not exist
      */
-    public ExampleEntity findById(String id) {
+    public Example findById(String id) {
         log.debug("Fetching example with id: {}", id);
         return repository.findById(id)
             .orElseThrow(() -> {
@@ -96,11 +98,11 @@ public class ExampleService {
      * @throws NotFoundException if the example does not exist
      * @throws ConflictException if the new name conflicts with another example
      */
-    public ExampleEntity update(String id, ExampleEntity entity) {
+    public Example update(String id, Example entity) {
         log.info("Updating example with id: {}", id);
 
         // Check if example exists
-        ExampleEntity existing = findById(id);
+        Example existing = findById(id);
 
         // Check for name conflict with other examples
         if (!existing.getName().equals(entity.getName())) {
@@ -117,7 +119,7 @@ public class ExampleService {
         existing.setValue(entity.getValue());
         existing.setCounter(entity.getCounter());
 
-        ExampleEntity updated = repository.save(existing);
+        Example updated = repository.save(existing);
         metricsService.counter("example_updated");
         log.info("Updated example with id: {}", updated.getId());
         return updated;

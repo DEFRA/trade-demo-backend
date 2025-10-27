@@ -1,4 +1,4 @@
-package uk.gov.defra.cdp.trade.demo.config;
+package uk.gov.defra.cdp.trade.demo.configuration;
 
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;

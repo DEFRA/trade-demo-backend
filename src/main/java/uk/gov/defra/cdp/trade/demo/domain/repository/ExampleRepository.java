@@ -1,9 +1,10 @@
-package uk.gov.defra.cdp.trade.demo.example;
+package uk.gov.defra.cdp.trade.demo.domain.repository;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import uk.gov.defra.cdp.trade.demo.domain.Example;
 
 /**
  * Spring Data MongoDB repository for ExampleEntity.
@@ -12,7 +13,7 @@ import java.util.Optional;
  * Spring Data MongoDB automatically implements this interface.
  */
 @Repository
-public interface ExampleRepository extends MongoRepository<ExampleEntity, String> {
+public interface ExampleRepository extends MongoRepository<Example, String> {
 
     /**
      * Find an example by name.
@@ -21,5 +22,5 @@ public interface ExampleRepository extends MongoRepository<ExampleEntity, String
      * @param name the name to search for
      * @return Optional containing the entity if found
      */
-    Optional<ExampleEntity> findByName(String name);
+    Optional<Example> findByName(String name);
 }

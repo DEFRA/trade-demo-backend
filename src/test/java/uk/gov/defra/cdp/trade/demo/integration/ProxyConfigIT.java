@@ -4,10 +4,9 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.net.ProxySelector;
-import uk.gov.defra.cdp.trade.demo.config.ProxyConfig;
+import uk.gov.defra.cdp.trade.demo.configuration.ProxyConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -52,7 +51,7 @@ class ProxyConfigIT extends IntegrationBase{
         String httpProxy = System.getenv("HTTP_PROXY");
 
         if (httpProxy == null || httpProxy.isEmpty()) {
-            // Test passes vacuously if HTTP_PROXY not set - proxy config is optional
+            // Test passes vacuously if HTTP_PROXY not set - proxy configuration is optional
             assertThat(proxyConfig)
                 .as("ProxyConfig should exist even without HTTP_PROXY")
                 .isNotNull();

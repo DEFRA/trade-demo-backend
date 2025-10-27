@@ -1,15 +1,15 @@
-package uk.gov.defra.cdp.trade.demo.example;
+package uk.gov.defra.cdp.trade.demo.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import uk.gov.defra.cdp.trade.demo.domain.Example;
+import uk.gov.defra.cdp.trade.demo.service.ExampleService;
 
 /**
  * REST API for Example CRUD operations.
@@ -42,7 +42,7 @@ public class ExampleController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create example", description = "Creates a new example with unique name")
-    public ExampleEntity create(@Valid @RequestBody ExampleEntity entity) {
+    public Example create(@Valid @RequestBody Example entity) {
         log.info("POST /example - Creating example with name: {}", entity.getName());
         return exampleService.create(entity);
     }
@@ -54,7 +54,7 @@ public class ExampleController {
      */
     @GetMapping
     @Operation(summary = "List examples", description = "Returns all examples")
-    public List<ExampleEntity> findAll() {
+    public List<Example> findAll() {
         log.debug("GET /example - Fetching all examples");
         return exampleService.findAll();
     }
@@ -67,7 +67,7 @@ public class ExampleController {
      */
     @GetMapping("/{id}")
     @Operation(summary = "Get example by ID", description = "Returns a single example by ID")
-    public ExampleEntity findById(@PathVariable String id) {
+    public Example findById(@PathVariable String id) {
         log.debug("GET /example/{} - Fetching example", id);
         return exampleService.findById(id);
     }
@@ -81,7 +81,7 @@ public class ExampleController {
      */
     @PutMapping("/{id}")
     @Operation(summary = "Update example", description = "Updates an existing example")
-    public ExampleEntity update(@PathVariable String id, @Valid @RequestBody ExampleEntity entity) {
+    public Example update(@PathVariable String id, @Valid @RequestBody Example entity) {
         log.info("PUT /example/{} - Updating example", id);
         return exampleService.update(id, entity);
     }

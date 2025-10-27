@@ -1,4 +1,4 @@
-package uk.gov.defra.cdp.trade.demo.example;
+package uk.gov.defra.cdp.trade.demo.exceptions;
 
 /**
  * Exception thrown when a requested resource is not found.
