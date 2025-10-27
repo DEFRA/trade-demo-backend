@@ -1,8 +1,6 @@
-package uk.gov.defra.cdp.trade.demo.common.error;
+package uk.gov.defra.cdp.trade.demo.exceptions;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -10,8 +8,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import uk.gov.defra.cdp.trade.demo.example.ConflictException;
-import uk.gov.defra.cdp.trade.demo.example.NotFoundException;
 
 import java.net.URI;
 import java.util.HashMap;

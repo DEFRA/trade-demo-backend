@@ -1,9 +1,8 @@
-package uk.gov.defra.cdp.trade.demo.config;
+package uk.gov.defra.cdp.trade.demo.configuration;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 import java.net.InetSocketAddress;
@@ -40,9 +39,11 @@ import java.net.URI;
 @Slf4j
 public class ProxyConfig {
 
+    @Value("${cdp.proxyUrl}")
+    private String httpProxy;
+    
     @PostConstruct
     public void configureProxy() {
-        String httpProxy = System.getenv("HTTP_PROXY");
 
         if (httpProxy == null || httpProxy.isEmpty()) {
             log.info("No HTTP_PROXY configured - using direct connections");

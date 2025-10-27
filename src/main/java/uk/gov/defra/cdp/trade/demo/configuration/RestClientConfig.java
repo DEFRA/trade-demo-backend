@@ -1,8 +1,6 @@
-package uk.gov.defra.cdp.trade.demo.config;
+package uk.gov.defra.cdp.trade.demo.configuration;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.ssl.SslBundles;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -13,7 +11,6 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.defra.cdp.trade.demo.interceptor.TraceIdPropagationInterceptor;
 
-import javax.net.ssl.SSLContext;
 import java.net.http.HttpClient;
 import java.time.Duration;
 

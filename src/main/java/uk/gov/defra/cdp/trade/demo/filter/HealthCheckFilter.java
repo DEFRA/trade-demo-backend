@@ -1,4 +1,4 @@
-package uk.gov.defra.cdp.trade.demo.logging;
+package uk.gov.defra.cdp.trade.demo.filter;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.filter.Filter;

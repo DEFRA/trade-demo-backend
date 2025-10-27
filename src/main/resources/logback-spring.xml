@@ -4,16 +4,19 @@
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
     <!-- Service version from system property (set by LoggingConfiguration) -->
-    <property name="SERVICE_VERSION" value="${service.version:-unknown}"/>
+<!--    <property name="SERVICE_VERSION" value="${service.version:-unknown}"/>-->
+    <springProperty name="service.version" source="cdp.service-version"/>
+    <springProperty name="service.name" source="spring.application.name"/>
 
     <!-- Console appender with standard ECS JSON format (flat error.* fields) -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <!-- Filter out /health endpoint to reduce noise -->
-        <filter class="uk.gov.defra.cdp.trade.demo.logging.HealthCheckFilter"/>
+        <filter class="uk.gov.defra.cdp.trade.demo.filter.HealthCheckFilter"/>
 
         <encoder class="co.elastic.logging.logback.EcsEncoder">
-            <serviceName>${spring.application.name:-trade-demo-backend}</serviceName>
-            <serviceVersion>${SERVICE_VERSION}</serviceVersion>
+<!--            <serviceName>${spring.application.name:-trade-demo-backend}</serviceName>-->
+            <serviceVersion>${service.version}</serviceVersion>
+            <serviceName>${service.name}</serviceName>
             <!-- ECS encoder automatically includes all MDC fields -->
         </encoder>
     </appender>

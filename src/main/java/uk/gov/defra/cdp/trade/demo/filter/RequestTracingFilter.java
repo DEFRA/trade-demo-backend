@@ -4,6 +4,7 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -20,12 +21,15 @@ import java.io.IOException;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class RequestTracingFilter implements Filter {
 
-    private static final String TRACE_ID_HEADER = "x-cdp-request-id";
+    
     private static final String MDC_TRACE_ID = "trace.id";
     private static final String MDC_HTTP_METHOD = "http.request.method";
     private static final String MDC_HTTP_STATUS = "http.response.status_code";
     private static final String MDC_URL_FULL = "url.full";
 
+    @Value("${cdp.tracing.header-name}")
+    private String header;
+    
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
@@ -37,7 +41,7 @@ public class RequestTracingFilter implements Filter {
 
         try {
             // Extract trace ID from CDP request header (leave empty if not present)
-            String traceId = httpRequest.getHeader(TRACE_ID_HEADER);
+            String traceId = httpRequest.getHeader(header);
             if (traceId != null && !traceId.isBlank()) {
                 MDC.put(MDC_TRACE_ID, traceId);
             }

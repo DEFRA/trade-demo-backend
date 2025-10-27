@@ -49,7 +49,7 @@ class TraceIdPropagationInterceptorTest {
 
   @BeforeEach
   void setUp() throws IOException {
-    interceptor = new TraceIdPropagationInterceptor();
+    interceptor = new TraceIdPropagationInterceptor("x-cdp-request-id");
     headers = new HttpHeaders();
     lenient().when(request.getHeaders()).thenReturn(headers);
     lenient().when(execution.execute(any(HttpRequest.class), any(byte[].class))).thenReturn(response);
