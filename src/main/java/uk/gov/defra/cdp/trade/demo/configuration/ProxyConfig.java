@@ -2,6 +2,7 @@ package uk.gov.defra.cdp.trade.demo.configuration;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
@@ -35,15 +36,20 @@ import java.net.URI;
  * - No HTTP_PROXY variable = direct connections (no proxy)
  * - Set HTTP_PROXY for testing proxy behavior locally
  */
-@Configuration
 @Slf4j
 public class ProxyConfig {
 
-    @Value("${cdp.proxyUrl}")
-    private String httpProxy;
+
+    private final CdpConfig cdpConfig;
+
+    public ProxyConfig(CdpConfig cdpConfig){
+        this.cdpConfig = cdpConfig;
+    }
     
     @PostConstruct
     public void configureProxy() {
+        
+        String httpProxy = cdpConfig.getProxyUrl();
 
         if (httpProxy == null || httpProxy.isEmpty()) {
             log.info("No HTTP_PROXY configured - using direct connections");

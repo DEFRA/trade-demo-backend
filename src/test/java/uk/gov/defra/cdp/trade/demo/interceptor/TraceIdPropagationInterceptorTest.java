@@ -15,6 +15,7 @@ import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpResponse;
 
 import java.io.IOException;
+import uk.gov.defra.cdp.trade.demo.configuration.CdpConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -40,6 +41,9 @@ class TraceIdPropagationInterceptorTest {
 
   @Mock private ClientHttpResponse response;
 
+  @Mock
+  private CdpConfig cdpConfig;
+
   @Captor private ArgumentCaptor<HttpRequest> requestCaptor;
 
   @Captor private ArgumentCaptor<byte[]> bodyCaptor;
@@ -49,7 +53,8 @@ class TraceIdPropagationInterceptorTest {
 
   @BeforeEach
   void setUp() throws IOException {
-    interceptor = new TraceIdPropagationInterceptor("x-cdp-request-id");
+      
+    interceptor = new TraceIdPropagationInterceptor(cdpConfig);
     headers = new HttpHeaders();
     lenient().when(request.getHeaders()).thenReturn(headers);
     lenient().when(execution.execute(any(HttpRequest.class), any(byte[].class))).thenReturn(response);
@@ -69,6 +74,7 @@ class TraceIdPropagationInterceptorTest {
     byte[] body = new byte[0];
 
     // When: Interceptor processes the request
+    when(cdpConfig.getTracingHeaderName()).thenReturn(TRACE_ID_HEADER);  
     ClientHttpResponse actualResponse = interceptor.intercept(request, body, execution);
 
     // Then: x-cdp-request-id header is set with the trace ID
@@ -145,6 +151,7 @@ class TraceIdPropagationInterceptorTest {
     byte[] body = "request-body".getBytes();
 
     // When: Interceptor processes the request
+    when(cdpConfig.getTracingHeaderName()).thenReturn(TRACE_ID_HEADER);
     interceptor.intercept(request, body, execution);
 
     // Then: Execution is called with the exact request and body
@@ -156,7 +163,7 @@ class TraceIdPropagationInterceptorTest {
   @Test
   void intercept_shouldOverwriteExistingHeader_whenTraceIdExists() throws IOException {
     // Given: Request already has an x-cdp-request-id header
-    headers.set(TRACE_ID_HEADER, "old-trace-id");
+      headers.set(TRACE_ID_HEADER, "old-trace-id");
 
     // And: MDC contains a different trace ID
     String newTraceId = "new-trace-id-67890";
@@ -164,6 +171,7 @@ class TraceIdPropagationInterceptorTest {
     byte[] body = new byte[0];
 
     // When: Interceptor processes the request
+    when(cdpConfig.getTracingHeaderName()).thenReturn(TRACE_ID_HEADER);
     interceptor.intercept(request, body, execution);
 
     // Then: x-cdp-request-id header is replaced with the new trace ID

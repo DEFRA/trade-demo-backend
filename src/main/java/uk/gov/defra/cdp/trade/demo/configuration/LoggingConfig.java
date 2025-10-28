@@ -15,13 +15,16 @@ import java.util.Optional;
 public class LoggingConfig {
 
     private static final String MDC_SERVICE_VERSION = "service.version";
+    
+    private final CdpConfig cdpConfig;
 
-    @Value("${cdp.service-version}")
-    private String serviceVersion;
+    public LoggingConfig(CdpConfig cdpConfig) { 
+        this.cdpConfig = cdpConfig;
+    }
 
     @PostConstruct
     public void setupServiceVersion() {
         // Set service version as system property so Logback can access it
-        System.setProperty(MDC_SERVICE_VERSION, serviceVersion);
+        System.setProperty(MDC_SERVICE_VERSION, cdpConfig.getServiceVersion());
     }
 }

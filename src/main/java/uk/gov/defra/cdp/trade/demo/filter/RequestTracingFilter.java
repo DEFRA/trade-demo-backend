@@ -10,6 +10,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import uk.gov.defra.cdp.trade.demo.configuration.CdpConfig;
 
 /**
  * Servlet filter that populates MDC (Mapped Diagnostic Context) with request tracing information
@@ -26,9 +27,12 @@ public class RequestTracingFilter implements Filter {
     private static final String MDC_HTTP_METHOD = "http.request.method";
     private static final String MDC_HTTP_STATUS = "http.response.status_code";
     private static final String MDC_URL_FULL = "url.full";
-
-    @Value("${cdp.tracing.header-name}")
-    private String header;
+    
+    private final CdpConfig cdpConfig;
+    
+    public RequestTracingFilter(CdpConfig cdpConfig) {
+        this.cdpConfig = cdpConfig;
+    }
     
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -41,7 +45,7 @@ public class RequestTracingFilter implements Filter {
 
         try {
             // Extract trace ID from CDP request header (leave empty if not present)
-            String traceId = httpRequest.getHeader(header);
+            String traceId = httpRequest.getHeader(cdpConfig.getTracingHeaderName());
             if (traceId != null && !traceId.isBlank()) {
                 MDC.put(MDC_TRACE_ID, traceId);
             }

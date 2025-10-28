@@ -10,6 +10,7 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import uk.gov.defra.cdp.trade.demo.configuration.CdpConfig;
 
 /**
  * HTTP client interceptor that propagates the x-cdp-request-id trace header to all outbound HTTP
@@ -27,18 +28,19 @@ public class TraceIdPropagationInterceptor implements ClientHttpRequestIntercept
 
   private static final String MDC_TRACE_ID = "trace.id";
 
-  private final String headerName;
+  private final CdpConfig cdpConfig;
   
-  public TraceIdPropagationInterceptor(@Value("${cdp.tracing.header-name}") String headerName) {
-      this.headerName = headerName;
+  public TraceIdPropagationInterceptor(CdpConfig cdpConfig) {
+      this.cdpConfig = cdpConfig;
   }
   
   @Override
   public ClientHttpResponse intercept(
+      
       HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
     String traceId = MDC.get(MDC_TRACE_ID);
     if (traceId != null && !traceId.isBlank()) {
-      request.getHeaders().set(headerName, traceId);
+      request.getHeaders().set(cdpConfig.getTracingHeaderName(), traceId);
     }
     return execution.execute(request, body);
   }

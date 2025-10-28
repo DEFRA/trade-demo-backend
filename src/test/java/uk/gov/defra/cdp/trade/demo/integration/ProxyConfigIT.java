@@ -1,14 +1,13 @@
 package uk.gov.defra.cdp.trade.demo.integration;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import java.net.ProxySelector;
 import uk.gov.defra.cdp.trade.demo.configuration.ProxyConfig;
 
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests for HTTP proxy configuration.
@@ -26,14 +25,15 @@ class ProxyConfigIT extends IntegrationBase{
 
     private static final String ORIGINAL_HTTP_PROXY = System.getenv("HTTP_PROXY");
 
-    @Autowired(required = false)
     private ProxyConfig proxyConfig;
-
-    @BeforeAll
-    static void setUpProxyEnvironment() {
+    
+    
+    @BeforeEach
+    void setUpProxyEnvironment() {
         // Note: HTTP_PROXY should be set as OS environment variable before running tests
         // For Maven: HTTP_PROXY=http://localhost:3128 mvn test
         // This test verifies that IF HTTP_PROXY is set, proxy is configured
+        proxyConfig = new ProxyConfig(cdpConfig);
     }
 
     @AfterAll
