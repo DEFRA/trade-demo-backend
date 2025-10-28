@@ -27,7 +27,7 @@ spring:
       pem:
         client:
           truststore:
-            certificate: ${TRUSTSTORE_:}
+            certificate: ${TRUSTSTORE_CDP_ROOT_CA:}
             
 # CDP platform configuration
 cdp:
