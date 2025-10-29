@@ -31,6 +31,7 @@ spring:
             
 # CDP platform configuration
 cdp:
+  certificate: ${TRUSTSTORE_CDP_ROOT_CA:}
   metrics:
     enabled: false
   environment: ${ENVIRONMENT:local}
