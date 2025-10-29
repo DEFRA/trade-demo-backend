@@ -1,7 +1,7 @@
 package uk.gov.defra.cdp.trade.demo.configuration;
 
+import java.net.http.HttpClient.Builder;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.ssl.SslBundles;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,8 +17,7 @@ import java.time.Duration;
 /**
  * Configuration for HTTP clients with custom SSL/TLS certificates and trace ID propagation.
  *
- * <p>Provides both RestClient (modern, Spring Boot 3.2+) and RestTemplate (legacy) configured
- * with:
+ * <p>Provides both RestClient (modern, Spring Boot 3.2+) and RestTemplate (legacy) configured with:
  *
  * <ul>
  *   <li>Custom SSLContext (Default JVM trust store + CDP TRUSTSTORE_* certificates)
@@ -37,22 +36,17 @@ public class RestClientConfig {
 
   private final ClientHttpRequestFactory customRequestFactory;
   private final TraceIdPropagationInterceptor traceIdInterceptor;
-  
+
   public RestClientConfig(
-      SslBundles sslBundles, TraceIdPropagationInterceptor traceIdInterceptor) {
+      TraceIdPropagationInterceptor traceIdInterceptor) {
     log.info("Configuring HTTP clients with custom SSL context and trace ID propagation");
 
-      // Create Java HttpClient with custom SSL context
-      
-    HttpClient.Builder builder = HttpClient.newBuilder()
-        .connectTimeout(Duration.ofSeconds(10));
-    
-    if (sslBundles != null) {
-        builder.sslContext(sslBundles.getBundle("client").createSslContext());
-        log.info("Creating the SSLContext");
-    }
+    // Create Java HttpClient with custom SSL context
+
+    Builder builder = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10));
+
     HttpClient httpClient = builder.build();
-    
+
     // Create request factory using JDK HttpClient
     JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory(httpClient);
     factory.setReadTimeout(Duration.ofSeconds(30));
@@ -68,8 +62,7 @@ public class RestClientConfig {
    *
    * <p>Usage:
    *
-   * <pre>
-   * {@code
+   * <pre>{@code
    * @Service
    * public class MyService {
    *     private final RestClient restClient;
@@ -80,8 +73,7 @@ public class RestClientConfig {
    *             .build();
    *     }
    * }
-   * }
-   * </pre>
+   * }</pre>
    */
   @Bean
   public RestClient.Builder restClientBuilder() {

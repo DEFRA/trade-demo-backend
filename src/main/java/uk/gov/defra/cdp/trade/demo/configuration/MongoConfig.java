@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import javax.net.ssl.SSLContext;
 import java.util.concurrent.TimeUnit;
+import uk.gov.defra.cdp.trade.demo.config.tls.TrustStoreConfiguration;
 
 /**
  * MongoDB configuration for CDP Java Backend Template.
@@ -52,7 +53,7 @@ public class MongoConfig {
       @Value("${spring.data.mongodb.uri}") String mongoUri,
       @Value("${spring.data.mongodb.read-preference}") ReadPreference readPreference,
       @Value("${spring.data.mongodb.write-concern}") WriteConcern writeConcern,
-      SslBundles sslBundles,
+      TrustStoreConfiguration trustStoreConfiguration,
       ConnectionPoolSettings connectionPoolSettings) {
 
       MongoClientSettings.Builder builder = MongoClientSettings.builder()
@@ -62,7 +63,7 @@ public class MongoConfig {
           .writeConcern(writeConcern);
       
       if (sslEnabled) {
-          SSLContext sslContext = sslBundles.getBundle("client").createSslContext();
+          SSLContext sslContext = trustStoreConfiguration.customSslContext();
           builder.applyToSslSettings(bdr -> bdr.context(sslContext));
           log.info("MongoDB SSL configured with SSL Bundle");
       }
