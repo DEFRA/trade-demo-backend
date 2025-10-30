@@ -1,11 +1,10 @@
 package uk.gov.defra.cdp.trade.demo.service;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
-import uk.gov.defra.cdp.trade.demo.common.metrics.MetricsService;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import uk.gov.defra.cdp.trade.demo.exceptions.ConflictException;
@@ -28,7 +27,7 @@ import uk.gov.defra.cdp.trade.demo.exceptions.NotFoundException;
 public class ExampleService {
 
     private final ExampleRepository repository;
-    private final MetricsService metricsService;
+    private final MeterRegistry meterRegistry;
 
     /**
      * Create a new example.
@@ -50,7 +49,7 @@ public class ExampleService {
 
         try {
             Example saved = repository.save(entity);
-            metricsService.counter("example_created");
+            meterRegistry.counter("example_created").increment();
             log.info("Created example with id: {}", saved.getId());
             return saved;
 
@@ -120,7 +119,7 @@ public class ExampleService {
         existing.setCounter(entity.getCounter());
 
         Example updated = repository.save(existing);
-        metricsService.counter("example_updated");
+        meterRegistry.counter("example_updated").increment();
         log.info("Updated example with id: {}", updated.getId());
         return updated;
     }
@@ -138,7 +137,7 @@ public class ExampleService {
         findById(id);
 
         repository.deleteById(id);
-        metricsService.counter("example_deleted");
+        meterRegistry.counter("example_deleted").increment();
         log.info("Deleted example with id: {}", id);
     }
 }

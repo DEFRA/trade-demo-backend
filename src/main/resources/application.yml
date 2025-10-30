@@ -22,12 +22,6 @@ spring:
         bundle: client
   lifecycle:
     timeout-per-shutdown-phase: 30s
-  ssl:
-    bundle:
-      pem:
-        client:
-          truststore:
-            certificate: ${TRUSTSTORE_CDP_ROOT_CA:}
             
 # CDP platform configuration
 cdp:
@@ -79,7 +73,13 @@ management:
   health:
     mongo:
       enabled: false
-
+  metrics:
+    export:
+      cloudwatch:
+        namespace: ${AWS_EMF_NAMESPACE:}
+        batchSize: 20
+        step: 5s
+        
 # Application info (exposed via /info endpoint)
 info:
   app:
