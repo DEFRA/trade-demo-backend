@@ -22,12 +22,16 @@ spring:
         bundle: client
   lifecycle:
     timeout-per-shutdown-phase: 30s
-            
+  cloud:
+    aws:
+      cloudwatch:
+        endpoint: tcp://127.0.0.1:25888
+
 # CDP platform configuration
 cdp:
   certificate: ${TRUSTSTORE_CDP_ROOT_CA:}
   metrics:
-    enabled: false
+    enabled: true
   environment: ${ENVIRONMENT:local}
   service-version: ${SERVICE_VERSION:0.0.0-local}
   tracing:
@@ -63,7 +67,7 @@ management:
     web:
       base-path: /
       exposure:
-        include: health,metrics,info
+        include: health,metrics,info,env
   endpoint:
     health:
       show-details: never
@@ -76,6 +80,7 @@ management:
   metrics:
     export:
       cloudwatch:
+        enabled: true
         namespace: ${AWS_EMF_NAMESPACE:}
         batchSize: 20
         step: 5s
