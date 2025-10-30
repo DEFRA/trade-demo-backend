@@ -34,7 +34,7 @@ public class CertificateLoader {
     
     public X509Certificate loadCustomCertificate() {
         X509Certificate cert = null;
-        if (certificate.isEmpty()) {
+        if (certificate == null || certificate.isEmpty()) {
             log.info("No custom certificates to load");
             return cert;
         }

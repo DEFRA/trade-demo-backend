@@ -27,9 +27,6 @@ class TrustStoreConfigurationIT extends IntegrationBase {
     @Autowired
     private SSLContext customSslContext;
 
-    @Autowired
-    private CertificateLoader certificateLoader;
-
     /**
      * Valid self-signed X509 certificate (CN=Test Certificate) in PEM format.
      * Generated using: openssl req -x509 -newkey rsa:2048 -nodes -days 365 -subj "/CN=Test Certificate"
@@ -73,7 +70,7 @@ fA==
     void certificateLoader_shouldReturnNullWhenNoCertificate() {
         // When: Loading certificates
         CertificateLoader loader = new CertificateLoader(null);
-        X509Certificate cert = certificateLoader.loadCustomCertificate();
+        X509Certificate cert = loader.loadCustomCertificate();
 
         // Then: Should return null
         assertThat(cert)
