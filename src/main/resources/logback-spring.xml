@@ -4,7 +4,6 @@
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
     <!-- Service version from system property (set by LoggingConfiguration) -->
-<!--    <property name="SERVICE_VERSION" value="${service.version:-unknown}"/>-->
     <springProperty name="service.version" source="cdp.service-version"/>
     <springProperty name="service.name" source="spring.application.name"/>
 
@@ -14,7 +13,6 @@
         <filter class="uk.gov.defra.cdp.trade.demo.filter.HealthCheckFilter"/>
 
         <encoder class="co.elastic.logging.logback.EcsEncoder">
-<!--            <serviceName>${spring.application.name:-trade-demo-backend}</serviceName>-->
             <serviceVersion>${service.version}</serviceVersion>
             <serviceName>${service.name}</serviceName>
             <!-- ECS encoder automatically includes all MDC fields -->
@@ -32,4 +30,5 @@
 
     <!-- MongoDB driver logging -->
     <logger name="org.mongodb.driver" level="WARN"/>
+    <logger name="org.apache.coyote" level="ERROR"/>
 </configuration>
