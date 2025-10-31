@@ -19,20 +19,25 @@ spring:
         max-connection-idle-time-ms: ${MONGO_POOL_MAX_IDLE_TIME_MS:60000}
       ssl:
         enabled: true
-        bundle: client
   lifecycle:
     timeout-per-shutdown-phase: 30s
   cloud:
     aws:
       cloudwatch:
-        endpoint: tcp://127.0.0.1:25888
+        enabled:  ${AWS_EMF_ENABLED:true}
+        endpoint: ${AWS_EMF_AGENT_ENDPOINT:tcp://localhost:4566}
+        region: ${AWS_REGION:eu-west-2}
+        step: 1m
+        connectTimeout: 20s
+        readTimeout: 20s
+        batchSize: 1000
+        numThreads: 1
 
 # CDP platform configuration
 cdp:
   certificate: ${TRUSTSTORE_CDP_ROOT_CA:}
   metrics:
     enabled: true
-  environment: ${ENVIRONMENT:local}
   service-version: ${SERVICE_VERSION:0.0.0-local}
   tracing:
     header-name: ${TRACING_HEADER:x-cdp-request-id}
@@ -42,9 +47,9 @@ cdp:
 aws:
   region: ${AWS_REGION:eu-west-2}
   emf:
-    enabled: ${AWS_EMF_ENABLED:false}
+    enabled: ${AWS_EMF_ENABLED:true}
     environment: ${AWS_EMF_ENVIRONMENT:Local}
-    namespace: ${AWS_EMF_NAMESPACE:}
+    namespace: ${AWS_EMF_NAMESPACE:trade-demo-backend}
     service:
       name: ${AWS_EMF_SERVICE_NAME:trade-demo-backend}
       type: ${AWS_EMF_SERVICE_TYPE:SpringBootApp}
@@ -57,7 +62,8 @@ logging:
     uk.gov.defra.cdp.trade.demo.common.metrics: ${LOGGING_LEVEL_UK_GOV_DEFRA_CDP_TRADE_DEMO_COMMON_METRICS:INFO}
     org.springframework: ${LOGGING_LEVEL_ORG_SPRINGFRAMEWORK:INFO}
     org.springframework.web: ${LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB:INFO}
-    org.mongodb.driver: ${LOGGING_LEVEL_ORG_MONGODB_DRIVER:WARN}
+    org.mongodb: ${LOGGING_LEVEL_ORG_MONGODB_DRIVER:WARN}
+    io.netty.handler.logging.LoggingHandler: WARN
 
 # Actuator endpoints
 # Production: Only health endpoint exposed (secure by default)
@@ -67,7 +73,7 @@ management:
     web:
       base-path: /
       exposure:
-        include: health,metrics,info,env
+        include: health,metrics,info
   endpoint:
     health:
       show-details: never
@@ -81,13 +87,16 @@ management:
     export:
       cloudwatch:
         enabled: true
-        namespace: ${AWS_EMF_NAMESPACE:}
-        batchSize: 20
-        step: 5s
-        
+        namespace: ${AWS_EMF_NAMESPACE:trade-demo-backend}
+        step: 1m
+        connectTimeout: 20s
+        readTimeout: 20s
+        batchSize: 1000
+        numThreads: 2
+  
 # Application info (exposed via /info endpoint)
 info:
   app:
     name: ${spring.application.name}
     version: ${cdp.service-version}
-    environment: ${cdp.environment}
+    environment: ${ENVIRONMENT:local}

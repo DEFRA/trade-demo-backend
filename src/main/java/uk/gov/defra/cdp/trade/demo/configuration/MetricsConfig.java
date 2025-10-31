@@ -20,7 +20,6 @@ import org.springframework.context.annotation.Configuration;
  * This configuration only provides a fallback SimpleMeterRegistry when metrics are disabled.
  * When enabled, Spring Boot Actuator auto-configures appropriate registries.
  */
-@Configuration
 @Slf4j
 public class MetricsConfig {
 
