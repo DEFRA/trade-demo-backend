@@ -174,6 +174,11 @@ docker compose down -v
 
 # Check service health
 docker compose ps
+
+# Identify any cloudwatch logged metrics
+docker exec -it trade-demo-backend-localstack-1 /bin/bash
+awslocal cloudwatch list-metrics
+
 ```
 
 ### Standard Metrics

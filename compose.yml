@@ -9,7 +9,7 @@ services:
     environment:
       DEBUG: ${DEBUG:-1}
       LS_LOG: WARN # Localstack DEBUG Level
-      SERVICES: s3,sqs,sns,firehose
+      SERVICES: s3,sqs,sns,cloudwatch
       LOCALSTACK_HOST: 127.0.0.1
     volumes:
       - localstack-data:/var/lib/localstack
@@ -72,7 +72,7 @@ services:
       LOG_LEVEL: DEBUG
 
       # Metrics (disabled locally)
-      ENABLE_METRICS: false
+      ENABLE_METRICS: true
 
       # Spring profile (dev = exposes debugging actuator endpoints)
       SPRING_PROFILES_ACTIVE: dev
