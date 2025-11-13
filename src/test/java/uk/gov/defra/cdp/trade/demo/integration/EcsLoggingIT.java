@@ -22,7 +22,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration test for ECS (Elastic Common Schema) structured logging.
  * Verifies that logs are in JSON format with all required CDP fields.
  */
-@SpringBootTest
 @AutoConfigureMockMvc
 class EcsLoggingIT extends IntegrationBase {
 
