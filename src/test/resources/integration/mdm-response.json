@@ -1,0 +1,3353 @@
+{
+  "data": {
+    "result": [
+      {
+        "organisationUUID": "3ec6439a-bc9f-4197-a9b7-1ab2c66c9cc0",
+        "name": "Dummy EE 1",
+        "code": "12345",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": null,
+        "townCity": null,
+        "county": null,
+        "postCode": null,
+        "phone1": null,
+        "phone2": null,
+        "email1": null,
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": [
+          {
+            "facilityUUID": "0c5d86db-40f1-4fb5-ad8f-2e14ad1e1b9a",
+            "code": "3445",
+            "name": "IC EE 1",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "12cf96a5-d8cc-458d-b5ea-9d59ea32758a",
+        "name": "Dummy EE 2",
+        "code": "123452",
+        "categoryCodes": [
+          "P",
+          "PP"
+        ],
+        "buildingName": null,
+        "street": null,
+        "townCity": null,
+        "county": null,
+        "postCode": null,
+        "phone1": null,
+        "phone2": null,
+        "email1": null,
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [],
+        "facilities": [
+          {
+            "facilityUUID": "e45acc55-f476-458f-94d9-ec356146a18f",
+            "code": "3453466",
+            "name": "IC EE 2",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "28db0d34-a0c8-4450-bdc1-76c8feb188d1",
+        "name": "DummyBCP IPAFFS d2",
+        "code": "234234",
+        "categoryCodes": [
+          "OO",
+          "PP"
+        ],
+        "buildingName": null,
+        "street": null,
+        "townCity": null,
+        "county": null,
+        "postCode": null,
+        "phone1": null,
+        "phone2": null,
+        "email1": null,
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [],
+        "facilities": [
+          {
+            "facilityUUID": "2becd9f8-4e8c-4471-b81c-e06eb66ad4f9",
+            "code": "424323",
+            "name": "IC Dem",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "83e13c8b-10fa-4e03-b7d8-7d10ddc21040",
+        "name": "IMTA-20400 Dummy BCP",
+        "code": "GB20400",
+        "categoryCodes": [
+          "P",
+          "PP"
+        ],
+        "buildingName": "Duis aute irure dolor",
+        "street": "Enim eos at in bland",
+        "townCity": "Sint impedit et qui",
+        "county": null,
+        "postCode": "Nihil adipisci ut ul",
+        "phone1": "+1 (373) 774-8373",
+        "phone2": null,
+        "email1": "zyzanyzur@mailinator.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "6cbd197c-2977-4721-b7d0-9838585253fd",
+            "code": "GBPOE 20400",
+            "name": "IMTA-20400 Dummy POE",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "6c24ca42-c654-4cdf-a9b9-b012d0f038f2",
+            "code": "IPGB2400",
+            "name": "IMTA-20400 Dummy IC",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "49ca5f23-cec2-41ed-84b2-3c166fbe15ba",
+        "name": "Demo IPAFFS v2",
+        "code": "GB234234",
+        "categoryCodes": [
+          "P",
+          "PP"
+        ],
+        "buildingName": null,
+        "street": null,
+        "townCity": null,
+        "county": null,
+        "postCode": null,
+        "phone1": null,
+        "phone2": null,
+        "email1": null,
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [],
+        "facilities": [
+          {
+            "facilityUUID": "0bcdbaa0-c086-4e5a-a6f0-36ec359e7023",
+            "code": "123445",
+            "name": "Inspection Centredemo v2",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "891b16e4-0a87-4be5-abdc-0eafd095b919",
+        "name": "Royal Portbury Dock",
+        "code": "GBAVM4PP",
+        "categoryCodes": [
+          "OO",
+          "P",
+          "PP"
+        ],
+        "buildingName": null,
+        "street": "St Andrews Road. Avonmouth, Bristol",
+        "townCity": "Bristol",
+        "county": null,
+        "postCode": "BS11 9DQ",
+        "phone1": "01179 820 000",
+        "phone2": null,
+        "email1": "enquiries@bristolport.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [],
+        "facilities": [
+          {
+            "facilityUUID": "8945bd0f-7530-4ac8-a732-81133d4a89b4",
+            "code": "INSPAVM1",
+            "name": "Royal Portbury Dock",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "4f458cb5-fe01-4bb2-822c-3aea837cfce2",
+        "name": "Birmingham International Airport",
+        "code": "GBBXH4PP",
+        "categoryCodes": [
+          "PP"
+        ],
+        "buildingName": null,
+        "street": "Birmingham International Airport, Birmingham",
+        "townCity": "Birmingham",
+        "county": null,
+        "postCode": "B26 3QJ",
+        "phone1": "08712 220 072",
+        "phone2": null,
+        "email1": "commercial@birminghamairport.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "63cda870-f474-4a69-a799-6cde6f64365c",
+            "code": "GB BHM",
+            "name": "Birmingham International Airport",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "3b246633-bc85-47ab-a7fe-334be5a7060e",
+            "code": "INSPBHX1",
+            "name": "Dnata",
+            "facilityStatus": {
+              "code": "active"
+            }
+          },
+          {
+            "facilityUUID": "f03c737f-793d-4c44-a0ef-af5e6385b6f9",
+            "code": "IPGBBHX1",
+            "name": "Swissport (UK) Ltd",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "1ce598b9-fe4f-4317-975b-6142d5b2d13b",
+        "name": "Dover Harbour",
+        "code": "GBDOV1PP",
+        "categoryCodes": [
+          "OO",
+          "P",
+          "PP",
+          "PP(WP)"
+        ],
+        "buildingName": null,
+        "street": "Dover Harbour Board, Harbour House, Dover, Kent",
+        "townCity": "Kent",
+        "county": null,
+        "postCode": "CT17 9BU",
+        "phone1": "01304 222 101",
+        "phone2": null,
+        "email1": "commercial@doverport.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "ba76be95-5d43-4851-943e-c848356269d1",
+            "code": "GB DVRW",
+            "name": "Dover Harbour (Western Plants)",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "d2fc6987-76f4-4c8d-8215-8f5e8a9bc64e",
+            "code": "INSPDOV1",
+            "name": "Dover cargo Ltd",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "f5e6932b-b2d3-46c6-9225-15d2fd86da70",
+        "name": "East Midlands Airport",
+        "code": "GBEMA4PP",
+        "categoryCodes": [
+          "OO",
+          "P",
+          "PP",
+          "PP(WP)"
+        ],
+        "buildingName": null,
+        "street": "East Midlands Airport, Castle Donnington",
+        "townCity": "Derby",
+        "county": null,
+        "postCode": "DE74 2SA",
+        "phone1": null,
+        "phone2": null,
+        "email1": null,
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "97a24ccb-f4dc-4e62-9c6d-316dfac40744",
+            "code": "GB EMA",
+            "name": "East Midlands Airport",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "4a489c76-00ef-4002-b4cb-c0b9658b329d",
+            "code": "IPGBEM1",
+            "name": "DHL Aviation (UK) Ltd",
+            "facilityStatus": {
+              "code": "active"
+            }
+          },
+          {
+            "facilityUUID": "5e2f5ebf-d6a3-42fc-89ad-da705684d46b",
+            "code": "IPGBEM4",
+            "name": "UPS Ltd",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "8f0c11ac-2556-4538-bf0f-e15fef9048b9",
+        "name": "Sevington IBF",
+        "code": "GBFOL4PP",
+        "categoryCodes": [
+          "OO",
+          "P",
+          "PP",
+          "PP(WP)"
+        ],
+        "buildingName": null,
+        "street": "Junction 10a, M20, A2070, Sevington, Ashford, Kent",
+        "townCity": "Kent",
+        "county": null,
+        "postCode": "TN25 6GE",
+        "phone1": null,
+        "phone2": null,
+        "email1": "DutyOps.BCPSev.GA.UK@sodexo.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "cef6ddb9-cc0e-4a98-9bd2-54fcb924d003",
+            "code": "GB FOL",
+            "name": "Folkestone Port",
+            "status": {
+              "code": "active"
+            }
+          },
+          {
+            "pointOfEntryUUID": "c45b5f17-42a1-41d0-a197-eeebfea71386",
+            "code": "GB DVRE",
+            "name": "Dover Port (Eastern Plants)",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "0cdc247e-0dba-4a60-84d5-a21052c8b602",
+            "code": "INSPSEV1",
+            "name": "Sevington IBF",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "1bc82bfe-665b-4052-87e2-9add9a0b6b42",
+        "name": "The Fresh Produce Centre",
+        "code": "GBFPC4PP",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "The Fresh Produce Centre, Transfesa Road, Paddock Wood, Tonbridge, Kent\n",
+        "townCity": "Tonbridge",
+        "county": null,
+        "postCode": "TN12 6UT",
+        "phone1": "01892 835577",
+        "phone2": null,
+        "email1": "aphainspections@thefreshproducecentre.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "e3b1b98f-2d27-48be-a2ba-773006757130",
+        "name": "Port of Felixstowe",
+        "code": "GBFXT1PP",
+        "categoryCodes": [
+          "OO",
+          "P",
+          "PP"
+        ],
+        "buildingName": null,
+        "street": "Port of Felixstowe, Tomline House, Felixstowe, Suffolk",
+        "townCity": "Suffolk",
+        "county": null,
+        "postCode": "IP11 3SY",
+        "phone1": "0845 646 1310",
+        "phone2": null,
+        "email1": "enquiries@fdrc.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "b3033cdd-575d-463c-92d3-397258609374",
+            "code": "GB FXT",
+            "name": "Felixstowe Port",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "c4f3b5d7-b0be-4545-bcac-eb1d082e3e95",
+            "code": "IPGBFXT2",
+            "name": "72 Shed",
+            "facilityStatus": {
+              "code": "active"
+            }
+          },
+          {
+            "facilityUUID": "3cf23b27-e99e-4155-9d2a-f9f02d9d215a",
+            "code": "IPGBFXT1",
+            "name": "ATEF",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "64c18f18-8c4d-4792-b70a-9f3a0c12eedd",
+        "name": "The Greenhouse Ely Ltd",
+        "code": "GBGHE4PP",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "The Greenhouse Ely Ltd, Ely Road, Chittering, Cambridgeshire\n",
+        "townCity": "Chittering\n",
+        "county": null,
+        "postCode": "CB25 9PN",
+        "phone1": "01603 986863",
+        "phone2": null,
+        "email1": "imports@thegreenhouseely.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "8c56f17b-1c3c-4bd8-bb79-c9088a864a87",
+        "name": "The Greenhouse Norwich Ltd",
+        "code": "GBGHN4PP",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "The Greenhouse Norwich Ltd, Kirby Road, Trowse, Norwich, Norfolk\n",
+        "townCity": "Norwich",
+        "county": null,
+        "postCode": "NR14 8RS",
+        "phone1": "North (cucumber plants): 01603 986860\r\nSouth (tomato plants): 01603 986863",
+        "phone2": null,
+        "email1": "imports@thegreenhousenorwich.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "6867e1ab-f1af-4f5f-97e7-3cfc93cc9fe9",
+        "name": "The Greenhouse Sussex Ltd",
+        "code": "GBGHS4PP",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "The Greenhouse Sussex Ltd, Lake Lane, Barnham, West Sussex\n",
+        "townCity": "Barnham",
+        "county": null,
+        "postCode": "PO22 0AD",
+        "phone1": "01243 551015",
+        "phone2": null,
+        "email1": "imports@thegreenhousesussex.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "95649700-3633-4ffc-bd9a-ef78d6ba3d68",
+        "name": "GR Freight Services Ltd",
+        "code": "GBGRF4PP",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Unit 9, Market Trading Estate, Christopher Road, Hounslow, Southall",
+        "townCity": "Hounslow",
+        "county": null,
+        "postCode": "UB2 5YG",
+        "phone1": "0207 031 6802",
+        "phone2": null,
+        "email1": "imports@grfreightservices.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "c9159f85-5465-4eb3-8f21-13578e6e1e6a",
+        "name": "HES Humber Bulk Terminal",
+        "code": "GBHBT1PP",
+        "categoryCodes": [
+          "OO",
+          "PP",
+          "PP(WP)"
+        ],
+        "buildingName": null,
+        "street": "Old Ferry Terminal, New Holland",
+        "townCity": "New Holland",
+        "county": null,
+        "postCode": "DN19 7PN",
+        "phone1": "01469 531 102",
+        "phone2": null,
+        "email1": "humberagency@hesinternational.eu",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "0fbafdde-2e30-4347-86fc-cd36f6cf591f",
+            "code": "GB HMR",
+            "name": "HES Humber Bulk Terminal",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "e8383dfd-997d-47bc-b4c0-7e6f5cc14175",
+            "code": "INSPHBT1",
+            "name": "HES Humber Bulk Terminal Ltd",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "7159d71a-fd44-4ab5-a631-db94c1cd573e",
+        "name": "Harwich",
+        "code": "GBHCH4PP",
+        "categoryCodes": [
+          "OO",
+          "P",
+          "PP"
+        ],
+        "buildingName": null,
+        "street": "Harwich International Port Ltd. Parkeston, Harwich, Essex",
+        "townCity": "Essex",
+        "county": null,
+        "postCode": "CO12 4SR",
+        "phone1": "01255 242 000",
+        "phone2": null,
+        "email1": "enquiries@harwich.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "49a678fb-fc90-47ad-8dd7-c61d00b21219",
+            "code": "GB HRW",
+            "name": "Harwich Port",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "faa95160-e90c-4dbd-8ebf-a9ff2cef40ab",
+            "code": "INSPHCH1",
+            "name": "Harwich",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "d1bfb57e-7d87-4dd8-abc5-6bfd935a84e0",
+        "name": "Associated British Ports - Hull",
+        "code": "GBHLL4PP",
+        "categoryCodes": [
+          "OO",
+          "P",
+          "PP"
+        ],
+        "buildingName": null,
+        "street": "Port House, Northern Gateway, Hull",
+        "townCity": "Hull",
+        "county": null,
+        "postCode": "HU9 5PQ",
+        "phone1": "01482 327 171",
+        "phone2": null,
+        "email1": "humber.commercial@abports.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "c40126e0-ef80-4560-948f-2470863b1600",
+            "code": "GB HUL",
+            "name": "Hull Port",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "da1547d8-6b4e-46e6-9274-1d20bccd4247",
+            "code": "INSPHLL1",
+            "name": "Associated British Ports - Hull Border Control Post",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "da6f502b-2570-4bdf-b5b9-1e6124cc1ec5",
+        "name": "Grimsby and Immingham",
+        "code": "GBIMM4PP",
+        "categoryCodes": [
+          "OO",
+          "P",
+          "PP"
+        ],
+        "buildingName": null,
+        "street": "Associated British Ports, Queens Road, Immingham, Grimsby",
+        "townCity": "Grimsby",
+        "county": null,
+        "postCode": "DN40 2PN",
+        "phone1": "01482 327 171",
+        "phone2": null,
+        "email1": "humber.commercial@abports.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "bf09d4eb-42c8-4d4a-83a8-1bbbd9df4518",
+            "code": "GB IMM",
+            "name": "Grimsby and Immingham Port",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "e279939c-d8a8-493a-b421-e294566c8cf1",
+            "code": "INSPIMM1",
+            "name": "Associated British Ports - Grimsby and Immingham",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "cedb0353-15b5-438f-8904-195ae693669d",
+        "name": "Killingholme",
+        "code": "GBKLG4PP",
+        "categoryCodes": [
+          "OO",
+          "P",
+          "PP"
+        ],
+        "buildingName": null,
+        "street": "Clough Lane, North Killingholme, North Lincolnshire",
+        "townCity": "Lincolnshire",
+        "county": null,
+        "postCode": "DN40 3JP",
+        "phone1": "01469 540 381",
+        "phone2": null,
+        "email1": "info.killingholme@croports.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "17b0a78d-5d22-4475-b3f3-250b2d58a755",
+            "code": "GB KGH",
+            "name": "Killingholme Port",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "c1a52088-0910-4d90-9b9c-b0625851584a",
+            "code": "INSPKLG1",
+            "name": "Killingholme",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "edb039c6-0599-4b84-bee1-add3267d0f8d",
+        "name": "London Gateway",
+        "code": "GBLGP1PP",
+        "categoryCodes": [
+          "OO",
+          "P",
+          "PP",
+          "PP(WP)"
+        ],
+        "buildingName": null,
+        "street": "1 London Gateway, Stanford-le-Hope",
+        "townCity": "London",
+        "county": null,
+        "postCode": "SS17 9PD",
+        "phone1": "01375 648 477",
+        "phone2": null,
+        "email1": "Customer.services@Londongateway.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "0d6dc07d-a3ec-40f7-8264-772611048dbd",
+            "code": "GB LGP",
+            "name": "London Gateway Port",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "4c642ae9-a23e-43a2-932a-1fdda2cc7d79",
+            "code": "IPGBLGP1",
+            "name": "London Gateway",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "e56a5fca-b3f5-4824-bc7f-a9ae4b35ef10",
+        "name": "Gatwick Airport Ltd",
+        "code": "GBLGW4PP",
+        "categoryCodes": [
+          "P",
+          "PP"
+        ],
+        "buildingName": null,
+        "street": "Room 852, South Roof Office Block, London Gatwick Airport",
+        "townCity": "London Gatwick",
+        "county": null,
+        "postCode": "RH6 0NP",
+        "phone1": "03448 920 322",
+        "phone2": null,
+        "email1": null,
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "46c1d359-7dd0-4e95-9411-600a03da75a9",
+            "code": "GB LGW",
+            "name": "Gatwick Airport",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "33bd2294-27ea-4274-81b4-3b95b35e7bd9",
+            "code": "IPGBLGW1",
+            "name": "Dnata Ltd Unit 5",
+            "facilityStatus": {
+              "code": "active"
+            }
+          },
+          {
+            "facilityUUID": "67706795-8a5a-4edb-b073-75d8b9bb7424",
+            "code": "INSPAIC1",
+            "name": "Aircare",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "56fcdf59-cdd1-4593-98ba-a616c1414829",
+        "name": "Heathrow Airport",
+        "code": "GBLHR4PP",
+        "categoryCodes": [
+          "P",
+          "PP"
+        ],
+        "buildingName": null,
+        "street": "Heathrow Airport, 234 Bath Road, Hayes, Middlesex",
+        "townCity": "Middlesex",
+        "county": null,
+        "postCode": "UB3 5AP",
+        "phone1": null,
+        "phone2": null,
+        "email1": "cargo@heathrow.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "964075c9-3d4c-46c9-bacf-ffb9dde33be2",
+            "code": "GB LHR",
+            "name": "Heathrow Airport",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "8c407c5e-5ee8-4c74-9179-189b42a1830d",
+            "code": "IPGBLHR13",
+            "name": "Swissport Cargo Services (HCH)",
+            "facilityStatus": {
+              "code": "active"
+            }
+          },
+          {
+            "facilityUUID": "5cd541b0-8fc0-4f54-acf1-232ef602655d",
+            "code": "IPGBLHR3",
+            "name": "ASC Cargo",
+            "facilityStatus": {
+              "code": "active"
+            }
+          },
+          {
+            "facilityUUID": "faa1095b-2325-4d28-886e-34cb69184fc8",
+            "code": "GBLHR4P",
+            "name": "Eurobip",
+            "facilityStatus": {
+              "code": "active"
+            }
+          },
+          {
+            "facilityUUID": "3aedf4ba-9632-415e-a946-3f8334d2f094",
+            "code": "IPGBLHR18",
+            "name": "Worldwide Flight Services Ltd",
+            "facilityStatus": {
+              "code": "active"
+            }
+          },
+          {
+            "facilityUUID": "b062bba9-d0d1-42b9-8c85-530b4013016c",
+            "code": "GBLHR1P",
+            "name": "Heathrow Perishable Centre",
+            "facilityStatus": {
+              "code": "active"
+            }
+          },
+          {
+            "facilityUUID": "f37b8fa3-8823-40aa-a601-639dbb665ce1",
+            "code": "IPGBLHR17",
+            "name": "Swissport GB Ltd",
+            "facilityStatus": {
+              "code": "active"
+            }
+          },
+          {
+            "facilityUUID": "b000071a-f10e-40a1-878f-64c09aa00cdf",
+            "code": "IPGBLHR1",
+            "name": "Air Canada (ACS)",
+            "facilityStatus": {
+              "code": "active"
+            }
+          },
+          {
+            "facilityUUID": "d2eb2c6c-4c7f-4458-a42a-6ec330156135",
+            "code": "IPGBLHR5",
+            "name": "BA World Cargo Ascentis",
+            "facilityStatus": {
+              "code": "active"
+            }
+          },
+          {
+            "facilityUUID": "a8eda09d-14a3-4754-b3b5-780cadebcf57",
+            "code": "INSPWFS4",
+            "name": "WFS 551",
+            "facilityStatus": {
+              "code": "active"
+            }
+          },
+          {
+            "facilityUUID": "c82b05f0-07de-44bb-b658-90092dc6b8fe",
+            "code": "IPGBLHR15",
+            "name": "Menzies Aviation (UK) Ltd",
+            "facilityStatus": {
+              "code": "active"
+            }
+          },
+          {
+            "facilityUUID": "3ddfe543-a34c-4e1e-9cef-b0175aec6937",
+            "code": "INSPWFS5",
+            "name": "Worldwide Flight Services Ltd",
+            "facilityStatus": {
+              "code": "active"
+            }
+          },
+          {
+            "facilityUUID": "c6b45c14-be47-4f00-b675-d2ec1792dae3",
+            "code": "IPGBNHR15",
+            "name": "Dnata Cathay Pacific",
+            "facilityStatus": {
+              "code": "active"
+            }
+          },
+          {
+            "facilityUUID": "6a9a5e6b-2a53-4d68-9aad-dddfc43addc4",
+            "code": "IPGBLHR20",
+            "name": "Worldwide Flight Services Ltd",
+            "facilityStatus": {
+              "code": "active"
+            }
+          },
+          {
+            "facilityUUID": "5c44f020-f78f-40df-8835-e46e279a37f5",
+            "code": "IPGBLHR6",
+            "name": "British Airways World Cargo - Premia",
+            "facilityStatus": {
+              "code": "active"
+            }
+          },
+          {
+            "facilityUUID": "2c99edce-466d-461c-8d33-f36b821110fb",
+            "code": "IPGBNHR4",
+            "name": "Live Fish Border Inspection Post",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "206375ca-ff60-46fa-a03f-f723898426cf",
+        "name": "Peel Ports Liverpool Docks",
+        "code": "GBLIV1PP",
+        "categoryCodes": [
+          "OO",
+          "P",
+          "PP",
+          "PP(WP)"
+        ],
+        "buildingName": null,
+        "street": "Peel Ports, Maritime Centre. Port of Liverpool. Liverpool",
+        "townCity": "Liverpool",
+        "county": null,
+        "postCode": "L21 1LA",
+        "phone1": "01519 496 000",
+        "phone2": null,
+        "email1": "cs.ancillary@peelports.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "14a40f71-3b00-495f-95cf-288595f2ab66",
+            "code": "GB LIV",
+            "name": "Liverpool Docks",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "bf36b898-0faa-4aa5-99ae-0ca698a7e590",
+            "code": "IPGBLIV3",
+            "name": "Seaforth Grain Terminal",
+            "facilityStatus": {
+              "code": "active"
+            }
+          },
+          {
+            "facilityUUID": "d10566a7-6df0-4c0c-a8a8-240cbe3ed160",
+            "code": "IPGBLIV2",
+            "name": "Maritime Centre",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "c625cccb-4ac6-48d9-a1ab-a156a293d7c2",
+        "name": "Luton Airport",
+        "code": "GBLTN4PP",
+        "categoryCodes": [
+          "OO",
+          "P",
+          "PP",
+          "PP(WP)"
+        ],
+        "buildingName": null,
+        "street": "London Luton Cargo Centre, Building 200, Luton, Bedfordshire",
+        "townCity": "Bedfordshire",
+        "county": null,
+        "postCode": "LU2 9PD",
+        "phone1": "01582 395 231",
+        "phone2": null,
+        "email1": "cargo@ltn.aero",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "d2dd0182-ee3f-44ce-bfc0-e8d5f3d9dea1",
+            "code": "GB LUT",
+            "name": "Luton Airport",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "67550444-080b-4920-95be-14ed39ba9e2a",
+            "code": "IPGBLTN4 \n",
+            "name": "London Luton Cargo Centre",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "802d3aa4-21b0-41f5-853d-1a8f1931d6b2",
+        "name": "Manchester Airport",
+        "code": "GBMNC4PP",
+        "categoryCodes": [
+          "OO",
+          "P",
+          "PP",
+          "PP(WP)"
+        ],
+        "buildingName": null,
+        "street": "Manchester Airport, Manchester",
+        "townCity": "Manchester",
+        "county": null,
+        "postCode": "M90 1QX",
+        "phone1": "01332 852 912",
+        "phone2": null,
+        "email1": null,
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "0d4601f8-26e1-4d69-b5a2-32a9c753c21b",
+            "code": "GB MNC",
+            "name": "Manchester Airport",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "e26a3941-50d2-4ecc-a247-1593b5b14af2",
+            "code": "IPGBMNC2",
+            "name": "Swissport",
+            "facilityStatus": {
+              "code": "active"
+            }
+          },
+          {
+            "facilityUUID": "d46b0669-cc8e-4f89-ab80-41373f610f05",
+            "code": "PIGBMNC4",
+            "name": "Dnata",
+            "facilityStatus": {
+              "code": "active"
+            }
+          },
+          {
+            "facilityUUID": "436a15c5-a581-43f5-93d0-aca492ebd1d9",
+            "code": "IPGBMNC3",
+            "name": "WFS",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "33c57910-83a5-4712-9988-40a526ca3258",
+        "name": "Port of Tyne",
+        "code": "GBNCP4PP",
+        "categoryCodes": [
+          "OO",
+          "PP(WP)"
+        ],
+        "buildingName": null,
+        "street": "Port of Tyne Authority, Maritime House, Tyne Dock, South Shields, Tyne and Wear",
+        "townCity": "Tyne and Wear",
+        "county": null,
+        "postCode": "NE34 9PT",
+        "phone1": "01914 552 671",
+        "phone2": null,
+        "email1": "commercial@portoftyne.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "74571f90-3b8d-4dbf-a7e4-3d24d46b8c14",
+            "code": "GB TYN",
+            "name": "Tyne Port",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "f0b85a1f-25b4-4a7d-817b-0b6b4f7e1d3c",
+            "code": "INSPNCP1",
+            "name": "Port of Tyne",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "0d7e4001-3b29-4d16-8995-c297c4f3cffd",
+        "name": "Newhaven",
+        "code": "GBNWH4PP",
+        "categoryCodes": [
+          "OO",
+          "P",
+          "PP"
+        ],
+        "buildingName": null,
+        "street": "Newhaven Harbour, Newhaven, Sussex",
+        "townCity": "Sussex",
+        "county": null,
+        "postCode": "BN9 0BN",
+        "phone1": "01273 616 070",
+        "phone2": null,
+        "email1": "admin@newhavenport.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "e47566e8-6c88-419e-99f6-b6badd41138d",
+            "code": "GB NHV",
+            "name": "Newhaven Port",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "d8ee64f1-422b-45f3-9c7d-a2524ae3ef18",
+            "code": "INSPNWH1",
+            "name": "Newhaven Port and Properties Limited",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "609413df-e37b-40d4-ae1d-da5dd38d1dec",
+        "name": "Purfleet",
+        "code": "GBPFP4PP",
+        "categoryCodes": [
+          "OO",
+          "P",
+          "PP"
+        ],
+        "buildingName": null,
+        "street": "London Road, Purfleet",
+        "townCity": "Purfleet",
+        "county": null,
+        "postCode": "RM19 1PD",
+        "phone1": "01708 865 522",
+        "phone2": null,
+        "email1": "ports.contactusbcp.pft@cldn.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "d86cc4a4-ec5b-4990-a3bf-50e67528ad25",
+            "code": "GB PFT",
+            "name": "Purfleet Port",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "82103849-8c7c-45db-812b-7939a0a0f696",
+            "code": "INSPPFP1",
+            "name": "Purfleet",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "51a32d40-c94f-49e8-a8e9-c6441008cf38",
+        "name": "Associated British Ports - Plymouth",
+        "code": "GBPLP4PP",
+        "categoryCodes": [
+          "OO",
+          "P",
+          "PP"
+        ],
+        "buildingName": null,
+        "street": "Port Office, Millbay Docks, Plymouth",
+        "townCity": "Plymouth",
+        "county": null,
+        "postCode": "PL1 3EF",
+        "phone1": "01626 774 044",
+        "phone2": null,
+        "email1": "CommercialEA@abports.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "11e7077e-a1fb-4dc6-8a84-eb03c4441be4",
+            "code": "GB PLY",
+            "name": "Plymouth Port",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "29c571dc-cf18-44bc-84de-f9e13acf7c32",
+            "code": "INSPPLP1",
+            "name": "ABP Plymouth BCP Building",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "d4884e17-c1f3-4986-97a9-4c5c95c57de1",
+        "name": "Portico Shipping Ltd",
+        "code": "GBPME1PP",
+        "categoryCodes": [
+          "PP"
+        ],
+        "buildingName": null,
+        "street": "Flathouse Quay, Prospect Road, Portsmouth, Hants",
+        "townCity": "Portsmouth",
+        "county": null,
+        "postCode": "PO2 7SP",
+        "phone1": "02392 890 600",
+        "phone2": null,
+        "email1": "imports@porticoshipping.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [],
+        "facilities": [
+          {
+            "facilityUUID": "ecfab84d-d0eb-4c2e-8845-f69b913928fc",
+            "code": "IPGBPME1P1",
+            "name": "Portico Shipping Ltd",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "59ca2118-6e66-418c-9727-edcefbdc27c6",
+        "name": "Portsmouth International Port",
+        "code": "GBPME2PP",
+        "categoryCodes": [
+          "OO",
+          "P",
+          "PP",
+          "PP(WP)"
+        ],
+        "buildingName": null,
+        "street": "Mile End Road, Portsmouth",
+        "townCity": "Portsmouth",
+        "county": null,
+        "postCode": "PO2 8BE",
+        "phone1": "02392 855 900",
+        "phone2": null,
+        "email1": "Info@portsmouth-port.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "9ed4fbfc-bd9b-42de-bff8-182657296cd6",
+            "code": "GB PME",
+            "name": "Portsmouth  Port",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "9e9bb3ea-02e4-4059-bbcb-c3e1e67092d3",
+            "code": "IPGBPME1P2",
+            "name": "Portsmouth International Port",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "f342e6a7-34eb-4402-9b07-a96609733c85",
+        "name": "Port of Poole",
+        "code": "GBPOP4PP",
+        "categoryCodes": [
+          "OO",
+          "P",
+          "PP"
+        ],
+        "buildingName": null,
+        "street": "New Harbour Road, Poole",
+        "townCity": "Poole",
+        "county": null,
+        "postCode": "BH15 4AJ",
+        "phone1": "01202 440 200",
+        "phone2": null,
+        "email1": "pooleharbourcommissioners@phc.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "4007923a-31e9-4d04-8643-c7726fb9d9fd",
+            "code": "GB POO",
+            "name": "Poole Port",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "e7e8774a-6b2c-40e6-a511-15274d3c37af",
+            "code": "INSPPOP1",
+            "name": "Port of Poole",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "c9ac802b-d5c0-414a-b67c-94e2884c7d54",
+        "name": "Associated British Ports - Silloth",
+        "code": "GBPOS4PP",
+        "categoryCodes": [
+          "OO",
+          "PP(WP)"
+        ],
+        "buildingName": null,
+        "street": "The Harbour Master, Associated British Ports, Port of Silloth, Silloth, Cumbria",
+        "townCity": "Cumbria",
+        "county": null,
+        "postCode": "CA7 4JQ",
+        "phone1": "01697 331 358",
+        "phone2": null,
+        "email1": "commercialIEA@abports.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "c1137277-dd9a-4545-bec0-695999fd48be",
+            "code": "GB SIL",
+            "name": "Silloth Port",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "fcec9fe6-af3a-41b9-8408-2f172c228e01",
+            "code": "INSPPOS1 \n",
+            "name": "Associated British Ports - Silloth",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "6cf0f6d9-1bf1-4954-af5c-7950b6e55df9",
+        "name": "SAE TEST BCP",
+        "code": "GBSAE123",
+        "categoryCodes": [],
+        "buildingName": "SAE Dummy BN",
+        "street": "SAE Dummy Street",
+        "townCity": "SAE Dummy Town/City",
+        "county": null,
+        "postCode": "WN7 1TU",
+        "phone1": "+44 7465 728 188",
+        "phone2": null,
+        "email1": "hello@hello.org",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "suspended"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "4d528117-8868-4f44-af5f-036cece7909d",
+        "name": "DP World",
+        "code": "GBSOU1PP",
+        "categoryCodes": [
+          "OO",
+          "P",
+          "PP",
+          "PP(WP)"
+        ],
+        "buildingName": null,
+        "street": "Western Docs, Southampton",
+        "townCity": "Southampton",
+        "county": null,
+        "postCode": "SO15 1DA",
+        "phone1": "0238 048 8800",
+        "phone2": null,
+        "email1": "southamptoncommercial@abports.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "c48ebc27-02e9-4ad5-8f14-fba3be2bedd2",
+            "code": "GB SOU",
+            "name": "Southampton Port",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "bf6bf88f-0314-45b7-97d7-307d58a343a4",
+            "code": "IPGBSOU1",
+            "name": "DP World",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "a00a6bcc-6f20-4c31-8cc6-bbc25f973644",
+        "name": "Stansted Airport",
+        "code": "GBSTN4PP",
+        "categoryCodes": [
+          "OO",
+          "P",
+          "PP",
+          "PP(WP)"
+        ],
+        "buildingName": null,
+        "street": "Stansted Airport, Essex",
+        "townCity": "Stansted",
+        "county": null,
+        "postCode": "CM24 1QW",
+        "phone1": "0808 169 7031",
+        "phone2": null,
+        "email1": null,
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "ee9a2ca8-0aae-46f4-9260-6cdedbfe61ee",
+            "code": "GB TED",
+            "name": "Stansted Airport",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "a3935d9d-1975-44f7-afc8-aebd0a09dd92",
+            "code": "IPGBSTN1",
+            "name": "Federal Express World Services",
+            "facilityStatus": {
+              "code": "active"
+            }
+          },
+          {
+            "facilityUUID": "4ce779b6-2ed9-4d82-b33e-f7ca0268b296",
+            "code": "IPGBSTN2",
+            "name": "Swissport Cargo Services UK Ltd",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "4a1b47c2-41db-4738-b02e-0c347d74ada0",
+        "name": "Teesside International Airport Ltd",
+        "code": "GBTEE4PP",
+        "categoryCodes": [
+          "PP"
+        ],
+        "buildingName": null,
+        "street": "Hangar 3, Teesside International Airport, Darlington, County Durham",
+        "townCity": "Durham",
+        "county": null,
+        "postCode": "DL2 1NL",
+        "phone1": "01325 332 811",
+        "phone2": null,
+        "email1": "cargo@teessideinternational.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "bd4d17b1-6307-414d-a016-195e2bee7d2f",
+            "code": "GB MME",
+            "name": "Teesside International Airport",
+            "status": {
+              "code": "suspended"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "379a1a65-e2f0-4655-8f19-d8f6693fd2f7",
+            "code": "INSPTEE1",
+            "name": "Teesside International Airport",
+            "facilityStatus": {
+              "code": "suspended"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "758ce844-9ede-4aa2-a753-679fb91b77ad",
+        "name": "Thanet Earth Ltd",
+        "code": "GBTEL4PP",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Thanet Earth Ltd, Unit 8, Barrow Man Road, Birchington, Kent",
+        "townCity": "Birchington",
+        "county": null,
+        "postCode": "CT7 0AX",
+        "phone1": "01843 844700",
+        "phone2": null,
+        "email1": "info@thanetearth.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "f177aa6f-180e-40f1-8fe5-23bbcc311343",
+        "name": "London Thames Port",
+        "code": "GBTHP1PP",
+        "categoryCodes": [
+          "OO",
+          "P",
+          "PP",
+          "PP(WP)"
+        ],
+        "buildingName": null,
+        "street": "Isle of Grain, Near Rochester, Kent",
+        "townCity": "Kent",
+        "county": null,
+        "postCode": "ME3 0EP",
+        "phone1": "07848 445 204",
+        "phone2": null,
+        "email1": "customerservices@londonthamesport.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "95e0600e-defc-4cc6-a243-9340a1eedddc",
+            "code": "GB THP",
+            "name": "London Thames Port",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "9ba6f1b1-014e-4722-9996-8918e132306b",
+            "code": "IPGBTHP1",
+            "name": "Thamesport (London) Ltd",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "9812d4b6-0abe-4087-8673-01c0a56ca9fe",
+        "name": "Port of Tilbury Container Terminal",
+        "code": "GBTIL1PP",
+        "categoryCodes": [
+          "OO",
+          "P",
+          "PP",
+          "PP(WP)"
+        ],
+        "buildingName": null,
+        "street": "Port of London Authority, Northfleet Hope House, Tilbury, Essex",
+        "townCity": "Essex",
+        "county": null,
+        "postCode": "RM18 7HX",
+        "phone1": "01375 854 712",
+        "phone2": null,
+        "email1": "BIP.User@londoncontainerterminal.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "dd4917c1-1276-431a-9466-3b90fb4efcb2",
+            "code": "GB TIL",
+            "name": "Tilbury Port (London Container Terminal)",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "ffaa9cfc-8b05-4775-89dc-cf6b966ff12e",
+            "code": "IPGBTIL1",
+            "name": "Port of Tilbury London Ltd",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "ba910c78-0161-4250-85c4-ab1d7a5d63e5",
+        "name": "Tilbury 2 Ro Ro Terminal",
+        "code": "GBTLB4PP",
+        "categoryCodes": [
+          "OO",
+          "P",
+          "PP"
+        ],
+        "buildingName": null,
+        "street": "Tilbury 2, Fort Road, West Tilbury, Essex",
+        "townCity": "Essex",
+        "county": null,
+        "postCode": "RM18 8UL",
+        "phone1": "01375 852 400",
+        "phone2": null,
+        "email1": "Tilbury2.bcp@potll.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [
+          {
+            "pointOfEntryUUID": "0febdfe3-36c4-4763-89ef-74e8b9b5e5c0",
+            "code": "GB TILR",
+            "name": "Tilbury 2 Ro-Ro Terminal",
+            "status": {
+              "code": "active"
+            }
+          }
+        ],
+        "facilities": [
+          {
+            "facilityUUID": "bc5fc262-b9ec-42a0-a002-f862ac80812b",
+            "code": "INSPTLB1",
+            "name": "Tilbury 2 Ro Ro Terminal BCP",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      },
+      {
+        "organisationUUID": "1edd0fdf-097b-4367-8008-24bade0926a4",
+        "name": "ASC Cargo Handling",
+        "code": "INSPACH1",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Unit 8 Radius Park, St Theresa's Road, Feltham",
+        "townCity": "Feltham",
+        "county": null,
+        "postCode": "TW14 0NG",
+        "phone1": "0208 738 1800",
+        "phone2": null,
+        "email1": "info@asccargo.com\r\n",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "5799223d-67dc-4d58-8c79-c538a1a5d30e",
+        "name": "HCH Horton Road (FRX)",
+        "code": "INSPAHR1",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "HCH Horton Road (FRX), HCH House, Horton Road, Colnbrook, Slough",
+        "townCity": "Slough",
+        "county": null,
+        "postCode": "SL3 0AT",
+        "phone1": "01753 760 910",
+        "phone2": null,
+        "email1": "horton.ops@swissport.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "e82406c5-ecbd-436a-89a7-db4cf78d8e96",
+        "name": "Barfoots of Botley (Chichester)",
+        "code": "INSPBAR1",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Barfoots of Botley, Vinnetrow Road, Chichester, West Sussex\n",
+        "townCity": "Chichester",
+        "county": null,
+        "postCode": "PO20 1QD",
+        "phone1": "01243 268 811",
+        "phone2": null,
+        "email1": "imports@barfoots.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "8fbef999-bc08-4cc5-b732-4ee0bca87e80",
+        "name": "Barfoots of Botley (Bognor Regis)",
+        "code": "INSPBAR2",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Barfoots of Botley, Sefter Farm, Pagham Road, Bognor Regis\n",
+        "townCity": "Bognor Regis",
+        "county": null,
+        "postCode": "PO21 3PX",
+        "phone1": "01243 268 811",
+        "phone2": null,
+        "email1": "imports@barfoots.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "518720e5-29a6-4c4a-8d5c-70aa5994bb71",
+        "name": "Berryplants Ltd",
+        "code": "INSPBER1",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Berryplants Ltd, Wills Farm Buildings, Wills Lane Newchurch, Romney Marsh, Kent",
+        "townCity": "Romney Marsh",
+        "county": null,
+        "postCode": "TN29 0DT",
+        "phone1": "01303 872 444",
+        "phone2": null,
+        "email1": "info@berryplantsltd.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "ade3fba1-5b33-45a8-ba4d-a5914da64a8a",
+        "name": "Berry Gardens Ltd",
+        "code": "INSPBER2",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Unit 20, Wares Farm, Redwall Lane, Linton, Maidstone, Kent",
+        "townCity": "Maidstone",
+        "county": null,
+        "postCode": "ME17 4BA",
+        "phone1": "01622 823100",
+        "phone2": null,
+        "email1": "customs@berrygardens.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "e233737b-dd3d-4c9d-ae31-c020a1c59ca1",
+        "name": "Bordon Hill Nurseries",
+        "code": "INSPBHN1",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Bordon Hill Nursery CP, Bordon Hill, Stratford-upon-Avon, Warwickshire",
+        "townCity": "Stratford-upon-Avon",
+        "county": null,
+        "postCode": "CV37 9RY\r\n\r",
+        "phone1": "01789 292792",
+        "phone2": null,
+        "email1": "ukimportexport@ballhort.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "2bbcfde3-be97-42b8-b14a-2ee8677e4975",
+        "name": "B&Q Redhouse, Doncaster",
+        "code": "INSPBQR1",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "B&Q Redhouse Distribution Centre, Rockingham Way, Redhouse Interchange, Doncaster",
+        "townCity": "Doncaster",
+        "county": null,
+        "postCode": "DN6 7FB",
+        "phone1": "01302 720 122 and then ext 322",
+        "phone2": null,
+        "email1": "quality.b-and-q.mtp@wincanton.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "f2b0f849-1c41-4352-b62f-e0a4b9230ec0",
+        "name": "B&Q Swindon HDC",
+        "code": "INSPBQW1",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "B&Q Swindon Distribution Centre, Highworth Road, Swindon, Wiltshire",
+        "townCity": "Swindon",
+        "county": null,
+        "postCode": "SN3 4QS",
+        "phone1": "01793 839 135",
+        "phone2": null,
+        "email1": "swindon.quality.control@wincanton.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "f6400eaf-5949-486e-bf05-766f487fc7f1",
+        "name": "Dnata City East Unit 2",
+        "code": "INSPDCE1",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Bedfont Road, Stanwell, Middlesex",
+        "townCity": "Stanwell",
+        "county": null,
+        "postCode": "TW19 7LN",
+        "phone1": "01784 424 700",
+        "phone2": null,
+        "email1": "DCEast.ImportOffice@dnata.co.uk\r\ndceast.imports@dnata.co.uk\r\nDCEast.ImportDutyManager@dnata.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "3ac3998d-ad65-4032-b986-91717727b8bc",
+        "name": "Van Duyvenvoorde UK Ltd",
+        "code": "INSPDUY1",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Van Duyvenvoorde UK Ltd, Spout Lane, Stanwell Moor, Middlesex\n",
+        "townCity": "Stanwell Moor",
+        "county": null,
+        "postCode": "TW19 6BN",
+        "phone1": "01753 765970 (Flowervision London)",
+        "phone2": null,
+        "email1": "nick@flowervisiongroup.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "f341c67d-90f6-40f2-a47c-9041d0f74b21",
+        "name": "DVS Ashford",
+        "code": "INSPDVA1",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Distribution Van Services Limited, 1 Ellingham Way, Ashford",
+        "townCity": "Ashford",
+        "county": null,
+        "postCode": "TN23 6NF",
+        "phone1": "07813 035277",
+        "phone2": null,
+        "email1": "cpash@dvsfloraltransport.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "7f91e3c2-b093-4cc9-957b-5e9cfbd1a965",
+        "name": "DVS Milton Keynes",
+        "code": "INSPDVM1",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "DVS Milton Keynes, Distribution Van Services, 32 Tanners Drive, Blakelands, Milton Keynes",
+        "townCity": "Milton Keynes",
+        "county": null,
+        "postCode": "MK14 5BN",
+        "phone1": "07494 911136",
+        "phone2": null,
+        "email1": "cpmk@dvsfloraltransport.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "50f2148b-c03c-4fa6-9621-3463d7d30cc3",
+        "name": "Flowervision Bristol Ltd",
+        "code": "INSPFBL1",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Flowervision Bristol Ltd, Units 6 and 7, Feeder Road, Bristol",
+        "townCity": "Bristol",
+        "county": null,
+        "postCode": "BS2 0TX",
+        "phone1": "01179 778 889 or 07739004194",
+        "phone2": null,
+        "email1": "nick@flowervisionbristol.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "38abe476-8cf5-4c1b-bdfc-c3ae743e4a88",
+        "name": "Flower Freight Ltd",
+        "code": "INSPFFL1",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Flower Freight Ltd , Pinetops, Theobalds Park Road, Crews Hill, Enfield",
+        "townCity": "Enfield",
+        "county": null,
+        "postCode": null,
+        "phone1": null,
+        "phone2": null,
+        "email1": null,
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "809d7b3d-872a-4cd8-b77b-645862a4f28b",
+        "name": "Floralinc Ltd",
+        "code": "INSPFLL1",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Floralinc Ltd  , Surfleet Road, Pinchbeck, Spalding, Lincolnshire",
+        "townCity": "Spalding",
+        "county": null,
+        "postCode": "PE113XY",
+        "phone1": "01775 715 487\r\n\r",
+        "phone2": null,
+        "email1": "controlpoint@floralinc.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "31f41043-03d6-4eae-8403-32d9d52b965d",
+        "name": "H Z Logistics Ltd",
+        "code": "INSPHZL1",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Washway Road, Holbeach, Lincolnshire",
+        "townCity": "Holbeach",
+        "county": null,
+        "postCode": "PE12 8LT",
+        "phone1": "01205 820205",
+        "phone2": null,
+        "email1": "customs@hzlogistics.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "470ef29c-4d83-44f0-961b-62b787be7b65",
+        "name": "Langley (ILC) International Logistics Centre",
+        "code": "INSPLAN1",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Langley (ILC) International Logistics Centre, Hurricane Way, Slough, Berkshire",
+        "townCity": "Slough\n",
+        "county": null,
+        "postCode": "SL3 BAQ",
+        "phone1": "01753 484 703",
+        "phone2": null,
+        "email1": "customerservice@your.royalmail.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "4d62ecb8-ebc8-4860-b212-96a23dec4a5a",
+        "name": "MAS Logistics (UK) Limited",
+        "code": "INSPMLL1",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "MAS Logistics Limited, Unit 15, Barratt Industrial Park, Park Avenue, Southall",
+        "townCity": "Southall",
+        "county": null,
+        "postCode": "UB1 3AF",
+        "phone1": "07949 545 290",
+        "phone2": null,
+        "email1": "ABhatia@maslogistics.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "c50ca410-cc25-4614-a487-bd9a1343b0a7",
+        "name": "Perishable Movements Limited (PML) - Ashby House",
+        "code": "INSPPML2",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Ashby House, Lympne Distribution Park, Lympne, Hythe, Kent\n",
+        "townCity": "Hythe",
+        "county": null,
+        "postCode": "CT21 4LR",
+        "phone1": "0208 893 2666",
+        "phone2": null,
+        "email1": "sales@pml-ltd.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "a45ca6bc-6197-4b31-a090-c79ffb585200",
+        "name": "Provender Nurseries",
+        "code": "INSPPNL1",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "The Landscape Centre, Leydenhatch Lane, Swanley, Kent\n",
+        "townCity": "Swanley",
+        "county": null,
+        "postCode": "BR8 7PS",
+        "phone1": "01322 662315",
+        "phone2": null,
+        "email1": "controlpoint@provendernurseries.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "e5b923d9-b205-40c0-9b9e-a01a75d1da46",
+        "name": "Worldwide Flight Services Ltd (Hounslow)",
+        "code": "INSPWFS1",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Worldwide Flight Services Ltd, Building 875, Scylla Road, Hounslow, London\n",
+        "townCity": "Hounslow",
+        "county": null,
+        "postCode": "TW6 3YH",
+        "phone1": "0208 283 2754",
+        "phone2": null,
+        "email1": "bbs.imports@iagcargo-uk.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "950ceb60-7b4b-4cfc-9e0e-9bb88615b448",
+        "name": "Worldwide Flight Services Ltd (Stanwell)",
+        "code": "INSPWFS2",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Worldwide Flight Services Ltd, Centre Point, Bedfont Road, Stanwell, Middlesex\n",
+        "townCity": "Stanwell",
+        "county": null,
+        "postCode": "TW19 7NZ",
+        "phone1": "0208 564 6991",
+        "phone2": null,
+        "email1": "lhr.ulops@wfs.aero",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "8b9bcc9a-e950-4e7a-92b1-4f19b714b7b7",
+        "name": "IMTA-20400 Dummy CP - IPGB20400",
+        "code": "IPGB20400",
+        "categoryCodes": [
+          "P",
+          "PP"
+        ],
+        "buildingName": "Eve Davis",
+        "street": "Molestiae repellendu",
+        "townCity": "Dolorem beatae irure",
+        "county": null,
+        "postCode": "Dolores ut eos nobis",
+        "phone1": "+1 (894) 802-5495",
+        "phone2": null,
+        "email1": "lifofipe@mailinator.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB-ENG",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "9decbf6f-f610-4c79-9bdd-458b2f90c4b1",
+        "name": "Channel Ports Ltd",
+        "code": "IPGBDOV1",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Stop 24, Folkestone Services, Junction 11, M20, Hythe, Kent",
+        "townCity": "Hythe",
+        "county": null,
+        "postCode": "CT21 4BL",
+        "phone1": "01304 203 105",
+        "phone2": null,
+        "email1": "sales@channelports.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "39721ade-9da5-49a5-b3ee-daee69b6e8a9",
+        "name": "JZ Flowers",
+        "code": "IPGBJZF1",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Dianthus House, Common Lane, Newport, Brough",
+        "townCity": "Newport",
+        "county": null,
+        "postCode": "HU15 2FT",
+        "phone1": "01430 472 500",
+        "phone2": null,
+        "email1": "customs-enquiries@jzflowers.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "166bbc69-e2a5-4254-8f0f-ddb88dec95e4",
+        "name": "DNATA 3 (NCS)",
+        "code": "IPGBLHR10",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "DNATA 3 (NCS), Unit 3, Northumberland Close, Stanwell, Surrey",
+        "townCity": "Stanwell",
+        "county": null,
+        "postCode": "TW19 7LN",
+        "phone1": null,
+        "phone2": null,
+        "email1": "contactcentre@dnata.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "7f9cf749-03fb-4c86-851d-e90731657742",
+        "name": "Dnata City East Unit 1",
+        "code": "IPGBLHR11",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Bedfont Road, Stanwell, Middlesex",
+        "townCity": "Stanwell",
+        "county": null,
+        "postCode": "TW19 7LN",
+        "phone1": "01784 422 700",
+        "phone2": null,
+        "email1": "contactcentre@dnata.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "5cf9137c-dd26-4c7c-ad06-eef1ff6049b6",
+        "name": "Kuehne & Nagel",
+        "code": "IPGBLHR14",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Kuehne & Nagel, Building 1235, Eastern Perimeter Road, Hatton Cross, Hounslow",
+        "townCity": "Hounslow",
+        "county": null,
+        "postCode": "TW6 2SQ",
+        "phone1": "0208 759 4508",
+        "phone2": null,
+        "email1": "lon-perishableimports@kuehne-nagel.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "716ef22e-561f-4246-8cd9-48af31257de7",
+        "name": "Dnata 1 (NAS), Dnata City",
+        "code": "IPGBLHR8",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Dnata 1 (NAS), Dnata City, Northumberland Close, Stanwell, Spelthorne, Surrey",
+        "townCity": "Stanwell",
+        "county": null,
+        "postCode": "TW19 7LN",
+        "phone1": null,
+        "phone2": null,
+        "email1": "contactcentre@dnata.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "8670b3ab-7df0-4f6f-8716-effe9c60a8c4",
+        "name": "Dnata Unit 2 (NBS)",
+        "code": "IPGBLHR9",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Unit 2 (NBS), Northumberlands Close, Stanwell, Spelthorne, Surrey",
+        "townCity": "Stanwell",
+        "county": null,
+        "postCode": "TW19 7LN",
+        "phone1": null,
+        "phone2": null,
+        "email1": null,
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "13b4433e-0c51-4ae9-8823-d2abbae63535",
+        "name": "Expeditors International Ltd (EXX)",
+        "code": "IPGBNHR1",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Expeditors International Ltd (EXX), 1 Ascot Road, Bedfont, Middlesex",
+        "townCity": "Bedfont",
+        "county": null,
+        "postCode": "TW14 8QH",
+        "phone1": "Customs & Compliance 01784 264500",
+        "phone2": null,
+        "email1": "requests.london@expeditors.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "f4e24dca-d713-40b8-88f4-1e80763f80a8",
+        "name": "St Marks Services Ltd",
+        "code": "IPGBNHR10",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "St Marks Services Ltd, Unit 10D, Beaver Industrial Park, Brent Road, Southall",
+        "townCity": "Southall",
+        "county": null,
+        "postCode": "UB2 5FB",
+        "phone1": "0203 264 2101",
+        "phone2": null,
+        "email1": "imports@stmarkservices.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "a0089669-bb1f-427b-b7fa-009d7fc6058c",
+        "name": "Veteran Logistics",
+        "code": "IPGBNHR12",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Veteran Logistics, Unit 5B, Beaver Industrial Park, Brent Road, Southall, Middlesex\n",
+        "townCity": "Southall",
+        "county": null,
+        "postCode": "UB2 5FB",
+        "phone1": null,
+        "phone2": null,
+        "email1": null,
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "7a4679ce-4bb9-420d-8f2c-285b97b91ae1",
+        "name": "Fruity Fresh",
+        "code": "IPGBNHR13",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Fruity Fresh, 8a Beaver Industrial Estate, Brent Road, Southall, Middlesex",
+        "townCity": "Southall",
+        "county": null,
+        "postCode": "UB2 5FB",
+        "phone1": "0208 561 8196",
+        "phone2": null,
+        "email1": "imports@fruityfresh.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "6b3ba1bf-a9f9-4037-ad96-d41d26809693",
+        "name": "Wealmoor \r\n",
+        "code": "IPGBNHR14",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Wealmoor, Jetha House, Unit 5, Auriol Drive, Greenford Park, Greenford, Middlesex\n",
+        "townCity": "Greenford",
+        "county": null,
+        "postCode": "UB6 0TP",
+        "phone1": "0208 832 8867",
+        "phone2": null,
+        "email1": "imports@wealmoor.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "7dca8077-3738-4d61-8967-7ff90dbf0a1b",
+        "name": "Dnata Cargo Point",
+        "code": "IPGBNHR16",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Dnata Cargo Point, Bedfont Road, Stanwell, Middlesex",
+        "townCity": "Stanwell",
+        "county": null,
+        "postCode": "TW19 7LU",
+        "phone1": "01784 424 702",
+        "phone2": null,
+        "email1": "sp.office@dnata.co.uk (for imports supervisor)\nsp.ops@dnata.co.uk (for imports)\ncsm.sp@dnata.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "7ac311a4-e12d-4561-86c2-019b441afaeb",
+        "name": "H & M Freight Services Ltd",
+        "code": "IPGBNHR2",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "H & M Freight Services Ltd, H & M House, North Feltham Trading Estate, Pier Road, Feltham, Middlesex",
+        "townCity": "Feltham",
+        "county": null,
+        "postCode": "TW14 0TW",
+        "phone1": "0208 844 0088",
+        "phone2": null,
+        "email1": "ops@hmfreight.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "443c5675-0757-4668-968f-6bcee59311c5",
+        "name": "Airworld",
+        "code": "IPGBNHR3",
+        "categoryCodes": [
+          "P",
+          "PP"
+        ],
+        "buildingName": "Units 2,3 and 4",
+        "street": "Airworld, Units 2,3 and 4, X2 Hatton Cross Centre, Heathrow Airport, Hounslow \n",
+        "townCity": "Hounslow",
+        "county": null,
+        "postCode": "TW6 2GE",
+        "phone1": null,
+        "phone2": null,
+        "email1": null,
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [
+          "CHED-PP"
+        ],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "5c5933d9-95ae-41ff-a2fe-ddb28faab9fc",
+        "name": "M.D. Freight Services Ltd",
+        "code": "IPGBNHR5",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "M.D.Freight Services Ltd, Unit 7, Market Trading Estate, Christopher Road, Southall, Middlesex",
+        "townCity": "Southall",
+        "county": null,
+        "postCode": "UB2 5YG",
+        "phone1": null,
+        "phone2": null,
+        "email1": null,
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "15febf10-3ecb-4d30-bc31-f0c8288fe03f",
+        "name": "International Cargo Logistics Limited",
+        "code": "IPGBNHR6",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Unit 13, Heathrow International Trading Estate, Heathrow",
+        "townCity": "Heathrow",
+        "county": null,
+        "postCode": "TW4 6HB",
+        "phone1": "0208 572 7000",
+        "phone2": null,
+        "email1": "airimportuk@mentfield.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "7000065d-810f-4349-84e3-0471afca5f6e",
+        "name": "Morgan Air Cargo (MRX)",
+        "code": "IPGBNHR7",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Morgan Air Cargo (MRX), Units 1,2,3 Air Hub, Poyle Trading Estate, Poyle Road, Colnbrook, Berkshire\n",
+        "townCity": "Colnbrook",
+        "county": null,
+        "postCode": "SL3 0AA",
+        "phone1": "0208 897 2934",
+        "phone2": null,
+        "email1": "imports@morgan-group.net",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "e7719d56-642c-45b1-8ca5-1e29e7652c8a",
+        "name": "Perishable Movements Limited (PML) - Units 1-6 Skyport",
+        "code": "IPGBNHR9",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Perishable Movements Limited, Units 1-6 Skyport, Heathrow, Armadale Road, Feltham, Middlesex\n",
+        "townCity": "Feltham",
+        "county": null,
+        "postCode": "TW14 0LW",
+        "phone1": "0208 893 2666",
+        "phone2": null,
+        "email1": "sales@perishablemovements.com",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "dea31581-444f-490c-8871-b9ae09c62ff0",
+        "name": "Parcelforce Worldwide",
+        "code": "IPGBPFW1",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "International Hub, Middlemarch Business Park, Siskin Parkway West, Coventry\n",
+        "townCity": "Coventry",
+        "county": null,
+        "postCode": "CV3 4PF",
+        "phone1": "0247 621 3327",
+        "phone2": null,
+        "email1": "stuart.matthews1@parcelforce.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "36e6f520-7beb-45d7-bc31-7d7053082561",
+        "name": "Rhodes Freight Services Ltd",
+        "code": "IPGBRFS1",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "105 Whitby Road, Slough",
+        "townCity": "Slough",
+        "county": null,
+        "postCode": "SL1 3DR",
+        "phone1": "01753 653 094",
+        "phone2": null,
+        "email1": "operations@rhodesfreightservices.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "1ec89d17-7339-4c6d-ae29-66f545ae018d",
+        "name": "WB Chambers Farms Ltd",
+        "code": "IPGBWBC1",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": "Oakdene Farm, Leeds Road, Maidstone, Kent\n",
+        "townCity": "Maidstone",
+        "county": null,
+        "postCode": "ME17 3LT",
+        "phone1": "01662 391 668",
+        "phone2": null,
+        "email1": "technical@wbchambers.co.uk",
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "CP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": []
+      },
+      {
+        "organisationUUID": "8f91b025-e408-4e9a-a9ea-07a0fe96deaf",
+        "name": "IPAFFS Test316",
+        "code": "TESTCODE316",
+        "categoryCodes": [],
+        "buildingName": null,
+        "street": null,
+        "townCity": null,
+        "county": null,
+        "postCode": null,
+        "phone1": null,
+        "phone2": null,
+        "email1": null,
+        "email2": null,
+        "contact": null,
+        "countryCode": "GB",
+        "status": {
+          "code": "active"
+        },
+        "organisationType": {
+          "code": "BCP"
+        },
+        "certificateCodes": [],
+        "pointsOfEntry": [],
+        "facilities": [
+          {
+            "facilityUUID": "b0b476ef-4a09-4fca-9318-9729311018f5",
+            "code": "INS316",
+            "name": "TEST Inspection316",
+            "facilityStatus": {
+              "code": "active"
+            }
+          }
+        ]
+      }
+    ],
+    "cursorId": 0
+  },
+  "timestamp": "2025-10-08T12:07:26.788"
+}

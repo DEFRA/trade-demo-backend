@@ -30,6 +30,20 @@ cdp:
     header-name: ${TRACING_HEADER:x-cdp-request-id}
   proxy:
     url: ${HTTP_PROXY:}
+    
+# Trade auth api configuration
+trade-auth:
+  client-id: test
+  client-secret: test_value
+  scope: default
+  connectionTimeout: 3000
+  readTimeout: 3000
+
+# MDM api configuration
+mdm-service:
+  ocpApimSubscriptionKey: test
+  connectionTimeout: 3000
+  readTimeout: 3000
 
 # AWS configuration
 aws:
@@ -45,7 +59,7 @@ aws:
 # Logging configuration
 logging:
   level:
-    root: ${LOG_LEVEL:INFO}
+    root: INFO
     uk.gov.defra.cdp.trade.demo: ${LOG_LEVEL:INFO}
     uk.gov.defra.cdp.trade.demo.common.metrics: ${LOGGING_LEVEL_UK_GOV_DEFRA_CDP_TRADE_DEMO_COMMON_METRICS:INFO}
     org.springframework: ${LOGGING_LEVEL_ORG_SPRINGFRAMEWORK:INFO}
