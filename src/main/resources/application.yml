@@ -21,17 +21,7 @@ spring:
         enabled: true
   lifecycle:
     timeout-per-shutdown-phase: 30s
-  cloud:
-    aws:
-      cloudwatch:
-        enabled:  ${AWS_EMF_ENABLED:true}
-        endpoint: ${AWS_EMF_AGENT_ENDPOINT:tcp://localhost:4566}
-        region: ${AWS_REGION:eu-west-2}
-        step: 1m
-        connectTimeout: 20s
-        readTimeout: 20s
-        batchSize: 1000
-        numThreads: 1
+
 
 # CDP platform configuration
 cdp:
@@ -41,6 +31,8 @@ cdp:
   service-version: ${SERVICE_VERSION:0.0.0-local}
   tracing:
     header-name: ${TRACING_HEADER:x-cdp-request-id}
+  cloudwatch:
+    endpoint: ${AWS_EMF_AGENT_ENDPOINT:http://localhost:4566}
   proxyUrl: ${HTTP_PROXY:}
   
 # Trade auth api configuration
@@ -101,15 +93,7 @@ management:
     mongo:
       enabled: false
   metrics:
-    export:
-      cloudwatch:
-        enabled: true
-        namespace: ${AWS_EMF_NAMESPACE:trade-demo-backend}
-        step: 1m
-        connectTimeout: 20s
-        readTimeout: 20s
-        batchSize: 1000
-        numThreads: 2
+    enabled: ${METRICS_ENABLED:false}
   
 # Application info (exposed via /info endpoint)
 info:

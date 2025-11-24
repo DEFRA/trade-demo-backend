@@ -1,9 +1,8 @@
 package uk.gov.defra.cdp.trade.demo.configuration;
 
+import io.micrometer.core.aop.TimedAspect;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -21,21 +20,13 @@ import org.springframework.context.annotation.Configuration;
  * When enabled, Spring Boot Actuator auto-configures appropriate registries.
  */
 @Slf4j
+@Configuration
 public class MetricsConfig {
 
-    /**
-     * Fallback MeterRegistry when metrics are disabled.
-     * <p>
-     * When management.metrics.enabled=false, Spring Boot Actuator still needs
-     * a MeterRegistry bean to avoid errors. SimpleMeterRegistry is an in-memory
-     * registry that discards all metrics.
-     * <p>
-     * This bean is only created when metrics are explicitly disabled.
-     */
     @Bean
-    @ConditionalOnProperty(value = "management.metrics.enabled", havingValue = "false")
-    public MeterRegistry simpleMeterRegistry() {
-        log.info("Metrics disabled - using SimpleMeterRegistry");
-        return new SimpleMeterRegistry();
+    public TimedAspect timedAspect(MeterRegistry registry) {
+        log.debug("Creating TimedAspect for {}", registry.getClass().getSimpleName());
+        return new TimedAspect(registry);
     }
+ 
 }
