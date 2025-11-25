@@ -1,5 +1,7 @@
 package uk.gov.defra.cdp.trade.demo.integration;
 
+import static org.mockserver.model.HttpRequest.request;
+import static org.mockserver.model.HttpResponse.response;
 import static org.testcontainers.utility.DockerImageName.parse;
 
 import com.fasterxml.jackson.core.StreamReadFeature;
@@ -8,12 +10,16 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.mockserver.client.MockServerClient;
+import org.mockserver.model.JsonBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -144,6 +150,24 @@ abstract class IntegrationBase {
             .map(body -> body.get("access_token"))
             .map(JsonNode::asText)
             .orElseThrow();
+    }
+
+    void stubMdmResponse() {
+        usingStub()
+            .when(request()
+                .withMethod("GET")
+                .withPath("/mdm-service/mdm/trade/bcp/bcps")
+                .withHeader("Ocp-Apim-Subscription-Key", "test")
+            )
+            .respond(response().withBody(
+                getJsonFromFile("integration/mdm-response.json")
+            ).withHeader("x-ms-middleware-request-id", "trace-id"));
+    }
+    
+    @SneakyThrows
+    JsonBody getJsonFromFile(String filename) {
+        return new JsonBody(
+            Files.readString(Paths.get(getClass().getClassLoader().getResource(filename).toURI())));
     }
 
     @AfterEach
