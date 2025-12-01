@@ -25,14 +25,13 @@ class NotificationIT extends IntegrationBase {
 
     @BeforeEach
     void setUp() {
-        // Clean up MongoDB before each test
         notificationRepository.deleteAll();
     }
 
     @Test
     void saveOrUpdate_shouldCreateNewNotification() {
         // Given
-        NotificationDto dto = createNotificationDto("CHEDP.GB.2024.1234567", "United Kingdom");
+        NotificationDto dto = createNotificationDto(null, "United Kingdom"); // No ID - create new
 
         // When
         EntityExchangeResult<Notification> result = webClient("NoAuth")
@@ -48,7 +47,7 @@ class NotificationIT extends IntegrationBase {
         Notification notification = result.getResponseBody();
         assertThat(notification).isNotNull();
         assertThat(notification.getId()).isNotNull();
-        assertThat(notification.getChedReference()).isEqualTo("CHEDP.GB.2024.1234567");
+        assertThat(notification.getChedReference()).isEqualTo("CHED-NEW");
         assertThat(notification.getOriginCountry()).isEqualTo("United Kingdom");
         assertThat(notification.getCreated()).isNotNull();
         assertThat(notification.getUpdated()).isNotNull();
@@ -59,16 +58,21 @@ class NotificationIT extends IntegrationBase {
     @Test
     void saveOrUpdate_shouldUpdateExistingNotification() {
         // Given - create initial notification
-        NotificationDto initialDto = createNotificationDto("CHEDP.GB.2024.7777777", "Ireland");
-        webClient("NoAuth")
+        NotificationDto initialDto = createNotificationDto(null, "Ireland"); // Create new
+        EntityExchangeResult<Notification> createResult = webClient("NoAuth")
             .put()
             .uri(NOTIFICATIONS_ENDPOINT)
             .bodyValue(initialDto)
             .exchange()
-            .expectStatus().isOk();
+            .expectStatus().isOk()
+            .expectBody(Notification.class)
+            .returnResult();
 
-        // When - update with same CHED reference but different data
-        NotificationDto updateDto = createNotificationDto("CHEDP.GB.2024.7777777", "France");
+        String createdId = createResult.getResponseBody().getId();
+
+        // When - update using the ID
+        NotificationDto updateDto = createNotificationDto(createdId, "France"); // Provide ID for update
+        updateDto.setChedReference("CHED-UPDATED");
         updateDto.setImportReason("re-entry");
 
         EntityExchangeResult<Notification> result = webClient("NoAuth")
@@ -83,7 +87,8 @@ class NotificationIT extends IntegrationBase {
         // Then
         Notification updated = result.getResponseBody();
         assertThat(updated).isNotNull();
-        assertThat(updated.getChedReference()).isEqualTo("CHEDP.GB.2024.7777777");
+        assertThat(updated.getId()).isEqualTo(createdId);
+        assertThat(updated.getChedReference()).isEqualTo("CHED-UPDATED");
         assertThat(updated.getOriginCountry()).isEqualTo("France");
         assertThat(updated.getImportReason()).isEqualTo("re-entry");
         assertThat(updated.getUpdated()).isNotNull();
@@ -95,9 +100,9 @@ class NotificationIT extends IntegrationBase {
     @Test
     void findAll_shouldReturnAllNotifications() {
         // Given - create multiple notifications
-        NotificationDto dto1 = createNotificationDto("CHEDP.GB.2024.1111111", "United Kingdom");
-        NotificationDto dto2 = createNotificationDto("CHEDP.GB.2024.2222222", "Ireland");
-        NotificationDto dto3 = createNotificationDto("CHEDP.GB.2024.3333333", "France");
+        NotificationDto dto1 = createNotificationDto(null, "United Kingdom", "CHED-UK-001");
+        NotificationDto dto2 = createNotificationDto(null, "Ireland", "CHED-IE-002");
+        NotificationDto dto3 = createNotificationDto(null, "France", "CHED-FR-003");
 
         webClient("NoAuth").put().uri(NOTIFICATIONS_ENDPOINT).bodyValue(dto1).exchange();
         webClient("NoAuth").put().uri(NOTIFICATIONS_ENDPOINT).bodyValue(dto2).exchange();
@@ -105,18 +110,18 @@ class NotificationIT extends IntegrationBase {
 
         // When
         List<Notification> notifications = findAllNotifications();
-        
+
         // Then
         assertThat(notifications).isNotNull().hasSize(3);
         assertThat(notifications)
-            .extracting(Notification::getChedReference)
-            .containsExactlyInAnyOrder("CHEDP.GB.2024.1111111", "CHEDP.GB.2024.2222222", "CHEDP.GB.2024.3333333");
+            .extracting(Notification::getId)
+            .allMatch(id -> id != null && !id.isEmpty());
     }
 
     @Test
     void findById_shouldReturnNotification() {
         // Given - create a notification
-        NotificationDto dto = createNotificationDto("CHEDP.GB.2024.4444444", "Spain");
+        NotificationDto dto = createNotificationDto(null, "Spain");
         EntityExchangeResult<Notification> createResult = webClient("NoAuth")
             .put()
             .uri(NOTIFICATIONS_ENDPOINT)
@@ -140,7 +145,7 @@ class NotificationIT extends IntegrationBase {
         Notification notification = result.getResponseBody();
         assertThat(notification).isNotNull();
         assertThat(notification.getId()).isEqualTo(id);
-        assertThat(notification.getChedReference()).isEqualTo("CHEDP.GB.2024.4444444");
+        assertThat(notification.getOriginCountry()).isEqualTo("Spain");
     }
 
     @Test
@@ -154,45 +159,9 @@ class NotificationIT extends IntegrationBase {
     }
 
     @Test
-    void findByChedReference_shouldReturnNotification() {
-        // Given - create a notification
-        NotificationDto dto = createNotificationDto("CHEDP.GB.2024.5555555", "Germany");
-        webClient("NoAuth")
-            .put()
-            .uri(NOTIFICATIONS_ENDPOINT)
-            .bodyValue(dto)
-            .exchange();
-
-        // When
-        EntityExchangeResult<Notification> result = webClient("NoAuth")
-            .get()
-            .uri(NOTIFICATIONS_ENDPOINT + "/ched/{chedReference}", "CHEDP.GB.2024.5555555")
-            .exchange()
-            .expectStatus().isOk()
-            .expectBody(Notification.class)
-            .returnResult();
-
-        // Then
-        Notification notification = result.getResponseBody();
-        assertThat(notification).isNotNull();
-        assertThat(notification.getChedReference()).isEqualTo("CHEDP.GB.2024.5555555");
-        assertThat(notification.getOriginCountry()).isEqualTo("Germany");
-    }
-
-    @Test
-    void findByChedReference_shouldReturn404_whenNotExists() {
-        // When/Then
-        webClient("NoAuth")
-            .get()
-            .uri(NOTIFICATIONS_ENDPOINT + "/ched/{chedReference}", "CHEDP.GB.2024.9999999")
-            .exchange()
-            .expectStatus().isNotFound();
-    }
-
-    @Test
     void delete_shouldRemoveNotification() {
         // Given - create a notification
-        NotificationDto dto = createNotificationDto("CHEDP.GB.2024.6666666", "Italy");
+        NotificationDto dto = createNotificationDto(null, "Italy");
         EntityExchangeResult<Notification> createResult = webClient("NoAuth")
             .put()
             .uri(NOTIFICATIONS_ENDPOINT)
@@ -233,7 +202,7 @@ class NotificationIT extends IntegrationBase {
     @Test
     void fullCrudFlow_shouldWorkEndToEnd() {
         // 1. Create notification
-        NotificationDto createDto = createNotificationDto("CHEDP.GB.2024.8888888", "Netherlands");
+        NotificationDto createDto = createNotificationDto(null, "Netherlands");
         EntityExchangeResult<Notification> createResult = webClient("NoAuth")
             .put()
             .uri(NOTIFICATIONS_ENDPOINT)
@@ -245,7 +214,7 @@ class NotificationIT extends IntegrationBase {
 
         Notification created = createResult.getResponseBody();
         assertThat(created.getId()).isNotNull();
-        assertThat(created.getChedReference()).isEqualTo("CHEDP.GB.2024.8888888");
+        assertThat(created.getChedReference()).isEqualTo("CHED-NEW");
         assertThat(created.getOriginCountry()).isEqualTo("Netherlands");
 
         // 2. Find by ID
@@ -256,22 +225,13 @@ class NotificationIT extends IntegrationBase {
             .expectStatus().isOk()
             .expectBody(Notification.class)
             .value(notification -> {
-                assertThat(notification.getChedReference()).isEqualTo("CHEDP.GB.2024.8888888");
-            });
-
-        // 3. Find by CHED reference
-        webClient("NoAuth")
-            .get()
-            .uri(NOTIFICATIONS_ENDPOINT + "/ched/{chedReference}", "CHEDP.GB.2024.8888888")
-            .exchange()
-            .expectStatus().isOk()
-            .expectBody(Notification.class)
-            .value(notification -> {
                 assertThat(notification.getId()).isEqualTo(created.getId());
+                assertThat(notification.getOriginCountry()).isEqualTo("Netherlands");
             });
 
-        // 4. Update notification (same CHED reference, different data)
-        NotificationDto updateDto = createNotificationDto("CHEDP.GB.2024.8888888", "Belgium");
+        // 3. Update notification using ID
+        NotificationDto updateDto = createNotificationDto(created.getId(), "Belgium"); // Provide ID for update
+        updateDto.setChedReference("CHED-UPDATED");
         updateDto.setImportReason("re-entry");
         updateDto.setInternalMarketPurpose("slaughter");
 
@@ -286,21 +246,21 @@ class NotificationIT extends IntegrationBase {
 
         Notification updated = updateResult.getResponseBody();
         assertThat(updated.getId()).isEqualTo(created.getId()); // Same ID
-        assertThat(updated.getChedReference()).isEqualTo("CHEDP.GB.2024.8888888"); // CHED reference preserved
+        assertThat(updated.getChedReference()).isEqualTo("CHED-UPDATED"); // CHED reference updated
         assertThat(updated.getOriginCountry()).isEqualTo("Belgium"); // Updated value
         assertThat(updated.getImportReason()).isEqualTo("re-entry"); // Updated value
 
-        // 5. Verify only one notification exists
+        // 4. Verify only one notification exists
         assertThat(findAllNotifications()).hasSize(1);
 
-        // 6. Delete notification
+        // 5. Delete notification
         webClient("NoAuth")
             .delete()
             .uri(NOTIFICATIONS_ENDPOINT + "/{id}", created.getId())
             .exchange()
             .expectStatus().isNoContent();
 
-        // 7. Verify deletion
+        // 6. Verify deletion
         webClient("NoAuth")
             .get()
             .uri(NOTIFICATIONS_ENDPOINT + "/{id}", created.getId())
@@ -321,7 +281,11 @@ class NotificationIT extends IntegrationBase {
     }
 
     // Helper methods
-    private NotificationDto createNotificationDto(String chedReference, String originCountry) {
+    private NotificationDto createNotificationDto(String id, String originCountry) {
+        return createNotificationDto(id, originCountry, id != null ? "CHED-" + id : "CHED-NEW");
+    }
+
+    private NotificationDto createNotificationDto(String id, String originCountry, String chedReference) {
         Species species = new Species();
         species.setName("Cattle");
         species.setNoOfAnimals(10);
@@ -333,6 +297,7 @@ class NotificationIT extends IntegrationBase {
         commodity.setSpecies(Collections.singletonList(species));
 
         NotificationDto dto = new NotificationDto();
+        dto.setId(id);
         dto.setChedReference(chedReference);
         dto.setOriginCountry(originCountry);
         dto.setCommodity(commodity);

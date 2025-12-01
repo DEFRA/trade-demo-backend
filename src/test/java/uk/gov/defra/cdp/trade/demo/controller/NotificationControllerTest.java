@@ -41,9 +41,9 @@ class NotificationControllerTest {
     void findAll_shouldReturnAllNotifications() {
         // Given
         List<Notification> notifications = Arrays.asList(
-            createTestNotification("CHEDP.GB.2024.1111111"),
-            createTestNotification("CHEDP.GB.2024.2222222"),
-            createTestNotification("CHEDP.GB.2024.3333333")
+            createTestNotification("id-001"),
+            createTestNotification("id-002"),
+            createTestNotification("id-003")
         );
         when(notificationService.findAll()).thenReturn(notifications);
 
@@ -53,8 +53,8 @@ class NotificationControllerTest {
         // Then
         assertAll(
             () -> assertThat(result).hasSize(3),
-            () -> assertThat(result).extracting(Notification::getChedReference)
-                .containsExactly("CHEDP.GB.2024.1111111", "CHEDP.GB.2024.2222222", "CHEDP.GB.2024.3333333")
+            () -> assertThat(result).extracting(Notification::getId)
+                .containsExactly("id-001", "id-002", "id-003")
         );
 
         verify(notificationService).findAll();
@@ -76,8 +76,7 @@ class NotificationControllerTest {
     @Test
     void findById_shouldReturnNotification_whenExists() {
         // Given
-        Notification notification = createTestNotification("CHEDP.GB.2024.1234567");
-        notification.setId("test-id-123");
+        Notification notification = createTestNotification("test-id-123");
         when(notificationService.findById("test-id-123")).thenReturn(notification);
 
         // When
@@ -87,7 +86,7 @@ class NotificationControllerTest {
         assertAll(
             () -> assertThat(result).isNotNull(),
             () -> assertThat(result.getId()).isEqualTo("test-id-123"),
-            () -> assertThat(result.getChedReference()).isEqualTo("CHEDP.GB.2024.1234567")
+            () -> assertThat(result.getChedReference()).isEqualTo("CHED-test-id-123")
         );
 
         verify(notificationService).findById("test-id-123");
@@ -105,40 +104,6 @@ class NotificationControllerTest {
             .hasMessageContaining("non-existent-id");
 
         verify(notificationService).findById("non-existent-id");
-    }
-
-    @Test
-    void findByChedReference_shouldReturnNotification_whenExists() {
-        // Given
-        Notification notification = createTestNotification("CHEDP.GB.2024.1234567");
-        notification.setId("test-id-123");
-        when(notificationService.findByChedReference("CHEDP.GB.2024.1234567")).thenReturn(notification);
-
-        // When
-        Notification result = controller.findByChedReference("CHEDP.GB.2024.1234567");
-
-        // Then
-        assertAll(
-            () -> assertThat(result).isNotNull(),
-            () -> assertThat(result.getId()).isEqualTo("test-id-123"),
-            () -> assertThat(result.getChedReference()).isEqualTo("CHEDP.GB.2024.1234567")
-        );
-
-        verify(notificationService).findByChedReference("CHEDP.GB.2024.1234567");
-    }
-
-    @Test
-    void findByChedReference_shouldThrowNotFoundException_whenNotExists() {
-        // Given
-        when(notificationService.findByChedReference("CHEDP.GB.2024.9999999"))
-            .thenThrow(new NotFoundException("Notification not found with CHED reference: CHEDP.GB.2024.9999999"));
-
-        // When/Then
-        assertThatThrownBy(() -> controller.findByChedReference("CHEDP.GB.2024.9999999"))
-            .isInstanceOf(NotFoundException.class)
-            .hasMessageContaining("CHEDP.GB.2024.9999999");
-
-        verify(notificationService).findByChedReference("CHEDP.GB.2024.9999999");
     }
 
     @Test
@@ -170,9 +135,8 @@ class NotificationControllerTest {
     @Test
     void saveOrUpdate_shouldCreateNotification_whenNotExists() {
         // Given
-        NotificationDto dto = createTestNotificationDto("CHEDP.GB.2024.1234567");
-        Notification savedNotification = createTestNotification("CHEDP.GB.2024.1234567");
-        savedNotification.setId("test-id-789");
+        NotificationDto dto = createTestNotificationDto(null); // No ID - create new
+        Notification savedNotification = createTestNotification("test-id-789");
         savedNotification.setCreated(LocalDateTime.now());
         savedNotification.setUpdated(LocalDateTime.now());
 
@@ -185,7 +149,7 @@ class NotificationControllerTest {
         assertAll(
             () -> assertThat(result).isNotNull(),
             () -> assertThat(result.getId()).isEqualTo("test-id-789"),
-            () -> assertThat(result.getChedReference()).isEqualTo("CHEDP.GB.2024.1234567"),
+            () -> assertThat(result.getChedReference()).isEqualTo("CHED-test-id-789"),
             () -> assertThat(result.getCreated()).isNotNull(),
             () -> assertThat(result.getUpdated()).isNotNull()
         );
@@ -196,11 +160,10 @@ class NotificationControllerTest {
     @Test
     void saveOrUpdate_shouldUpdateNotification_whenExists() {
         // Given
-        NotificationDto dto = createTestNotificationDto("CHEDP.GB.2024.1234567");
+        NotificationDto dto = createTestNotificationDto("test-id-123");
         dto.setOriginCountry("Germany");
 
-        Notification updatedNotification = createTestNotification("CHEDP.GB.2024.1234567");
-        updatedNotification.setId("test-id-123");
+        Notification updatedNotification = createTestNotification("test-id-123");
         updatedNotification.setOriginCountry("Germany");
         updatedNotification.setCreated(LocalDateTime.now().minusDays(2));
         updatedNotification.setUpdated(LocalDateTime.now());
@@ -247,9 +210,10 @@ class NotificationControllerTest {
     }
 
     // Helper methods
-    private Notification createTestNotification(String chedReference) {
+    private Notification createTestNotification(String id) {
         Notification notification = new Notification();
-        notification.setChedReference(chedReference);
+        notification.setId(id);
+        notification.setChedReference("CHED-" + id);
         notification.setOriginCountry("United Kingdom");
         notification.setImportReason("internalmarket");
         notification.setInternalMarketPurpose("breeding");
@@ -268,7 +232,7 @@ class NotificationControllerTest {
         return notification;
     }
 
-    private NotificationDto createTestNotificationDto(String chedReference) {
+    private NotificationDto createTestNotificationDto(String id) {
         Species species = new Species();
         species.setName("Cattle");
         species.setNoOfAnimals(10);
@@ -280,7 +244,8 @@ class NotificationControllerTest {
         commodity.setSpecies(Collections.singletonList(species));
 
         NotificationDto dto = new NotificationDto();
-        dto.setChedReference(chedReference);
+        dto.setId(id);
+        dto.setChedReference("CHED-" + id);
         dto.setOriginCountry("United Kingdom");
         dto.setCommodity(commodity);
         dto.setImportReason("internalmarket");
@@ -291,7 +256,7 @@ class NotificationControllerTest {
 
     private Notification createCompleteNotification() {
         Notification notification = new Notification();
-        notification.setChedReference("CHEDP.GB.2024.5555555");
+        notification.setChedReference("CHED-FULL");
         notification.setOriginCountry("Ireland");
         notification.setImportReason("internalmarket");
         notification.setInternalMarketPurpose("breeding");
@@ -332,7 +297,7 @@ class NotificationControllerTest {
         commodity.setSpecies(Arrays.asList(cattle, sheep));
 
         NotificationDto dto = new NotificationDto();
-        dto.setChedReference("CHEDP.GB.2024.5555555");
+        dto.setChedReference("CHED-FULL");
         dto.setOriginCountry("Ireland");
         dto.setCommodity(commodity);
         dto.setImportReason("internalmarket");

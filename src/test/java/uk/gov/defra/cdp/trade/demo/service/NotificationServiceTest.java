@@ -37,6 +37,9 @@ class NotificationServiceTest {
     @Mock
     private NotificationRepository repository;
 
+    @Mock
+    private NotificationIdGeneratorService idGeneratorService;
+
     @Captor
     private ArgumentCaptor<Notification> notificationCaptor;
 
@@ -44,15 +47,15 @@ class NotificationServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new NotificationService(repository);
+        service = new NotificationService(repository, idGeneratorService);
     }
 
     @Test
     void findAll_shouldReturnAllNotifications() {
         // Given
         List<Notification> notifications = Arrays.asList(
-            createTestNotification("CHEDP.GB.2024.1111111"),
-            createTestNotification("CHEDP.GB.2024.2222222")
+            createTestNotification("id-001"),
+            createTestNotification("id-002")
         );
         when(repository.findAll()).thenReturn(notifications);
 
@@ -62,8 +65,8 @@ class NotificationServiceTest {
         // Then
         assertAll(
             () -> assertThat(result).hasSize(2),
-            () -> assertThat(result).extracting(Notification::getChedReference)
-                .containsExactly("CHEDP.GB.2024.1111111", "CHEDP.GB.2024.2222222")
+            () -> assertThat(result).extracting(Notification::getId)
+                .containsExactly("id-001", "id-002")
         );
 
         verify(repository).findAll();
@@ -85,8 +88,7 @@ class NotificationServiceTest {
     @Test
     void findById_shouldReturnNotification_whenExists() {
         // Given
-        Notification notification = createTestNotification("CHEDP.GB.2024.1234567");
-        notification.setId("test-id-123");
+        Notification notification = createTestNotification("test-id-123");
         when(repository.findById("test-id-123")).thenReturn(Optional.of(notification));
 
         // When
@@ -96,7 +98,7 @@ class NotificationServiceTest {
         assertAll(
             () -> assertThat(result).isNotNull(),
             () -> assertThat(result.getId()).isEqualTo("test-id-123"),
-            () -> assertThat(result.getChedReference()).isEqualTo("CHEDP.GB.2024.1234567")
+            () -> assertThat(result.getChedReference()).isEqualTo("CHED-test-id-123")
         );
 
         verify(repository).findById("test-id-123");
@@ -117,42 +119,9 @@ class NotificationServiceTest {
     }
 
     @Test
-    void findByChedReference_shouldReturnNotification_whenExists() {
-        // Given
-        Notification notification = createTestNotification("CHEDP.GB.2024.1234567");
-        when(repository.findByChedReference("CHEDP.GB.2024.1234567")).thenReturn(Optional.of(notification));
-
-        // When
-        Notification result = service.findByChedReference("CHEDP.GB.2024.1234567");
-
-        // Then
-        assertAll(
-            () -> assertThat(result).isNotNull(),
-            () -> assertThat(result.getChedReference()).isEqualTo("CHEDP.GB.2024.1234567")
-        );
-
-        verify(repository).findByChedReference("CHEDP.GB.2024.1234567");
-    }
-
-    @Test
-    void findByChedReference_shouldThrowNotFoundException_whenNotExists() {
-        // Given
-        when(repository.findByChedReference("CHEDP.GB.2024.9999999")).thenReturn(Optional.empty());
-
-        // When/Then
-        assertThatThrownBy(() -> service.findByChedReference("CHEDP.GB.2024.9999999"))
-            .isInstanceOf(NotFoundException.class)
-            .hasMessageContaining("CHEDP.GB.2024.9999999")
-            .hasMessageContaining("not found");
-
-        verify(repository).findByChedReference("CHEDP.GB.2024.9999999");
-    }
-
-    @Test
     void delete_shouldDeleteNotificationSuccessfully() {
         // Given
-        Notification notification = createTestNotification("CHEDP.GB.2024.1234567");
-        notification.setId("test-id-123");
+        Notification notification = createTestNotification("test-id-123");
         when(repository.findById("test-id-123")).thenReturn(Optional.of(notification));
 
         // When
@@ -178,11 +147,11 @@ class NotificationServiceTest {
     }
 
     @Test
-    void saveOrUpdate_shouldCreateNewNotification_whenNotExists() {
+    void saveOrUpdate_shouldCreateNewNotification_whenIdIsNull() {
         // Given
-        NotificationDto dto = createTestNotificationDto("CHEDP.GB.2024.1234567");
-        Notification savedNotification = createTestNotification("CHEDP.GB.2024.1234567");
-        when(repository.findByChedReference("CHEDP.GB.2024.1234567")).thenReturn(Optional.empty());
+        NotificationDto dto = createTestNotificationDto(null); // No ID - create new
+        Notification savedNotification = createTestNotification("CDP.2025.12.01.1");
+        when(idGeneratorService.generateId()).thenReturn("CDP.2025.12.01.1");
         when(repository.save(any(Notification.class))).thenReturn(savedNotification);
 
         // When
@@ -190,43 +159,44 @@ class NotificationServiceTest {
 
         // Then
         assertThat(result).isNotNull();
-        verify(repository).findByChedReference("CHEDP.GB.2024.1234567");
+        verify(idGeneratorService).generateId();
         verify(repository).save(notificationCaptor.capture());
 
         Notification captured = notificationCaptor.getValue();
         assertAll(
-            () -> assertThat(captured.getChedReference()).isEqualTo("CHEDP.GB.2024.1234567"),
+            () -> assertThat(captured.getId()).isEqualTo("CDP.2025.12.01.1"),
+            () -> assertThat(captured.getChedReference()).isEqualTo("CHED-null"),
             () -> assertThat(captured.getCreated()).isNotNull(),
             () -> assertThat(captured.getUpdated()).isNotNull()
         );
     }
 
     @Test
-    void saveOrUpdate_shouldUpdateExistingNotification_whenExists() {
+    void saveOrUpdate_shouldUpdateExistingNotification_whenIdProvided() {
         // Given
-        Notification existing = createTestNotification("CHEDP.GB.2024.1234567");
-        existing.setId("test-id-123");
+        Notification existing = createTestNotification("test-id-123");
         existing.setCreated(LocalDateTime.now().minusDays(1));
         existing.setUpdated(LocalDateTime.now().minusDays(1));
 
-        NotificationDto dto = createTestNotificationDto("CHEDP.GB.2024.1234567");
+        NotificationDto dto = createTestNotificationDto("test-id-123"); // ID provided - update existing
+        dto.setChedReference("CHED-UPDATED");
         dto.setOriginCountry("France");
         dto.setImportReason("re-entry");
 
-        when(repository.findByChedReference("CHEDP.GB.2024.1234567")).thenReturn(Optional.of(existing));
+        when(repository.findById("test-id-123")).thenReturn(Optional.of(existing));
         when(repository.save(any(Notification.class))).thenReturn(existing);
 
         // When
         service.saveOrUpdate(dto);
 
         // Then
-        verify(repository).findByChedReference("CHEDP.GB.2024.1234567");
+        verify(repository).findById("test-id-123");
         verify(repository).save(notificationCaptor.capture());
 
         Notification captured = notificationCaptor.getValue();
         assertAll(
             () -> assertThat(captured.getId()).isEqualTo("test-id-123"),
-            () -> assertThat(captured.getChedReference()).isEqualTo("CHEDP.GB.2024.1234567"),
+            () -> assertThat(captured.getChedReference()).isEqualTo("CHED-UPDATED"),
             () -> assertThat(captured.getOriginCountry()).isEqualTo("France"),
             () -> assertThat(captured.getImportReason()).isEqualTo("re-entry"),
             () -> assertThat(captured.getCreated()).isNotNull(),
@@ -239,14 +209,13 @@ class NotificationServiceTest {
     void saveOrUpdate_shouldPreserveCreatedTimestamp_whenUpdating() {
         // Given
         LocalDateTime originalCreated = LocalDateTime.now().minusDays(5);
-        Notification existing = createTestNotification("CHEDP.GB.2024.1234567");
-        existing.setId("test-id-123");
+        Notification existing = createTestNotification("test-id-123");
         existing.setCreated(originalCreated);
 
-        NotificationDto dto = createTestNotificationDto("CHEDP.GB.2024.1234567");
+        NotificationDto dto = createTestNotificationDto("test-id-123"); // ID provided - update
         dto.setOriginCountry("Spain");
 
-        when(repository.findByChedReference("CHEDP.GB.2024.1234567")).thenReturn(Optional.of(existing));
+        when(repository.findById("test-id-123")).thenReturn(Optional.of(existing));
         when(repository.save(any(Notification.class))).thenReturn(existing);
 
         // When
@@ -260,10 +229,27 @@ class NotificationServiceTest {
         assertThat(captured.getCreated()).isEqualTo(originalCreated);
     }
 
+    @Test
+    void saveOrUpdate_shouldThrowNotFoundException_whenIdProvidedButNotExists() {
+        // Given
+        NotificationDto dto = createTestNotificationDto("non-existent-id"); // ID provided but doesn't exist
+        when(repository.findById("non-existent-id")).thenReturn(Optional.empty());
+
+        // When/Then
+        assertThatThrownBy(() -> service.saveOrUpdate(dto))
+            .isInstanceOf(NotFoundException.class)
+            .hasMessageContaining("non-existent-id")
+            .hasMessageContaining("not found");
+
+        verify(repository).findById("non-existent-id");
+        verify(repository, never()).save(any(Notification.class));
+    }
+
     // Helper methods
-    private Notification createTestNotification(String chedReference) {
+    private Notification createTestNotification(String id) {
         Notification notification = new Notification();
-        notification.setChedReference(chedReference);
+        notification.setId(id);
+        notification.setChedReference("CHED-" + id);
         notification.setOriginCountry("United Kingdom");
         notification.setImportReason("internalmarket");
         notification.setInternalMarketPurpose("breeding");
@@ -282,7 +268,7 @@ class NotificationServiceTest {
         return notification;
     }
 
-    private NotificationDto createTestNotificationDto(String chedReference) {
+    private NotificationDto createTestNotificationDto(String id) {
         Species species = new Species();
         species.setName("Cattle");
         species.setNoOfAnimals(10);
@@ -294,7 +280,8 @@ class NotificationServiceTest {
         commodity.setSpecies(Collections.singletonList(species));
 
         NotificationDto dto = new NotificationDto();
-        dto.setChedReference(chedReference);
+        dto.setId(id);
+        dto.setChedReference("CHED-" + id);
         dto.setOriginCountry("United Kingdom");
         dto.setCommodity(commodity);
         dto.setImportReason("internalmarket");

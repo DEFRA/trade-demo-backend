@@ -22,6 +22,7 @@ import uk.gov.defra.cdp.trade.demo.exceptions.NotFoundException;
 public class NotificationService {
 
     private final NotificationRepository repository;
+    private final NotificationIdGeneratorService idGenerator; 
 
     /**
      * Get all notifications.
@@ -52,53 +53,46 @@ public class NotificationService {
     }
 
     /**
-     * Get a notification by CHED reference.
-     *
-     * @param chedReference the CHED reference
-     * @return the notification
-     * @throws NotFoundException if the notification does not exist
-     */
-    public Notification findByChedReference(String chedReference) {
-        log.debug("Fetching notification with CHED reference: {}", chedReference);
-        return repository.findByChedReference(chedReference)
-            .orElseThrow(() -> {
-                log.warn("Notification not found with CHED reference: {}", chedReference);
-                return new NotFoundException("Notification not found with CHED reference: " + chedReference);
-            });
-    }
-
-    /**
-     * Save or update a notification based on CHED reference.
-     * If a notification with the given CHED reference exists, it will be updated.
-     * Otherwise, a new notification will be created.
+     * Save or update a notification based on ID.
+     * If an ID is provided in the DTO, the existing notification will be updated.
+     * Otherwise, a new notification will be created with a generated ID.
      *
      * @param notificationDto the notification DTO to save or update
      * @return the saved notification
+     * @throws NotFoundException if an ID is provided but the notification does not exist
      */
     public Notification saveOrUpdate(NotificationDto notificationDto) {
-        log.info("Saving or updating notification with CHED reference: {}", notificationDto.getChedReference());
+        if (notificationDto.getId() != null) {
+            // UPDATE: ID provided, find and update existing notification
+            log.info("Updating notification with id: {}", notificationDto.getId());
 
-        return repository.findByChedReference(notificationDto.getChedReference())
-            .map(existing -> {
-                log.info("Notification with CHED reference '{}' exists, updating", notificationDto.getChedReference());
-                // Update existing notification from DTO
-                updateEntityFromDto(existing, notificationDto);
-                existing.setUpdated(LocalDateTime.now());
+            return repository.findById(notificationDto.getId())
+                .map(existing -> {
+                    updateEntityFromDto(existing, notificationDto);
+                    existing.setUpdated(LocalDateTime.now());
 
-                Notification updated = repository.save(existing);
-                log.info("Updated notification with id: {}", updated.getId());
-                return updated;
-            })
-            .orElseGet(() -> {
-                log.info("Notification with CHED reference '{}' does not exist, creating new", notificationDto.getChedReference());
-                Notification notification = toEntity(notificationDto);
-                notification.setCreated(LocalDateTime.now());
-                notification.setUpdated(LocalDateTime.now());
+                    Notification updated = repository.save(existing);
+                    log.info("Updated notification with id: {} and CHED reference: {}",
+                        updated.getId(), updated.getChedReference());
+                    return updated;
+                })
+                .orElseThrow(() -> {
+                    log.warn("Notification not found with id: {}", notificationDto.getId());
+                    return new NotFoundException("Notification not found with id: " + notificationDto.getId());
+                });
+        } else {
+            // CREATE: No ID provided, generate new ID and create notification
+            log.info("Creating new notification with CHED reference: {}", notificationDto.getChedReference());
 
-                Notification saved = repository.save(notification);
-                log.info("Created notification with id: {} and CHED reference: {}", saved.getId(), saved.getChedReference());
-                return saved;
-            });
+            Notification notification = toEntity(notificationDto);
+            notification.setCreated(LocalDateTime.now());
+            notification.setUpdated(LocalDateTime.now());
+
+            Notification saved = repository.save(notification);
+            log.info("Created notification with id: {} and CHED reference: {}",
+                saved.getId(), saved.getChedReference());
+            return saved;
+        }
     }
 
     /**
@@ -125,6 +119,9 @@ public class NotificationService {
      */
     private Notification toEntity(NotificationDto dto) {
         Notification notification = new Notification();
+        String generatedId = idGenerator.generateId();
+        notification.setId(generatedId);
+
         notification.setChedReference(dto.getChedReference());
         notification.setOriginCountry(dto.getOriginCountry());
         notification.setCommodity(dto.getCommodity());
@@ -135,12 +132,12 @@ public class NotificationService {
 
     /**
      * Update Notification entity from NotificationDto.
-     * Note: CHED reference is not updated as it's the unique identifier.
      *
      * @param entity the notification entity to update
      * @param dto    the notification DTO with updated data
      */
     private void updateEntityFromDto(Notification entity, NotificationDto dto) {
+        entity.setChedReference(dto.getChedReference());
         entity.setOriginCountry(dto.getOriginCountry());
         entity.setCommodity(dto.getCommodity());
         entity.setImportReason(dto.getImportReason());

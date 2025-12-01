@@ -31,17 +31,18 @@ public class NotificationController {
 
     /**
      * Save or update a notification.
-     * If a notification with the given CHED reference exists, it will be updated.
-     * Otherwise, a new notification will be created.
+     * If the DTO contains an ID, the existing notification will be updated.
+     * Otherwise, a new notification will be created with a generated ID.
      *
      * @param notificationDto the notification data to save or update
      * @return the saved notification
      */
     @PutMapping
-    @Operation(summary = "Save or update notification", description = "Creates a new notification or updates an existing one based on CHED reference")
+    @Operation(summary = "Save or update notification", description = "Creates a new notification or updates an existing one based on ID")
     @Timed("PutNotificationUpsert")
     public Notification saveOrUpdate(@Valid @RequestBody NotificationDto notificationDto) {
-        log.info("PUT /notifications - Saving or updating notification with CHED reference: {}", notificationDto.getChedReference());
+        log.info("PUT /notifications - Saving or updating notification (ID: {}, CHED reference: {})",
+            notificationDto.getId(), notificationDto.getChedReference());
         return notificationService.saveOrUpdate(notificationDto);
     }
 
@@ -70,20 +71,6 @@ public class NotificationController {
     public Notification findById(@PathVariable String id) {
         log.debug("GET /notifications/{} - Fetching notification", id);
         return notificationService.findById(id);
-    }
-
-    /**
-     * Get a notification by CHED reference.
-     *
-     * @param chedReference the CHED reference
-     * @return the notification
-     */
-    @GetMapping("/ched/{chedReference}")
-    @Operation(summary = "Get notification by CHED reference", description = "Returns a single notification by CHED reference")
-    @Timed("GetNotificationByChedReference")
-    public Notification findByChedReference(@PathVariable String chedReference) {
-        log.debug("GET /notifications/ched/{} - Fetching notification", chedReference);
-        return notificationService.findByChedReference(chedReference);
     }
 
     /**

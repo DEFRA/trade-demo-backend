@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NotificationDto {
-    
+
+    private String id;
     private String chedReference;
     private String originCountry;
     private Commodity commodity;
