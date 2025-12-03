@@ -33,6 +33,8 @@ public class Notification {
     private String importReason;
 
     private String internalMarketPurpose;
+    
+    private Transport transport;
 
     private LocalDateTime created;
 

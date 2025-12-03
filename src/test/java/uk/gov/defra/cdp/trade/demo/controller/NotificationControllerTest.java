@@ -21,6 +21,7 @@ import uk.gov.defra.cdp.trade.demo.domain.Commodity;
 import uk.gov.defra.cdp.trade.demo.domain.Notification;
 import uk.gov.defra.cdp.trade.demo.domain.NotificationDto;
 import uk.gov.defra.cdp.trade.demo.domain.Species;
+import uk.gov.defra.cdp.trade.demo.domain.Transport;
 import uk.gov.defra.cdp.trade.demo.exceptions.NotFoundException;
 import uk.gov.defra.cdp.trade.demo.service.NotificationService;
 
@@ -150,6 +151,7 @@ class NotificationControllerTest {
             () -> assertThat(result).isNotNull(),
             () -> assertThat(result.getId()).isEqualTo("test-id-789"),
             () -> assertThat(result.getChedReference()).isEqualTo("CHED-test-id-789"),
+            () -> assertThat(result.getTransport()).isEqualTo(createTestTransport()),
             () -> assertThat(result.getCreated()).isNotNull(),
             () -> assertThat(result.getUpdated()).isNotNull()
         );
@@ -229,7 +231,16 @@ class NotificationControllerTest {
         commodity.setSpecies(Collections.singletonList(species));
 
         notification.setCommodity(commodity);
+        notification.setTransport(createTestTransport());
         return notification;
+    }
+
+    private Transport createTestTransport() {
+        Transport transport = new Transport();
+        transport.setBcpCode("GBLHR1");
+        transport.setTransportToBcp("road");
+        transport.setVehicleId("ABC123");
+        return transport;
     }
 
     private NotificationDto createTestNotificationDto(String id) {
@@ -250,6 +261,7 @@ class NotificationControllerTest {
         dto.setCommodity(commodity);
         dto.setImportReason("internalmarket");
         dto.setInternalMarketPurpose("breeding");
+        dto.setTransport(createTestTransport());
 
         return dto;
     }
@@ -277,6 +289,7 @@ class NotificationControllerTest {
         commodity.setSpecies(Arrays.asList(cattle, sheep));
 
         notification.setCommodity(commodity);
+        notification.setTransport(createTestTransport());
         return notification;
     }
 
@@ -302,6 +315,7 @@ class NotificationControllerTest {
         dto.setCommodity(commodity);
         dto.setImportReason("internalmarket");
         dto.setInternalMarketPurpose("breeding");
+        dto.setTransport(createTestTransport());
 
         return dto;
     }

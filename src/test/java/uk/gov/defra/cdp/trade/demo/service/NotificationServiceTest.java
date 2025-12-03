@@ -25,6 +25,7 @@ import uk.gov.defra.cdp.trade.demo.domain.Commodity;
 import uk.gov.defra.cdp.trade.demo.domain.Notification;
 import uk.gov.defra.cdp.trade.demo.domain.NotificationDto;
 import uk.gov.defra.cdp.trade.demo.domain.Species;
+import uk.gov.defra.cdp.trade.demo.domain.Transport;
 import uk.gov.defra.cdp.trade.demo.domain.repository.NotificationRepository;
 import uk.gov.defra.cdp.trade.demo.exceptions.NotFoundException;
 
@@ -199,6 +200,7 @@ class NotificationServiceTest {
             () -> assertThat(captured.getChedReference()).isEqualTo("CHED-UPDATED"),
             () -> assertThat(captured.getOriginCountry()).isEqualTo("France"),
             () -> assertThat(captured.getImportReason()).isEqualTo("re-entry"),
+            () -> assertThat(captured.getTransport()).isEqualTo(createTestTransport()),
             () -> assertThat(captured.getCreated()).isNotNull(),
             () -> assertThat(captured.getUpdated()).isNotNull(),
             () -> assertThat(captured.getUpdated()).isAfter(captured.getCreated())
@@ -265,7 +267,16 @@ class NotificationServiceTest {
         commodity.setSpecies(Collections.singletonList(species));
 
         notification.setCommodity(commodity);
+        notification.setTransport(createTestTransport());
         return notification;
+    }
+
+    private Transport createTestTransport() {
+        Transport transport = new Transport();
+        transport.setBcpCode("GBLHR1");
+        transport.setTransportToBcp("road");
+        transport.setVehicleId("ABC123");
+        return transport;
     }
 
     private NotificationDto createTestNotificationDto(String id) {
@@ -287,6 +298,7 @@ class NotificationServiceTest {
         dto.setImportReason("internalmarket");
         dto.setInternalMarketPurpose("breeding");
 
+        dto.setTransport(createTestTransport());
         return dto;
     }
 }
