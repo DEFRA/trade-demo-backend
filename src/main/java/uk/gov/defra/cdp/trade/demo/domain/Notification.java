@@ -23,7 +23,7 @@ public class Notification {
     @Id
     private String id;
 
-    @Indexed(unique = true)
+    @Indexed(unique = true, sparse = true)
     private String chedReference;
 
     private String originCountry;

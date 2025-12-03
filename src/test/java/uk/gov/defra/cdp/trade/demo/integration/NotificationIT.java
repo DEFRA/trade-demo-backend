@@ -269,6 +269,85 @@ class NotificationIT extends IntegrationBase {
 
         assertThat(notificationRepository.count()).isEqualTo(0);
     }
+
+    @Test
+    void saveOrUpdate_shouldAllowMultipleNotificationsWithNullChedReference() {
+        // Given - create multiple notifications with null chedReference
+        NotificationDto dto1 = createNotificationDto(null, "United Kingdom", null);
+        NotificationDto dto2 = createNotificationDto(null, "Ireland", null);
+        NotificationDto dto3 = createNotificationDto(null, "France", null);
+
+        // When - save all notifications with null chedReference
+        webClient("NoAuth")
+            .put()
+            .uri(NOTIFICATIONS_ENDPOINT)
+            .bodyValue(dto1)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(Notification.class)
+            .returnResult();
+
+        webClient("NoAuth")
+            .put()
+            .uri(NOTIFICATIONS_ENDPOINT)
+            .bodyValue(dto2)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(Notification.class)
+            .returnResult();
+
+        webClient("NoAuth")
+            .put()
+            .uri(NOTIFICATIONS_ENDPOINT)
+            .bodyValue(dto3)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(Notification.class)
+            .returnResult();
+
+        // Then - verify all notifications were created with null chedReference
+        List<Notification> allNotifications = findAllNotifications();
+        assertThat(allNotifications).hasSize(3);
+        assertThat(allNotifications)
+            .extracting(Notification::getChedReference)
+            .containsOnly((String) null);
+        assertThat(allNotifications)
+            .extracting(Notification::getOriginCountry)
+            .containsExactlyInAnyOrder("United Kingdom", "Ireland", "France");
+    }
+
+    @Test
+    void saveOrUpdate_shouldRejectDuplicateChedReference() {
+        // Given - create first notification with a specific chedReference
+        String duplicateChedRef = "CHED-DUPLICATE-001";
+        NotificationDto dto1 = createNotificationDto(null, "United Kingdom", duplicateChedRef);
+
+        webClient("NoAuth")
+            .put()
+            .uri(NOTIFICATIONS_ENDPOINT)
+            .bodyValue(dto1)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(Notification.class)
+            .returnResult();
+
+        // When - attempt to create second notification with same chedReference
+        NotificationDto dto2 = createNotificationDto(null, "Ireland", duplicateChedRef);
+
+        // Then - expect failure due to duplicate chedReference
+        webClient("NoAuth")
+            .put()
+            .uri(NOTIFICATIONS_ENDPOINT)
+            .bodyValue(dto2)
+            .exchange()
+            .expectStatus().is5xxServerError(); // MongoDB will throw duplicate key error
+
+        // Verify only the first notification was saved
+        List<Notification> allNotifications = findAllNotifications();
+        assertThat(allNotifications).hasSize(1);
+        assertThat(allNotifications.get(0).getChedReference()).isEqualTo(duplicateChedRef);
+        assertThat(allNotifications.get(0).getOriginCountry()).isEqualTo("United Kingdom");
+    }
     
     private List<Notification> findAllNotifications() {
         return webClient("NoAuth")
