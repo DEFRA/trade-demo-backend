@@ -127,6 +127,7 @@ public class NotificationService {
         notification.setCommodity(dto.getCommodity());
         notification.setImportReason(dto.getImportReason());
         notification.setInternalMarketPurpose(dto.getInternalMarketPurpose());
+        notification.setTransport(dto.getTransport());
         return notification;
     }
 
@@ -142,5 +143,6 @@ public class NotificationService {
         entity.setCommodity(dto.getCommodity());
         entity.setImportReason(dto.getImportReason());
         entity.setInternalMarketPurpose(dto.getInternalMarketPurpose());
+        entity.setTransport(dto.getTransport());
     }
 }

@@ -15,4 +15,5 @@ public class NotificationDto {
     private Commodity commodity;
     private String importReason;
     private String internalMarketPurpose;
+    private Transport transport;
 }
