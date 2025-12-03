@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Species {
     private String name;
+    private String code;
+    private String eppoCode;
     private Integer noOfAnimals;
     private Integer noOfPackages;
 }
