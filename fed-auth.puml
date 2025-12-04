@@ -1,0 +1,42 @@
+@startuml
+!theme cerulean
+
+title CDP ↔ AWS Cognito ↔ Azure IPAFFS flow 
+
+actor "CDP app (Client / Relying Party)" as CDP
+participant "AWS Cognito (IDP Server)" as Cognito
+participant "IPAFFS Imports Proxy (Resource Server)" as Proxy
+participant "Notification Backend" as NB
+participant "Permissions Microservice" as Perms
+database "Redis" as Redis
+
+== CDP obtains Cognito OIDC token ==
+
+
+CDP -> Cognito: Assume IAM role\nand authenticate
+Cognito --> CDP: OIDC token\n(issuer, audience, subject)
+
+== CDP calls IPAFFS Imports Proxy ==
+
+CDP -> Proxy: HTTPS request\nAuthorization: Bearer <OIDC token>
+
+Proxy -> Cognito: GET /.well-known/openid-configuration
+Proxy -> Cognito: GET /jwks.json
+Cognito --> Proxy: Signing keys
+Proxy -> Proxy: Validate OIDC token\nissuer, audience, signature\nextract customer_* claims
+
+== Internal JWT used inside Azure ==
+
+Proxy -> Proxy: Map customer_* claims\n→ role "ImportsAdministrator"
+Proxy -> NB: Call Notification API\nAuthorization: internal JWT\n(role = ImportsAdministrator)
+
+NB -> Redis: Load cached permissions\nfor role ImportsAdministrator
+Redis --> NB: Permissions set
+
+NB -> Perms: (optional) Sync / validate\nallowed operations
+Perms --> NB: Allowed operations\n(notification.read, create,\nupdate.DRAFT, update.SUBMITTED,\nupdate.IN_PROGRESS, delete)
+
+NB --> Proxy: Response based on\nallowed operations
+Proxy --> CDP: Response to CDP app
+
+@enduml
