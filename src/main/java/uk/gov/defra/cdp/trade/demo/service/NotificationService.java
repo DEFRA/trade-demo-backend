@@ -122,12 +122,7 @@ public class NotificationService {
         String generatedId = idGenerator.generateId();
         notification.setId(generatedId);
 
-        notification.setChedReference(dto.getChedReference());
-        notification.setOriginCountry(dto.getOriginCountry());
-        notification.setCommodity(dto.getCommodity());
-        notification.setImportReason(dto.getImportReason());
-        notification.setInternalMarketPurpose(dto.getInternalMarketPurpose());
-        notification.setTransport(dto.getTransport());
+        setNotificationDetails(dto, notification);
         return notification;
     }
 
@@ -138,11 +133,16 @@ public class NotificationService {
      * @param dto    the notification DTO with updated data
      */
     private void updateEntityFromDto(Notification entity, NotificationDto dto) {
-        entity.setChedReference(dto.getChedReference());
-        entity.setOriginCountry(dto.getOriginCountry());
-        entity.setCommodity(dto.getCommodity());
-        entity.setImportReason(dto.getImportReason());
-        entity.setInternalMarketPurpose(dto.getInternalMarketPurpose());
-        entity.setTransport(dto.getTransport());
+        setNotificationDetails(dto, entity);
+    }
+
+    private void setNotificationDetails(NotificationDto dto, Notification notification) {
+        notification.setChedReference(dto.getChedReference());
+        notification.setStatus(dto.getStatus());
+        notification.setOriginCountry(dto.getOriginCountry());
+        notification.setCommodity(dto.getCommodity());
+        notification.setImportReason(dto.getImportReason());
+        notification.setInternalMarketPurpose(dto.getInternalMarketPurpose());
+        notification.setTransport(dto.getTransport());
     }
 }

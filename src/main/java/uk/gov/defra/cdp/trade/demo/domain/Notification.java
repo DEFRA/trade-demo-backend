@@ -25,6 +25,8 @@ public class Notification {
 
     @Indexed(unique = true, sparse = true)
     private String chedReference;
+    
+    private String status;
 
     private String originCountry;
 
