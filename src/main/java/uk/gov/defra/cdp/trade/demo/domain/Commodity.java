@@ -12,6 +12,7 @@ public class Commodity {
     
     private String code;
     private String description;
+    private String type;
     private List<Species> species;
 
 }

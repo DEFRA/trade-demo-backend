@@ -11,6 +11,7 @@ public class NotificationDto {
 
     private String id;
     private String chedReference;
+    private String status;
     private String originCountry;
     private Commodity commodity;
     private String importReason;
