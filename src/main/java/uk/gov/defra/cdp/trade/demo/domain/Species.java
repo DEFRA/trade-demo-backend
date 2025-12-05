@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 public class Species {
     private String name;
     private String code;
-    private String eppoCode;
     private Integer noOfAnimals;
     private Integer noOfPackages;
 }
