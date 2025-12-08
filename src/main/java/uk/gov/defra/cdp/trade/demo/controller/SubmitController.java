@@ -24,17 +24,15 @@ public class SubmitController {
         log.info("SUBMIT /notifications");
 
         String token = webIdentityTokenService.getWebIdentityToken();
-        log.info("Using cached STS token: {}", token.substring(0 ,20));
-
         return ResponseEntity.ok(token);
     }
 
-    @GetMapping("/cached/token")
+    @GetMapping("/token")
     public ResponseEntity<String> cachedToken() {
-        log.info("SUBMIT /notifications");
+        log.info("Cognito token...");
 
         String token = awsConfig.webIdentityToken();
-        log.info("Using new STS token");
+        log.info("Nw STS token generated...");
 
         return ResponseEntity.ok(token);
     }
