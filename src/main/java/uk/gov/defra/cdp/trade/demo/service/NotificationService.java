@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import uk.gov.defra.cdp.trade.demo.client.IpaffsApiClient;
 import uk.gov.defra.cdp.trade.demo.domain.Notification;
 import uk.gov.defra.cdp.trade.demo.domain.NotificationDto;
 import uk.gov.defra.cdp.trade.demo.domain.repository.NotificationRepository;
@@ -23,6 +24,7 @@ public class NotificationService {
 
     private final NotificationRepository repository;
     private final NotificationIdGeneratorService idGenerator; 
+    private final IpaffsApiClient ipaffsApiClient;
 
     /**
      * Get all notifications.
@@ -109,6 +111,16 @@ public class NotificationService {
 
         repository.deleteById(id);
         log.info("Deleted notification with id: {}", id);
+    }
+    
+    /**
+     * Submit notification
+     * */
+    public boolean submit(String id) {
+        log.info("Submit notification with id: {}", id);
+        
+        ipaffsApiClient.submitNotification();
+        return true;
     }
 
     /**
