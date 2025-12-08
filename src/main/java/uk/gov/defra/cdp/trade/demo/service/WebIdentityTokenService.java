@@ -31,24 +31,26 @@ public class WebIdentityTokenService {
 
     private static final int EXPIRY_BUFFER_SECONDS = 60;
     
+    private static final String CACHE_NAME = "webIdentityToken";
+    
     public WebIdentityTokenService(AwsConfig awsConfig) {
         this.awsConfig = awsConfig;
     }
     
     @PostConstruct
     public void init() {
-        log.info("Initializing Cache for WebIdentityTokenService: {}", audience);
-        this.tokenCache = new ConcurrentMapCacheManager().getCache(audience);
+        log.info("Initializing Cache for WebIdentityTokenService: {}", CACHE_NAME);
+        this.tokenCache = new ConcurrentMapCacheManager().getCache(CACHE_NAME);
         if (this.tokenCache == null) {
-            throw new IllegalStateException("Cache not found: {}" + audience);
+            throw new IllegalStateException("Cache not found: {}" + CACHE_NAME);
         }
-        log.info("Successfully initialized cache for WebIdentityTokenService: {}", audience);
+        log.info("Successfully initialized cache for WebIdentityTokenService: {}", CACHE_NAME);
     }
     
-    @Cacheable(value = "webIdentityToken", key = "#audience", unless = "#result == null")
+    @Cacheable(cacheNames = CACHE_NAME, key = "'token-key'")
     public String getWebIdentityToken() {
         try {
-            Cache.ValueWrapper cachedToken = tokenCache.get(audience);
+            Cache.ValueWrapper cachedToken = tokenCache.get("token-key");
             
             if (!isNull(cachedToken)) {
                 TokenEntry entry = (TokenEntry) cachedToken.get();
@@ -58,7 +60,7 @@ public class WebIdentityTokenService {
                     return entry.token;
                 } else {
                     log.debug("Cached token not found for audience {}", audience);
-                    tokenCache.evict(audience);
+                    tokenCache.evict("token-key");
                 }
             }
             
@@ -71,7 +73,7 @@ public class WebIdentityTokenService {
         }
     }
     
-    @CacheEvict(value = "webIdentityToken", key="#audience")
+    @CacheEvict(cacheNames = CACHE_NAME, key="'token-key'")
     public void evictToken(String audience) {
         log.warn("Evicted web identity token for {}", audience);
     }
@@ -86,8 +88,8 @@ public class WebIdentityTokenService {
         }
         
         Instant expiry = getTokenExpiration(token);
-        tokenCache.put(audience, new TokenEntry(token, expiry));
-        log.info("Cached web identity token for audience {}", audience);
+        tokenCache.put("token-key", new TokenEntry(token, expiry));
+        log.info("Cached web identity token for audience {}", CACHE_NAME);
         return token;
     }
     
