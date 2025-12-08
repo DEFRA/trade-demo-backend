@@ -56,7 +56,7 @@ mdm-service:
 aws:
   region: ${AWS_REGION:eu-west-2}
   emf:
-    enabled: ${AWS_EMF_ENABLED:true}
+    enabled: ${AWS_EMF_ENABLED:false}
     environment: ${AWS_EMF_ENVIRONMENT:Local}
     namespace: ${AWS_EMF_NAMESPACE:trade-demo-backend}
     service:

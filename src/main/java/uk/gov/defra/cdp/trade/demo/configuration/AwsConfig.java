@@ -3,15 +3,15 @@ package uk.gov.defra.cdp.trade.demo.configuration;
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;
 import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cognitoidentity.CognitoIdentityClient;
 import software.amazon.awssdk.services.sts.StsClient;
-import software.amazon.awssdk.services.sts.model.GetCallerIdentityRequest;
-import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
 import software.amazon.awssdk.services.sts.model.GetWebIdentityTokenRequest;
 import software.amazon.awssdk.services.sts.model.GetWebIdentityTokenResponse;
 import software.amazon.awssdk.services.sts.model.StsException;
@@ -21,7 +21,8 @@ import uk.gov.defra.cdp.trade.demo.exceptions.NotFoundException;
 @Configuration
 public class AwsConfig {
 
-    private final String region = System.getenv("AWS_DEFAULT_REGION");
+    @Value("${aws.region}")
+    private String region;
     
     
     @Bean
@@ -36,11 +37,6 @@ public class AwsConfig {
     }
     
     @Bean
-    public AWSSecretsManager awsSecretsManager() {
-        return AWSSecretsManagerClientBuilder.standard().withRegion(region).build();
-    }
-    
-    @Bean
     public CognitoIdentityClient cognitoIdentityClient() {
         return CognitoIdentityClient.builder()
             .region(Region.of(region))
@@ -49,6 +45,7 @@ public class AwsConfig {
     }
     
     @Bean
+    @Profile({"!integration-test"})
     public String webIdentityToken() {
         try(StsClient stsClient = stsClient()) {
 
