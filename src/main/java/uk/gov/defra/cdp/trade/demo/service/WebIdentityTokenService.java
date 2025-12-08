@@ -8,8 +8,10 @@ import jakarta.annotation.PostConstruct;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.EnableCaching;
@@ -47,12 +49,12 @@ public class WebIdentityTokenService {
         log.info("Successfully initialized cache for WebIdentityTokenService: {}", CACHE_NAME);
     }
     
-    @Cacheable(cacheNames = CACHE_NAME, key = "'token-key'")
+    @Cacheable(cacheNames = CACHE_NAME, key = "'default'")
     public String getWebIdentityToken() {
         try {
-            Cache.ValueWrapper cachedToken = tokenCache.get("token-key");
+            Cache.ValueWrapper cachedToken = tokenCache.get("default");
             
-            if (!isNull(cachedToken)) {
+            if (cachedToken != null) {
                 TokenEntry entry = (TokenEntry) cachedToken.get();
                 
                 if (isTokenValid(entry.token, entry.expiry)) {
@@ -60,7 +62,7 @@ public class WebIdentityTokenService {
                     return entry.token;
                 } else {
                     log.debug("Cached token not found for audience {}", audience);
-                    tokenCache.evict("token-key");
+                    tokenCache.evict("default");
                 }
             }
             
@@ -73,7 +75,7 @@ public class WebIdentityTokenService {
         }
     }
     
-    @CacheEvict(cacheNames = CACHE_NAME, key="'token-key'")
+    @CacheEvict(cacheNames = CACHE_NAME, key="'default'")
     public void evictToken(String audience) {
         log.warn("Evicted web identity token for {}", audience);
     }
@@ -88,7 +90,7 @@ public class WebIdentityTokenService {
         }
         
         Instant expiry = getTokenExpiration(token);
-        tokenCache.put("token-key", new TokenEntry(token, expiry));
+        tokenCache.put("default", new TokenEntry(token, expiry));
         log.info("Cached web identity token for audience {}", CACHE_NAME);
         return token;
     }
