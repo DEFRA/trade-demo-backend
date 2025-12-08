@@ -51,6 +51,8 @@ public class AwsConfig {
 
             GetWebIdentityTokenRequest request = GetWebIdentityTokenRequest.builder()
                 .audience("trade-demo-backend")
+                .signingAlgorithm("RS256")
+                .durationSeconds(180)
                 .build();
             GetWebIdentityTokenResponse response = stsClient.getWebIdentityToken(request);
             
