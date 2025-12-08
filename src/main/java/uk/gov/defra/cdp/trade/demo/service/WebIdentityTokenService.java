@@ -4,6 +4,7 @@ import static java.util.Objects.isNull;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import jakarta.annotation.PostConstruct;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,30 +12,38 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import uk.gov.defra.cdp.trade.demo.configuration.AwsConfig;
 import uk.gov.defra.cdp.trade.demo.exceptions.TradeDemoBackendException;
 
 @Slf4j
 @Service
-@Profile({"!integration-test"})
 public class WebIdentityTokenService {
 
     @Value("${aws.sts.token.audience}")
     private String audience;
 
-    private final Cache tokenCache;
+    private Cache tokenCache;
     
     private final AwsConfig awsConfig;
+
+    private static final int EXPIRY_BUFFER_SECONDS = 60;
     
     public WebIdentityTokenService(AwsConfig awsConfig) {
         this.awsConfig = awsConfig;
-        this.tokenCache = new ConcurrentMapCacheManager().getCache(audience);
     }
     
-    private static final int EXPIRY_BUFFER_SECONDS = 60;
+    @PostConstruct
+    public void init() {
+        log.info("Initializing Cache for WebIdentityTokenService: {}", audience);
+        this.tokenCache = new ConcurrentMapCacheManager().getCache(audience);
+        if (this.tokenCache == null) {
+            throw new IllegalStateException("Cache not found: {}" + audience);
+        }
+        log.info("Successfully initialized cache for WebIdentityTokenService: {}", audience);
+    }
     
     @Cacheable(value = "webIdentityToken", key = "#audience", unless = "#result == null")
     public String getWebIdentityToken() {
