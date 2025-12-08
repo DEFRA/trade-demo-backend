@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.cognitoidentity.CognitoIdentityClient;
 import software.amazon.awssdk.services.sts.StsClient;
 import software.amazon.awssdk.services.sts.model.GetWebIdentityTokenRequest;
 import software.amazon.awssdk.services.sts.model.GetWebIdentityTokenResponse;
@@ -51,12 +50,13 @@ public class AwsConfig {
                 .durationSeconds(expiration)
                 .build();
             GetWebIdentityTokenResponse response = stsClient.getWebIdentityToken(request);
-            
+
             log.info("WebIdentityToken: {}", response.webIdentityToken());
-        
+
             return response.webIdentityToken();
         } catch (StsException ex) {
             throw new NotFoundException("Sts connection error: " +  ex.getMessage());
         }
+        
     }
 }
