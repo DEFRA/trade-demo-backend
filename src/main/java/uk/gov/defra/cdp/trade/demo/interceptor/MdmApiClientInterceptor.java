@@ -1,4 +1,4 @@
-package uk.gov.defra.cdp.trade.demo.configuration;
+package uk.gov.defra.cdp.trade.demo.interceptor;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
@@ -7,21 +7,20 @@ import feign.RequestTemplate;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import uk.gov.defra.cdp.trade.demo.client.Token;
 import uk.gov.defra.cdp.trade.demo.client.TradeApiClient;
+import uk.gov.defra.cdp.trade.demo.configuration.TradeAuthConfig;
 
 @AllArgsConstructor
-@Configuration
-public class MdmApiClientInterceptorConfig {
+public class MdmApiClientInterceptor {
 
     private final TradeAuthConfig tradeAuthConfig;
     private final TradeApiClient tradeApiClient;
 
     @Bean
-    public RequestInterceptor requestInterceptor() {
+    public RequestInterceptor mdmRequestInterceptor() {
         return new RequestInterceptor() {
             String accessToken;
             Instant expiryTime = Instant.now().minusSeconds(10); // Initially expired
