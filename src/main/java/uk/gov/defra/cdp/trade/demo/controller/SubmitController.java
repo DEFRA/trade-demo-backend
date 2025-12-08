@@ -37,14 +37,4 @@ public class SubmitController {
         return ResponseEntity.ok(token);
     }
 
-    @GetMapping("/cached/token")
-    public ResponseEntity<String> cachedToken() {
-        log.info("SUBMIT /notifications");
-
-        String token = awsConfig.webIdentityToken();
-        log.info("Using new STS token");
-
-        return ResponseEntity.ok(token);
-    }
-
 }
