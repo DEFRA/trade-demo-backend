@@ -1,7 +1,5 @@
 package uk.gov.defra.cdp.trade.demo.configuration;
 
-import com.amazonaws.services.secretsmanager.AWSSecretsManager;
-import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -24,6 +22,12 @@ public class AwsConfig {
     @Value("${aws.region}")
     private String region;
     
+    @Value("${aws.sts.token.audience}")
+    private String audience;
+
+    @Value("${aws.sts.token.expiration}")
+    private Integer expiration; 
+    
     
     @Bean
     @Primary
@@ -37,22 +41,14 @@ public class AwsConfig {
     }
     
     @Bean
-    public CognitoIdentityClient cognitoIdentityClient() {
-        return CognitoIdentityClient.builder()
-            .region(Region.of(region))
-            .credentialsProvider(DefaultCredentialsProvider.builder().build())
-            .build();
-    }
-    
-    @Bean
     @Profile({"!integration-test"})
     public String webIdentityToken() {
         try(StsClient stsClient = stsClient()) {
 
             GetWebIdentityTokenRequest request = GetWebIdentityTokenRequest.builder()
-                .audience("trade-demo-backend")
+                .audience(audience)
                 .signingAlgorithm("RS256")
-                .durationSeconds(300)
+                .durationSeconds(expiration)
                 .build();
             GetWebIdentityTokenResponse response = stsClient.getWebIdentityToken(request);
             
