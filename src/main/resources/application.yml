@@ -54,6 +54,17 @@ mdm-service:
   connectionTimeout: 3000
   readTimeout: 3000
 
+# IPAFFS API configuration (AWS Cognito OIDC Federation)
+ipaffs:
+  api-base-url: ${IPAFFS_API_BASE_URL:http://localhost:8080}
+  api-environment: ${IPAFFS_API_ENVIRONMENT:dev}
+  token-audience: ${IPAFFS_TOKEN_AUDIENCE:urn:ipaffs:api}
+  token-duration-seconds: ${IPAFFS_TOKEN_DURATION_SECONDS:3600}
+  token-refresh-buffer-seconds: ${IPAFFS_TOKEN_REFRESH_BUFFER_SECONDS:300}
+  signing-algorithm: ${IPAFFS_SIGNING_ALGORITHM:RS256}
+  connection-timeout-ms: ${IPAFFS_CONNECTION_TIMEOUT_MS:3000}
+  read-timeout-ms: ${IPAFFS_READ_TIMEOUT_MS:10000}
+
 # AWS configuration
 aws:
   region: ${AWS_REGION:eu-west-2}
