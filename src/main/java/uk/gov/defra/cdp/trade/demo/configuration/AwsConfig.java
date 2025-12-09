@@ -5,7 +5,6 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
@@ -15,10 +14,10 @@ import software.amazon.awssdk.services.sts.model.GetWebIdentityTokenRequest;
 import software.amazon.awssdk.services.sts.model.GetWebIdentityTokenResponse;
 import software.amazon.awssdk.services.sts.model.StsException;
 import uk.gov.defra.cdp.trade.demo.exceptions.NotFoundException;
+import uk.gov.defra.cdp.trade.demo.exceptions.TradeDemoBackendException;
 
 @Slf4j
 @Configuration
-@Profile({"!integration-test & !dev"})
 public class AwsConfig {
 
     @Value("${aws.region}")
@@ -31,8 +30,7 @@ public class AwsConfig {
     private Integer expiration; 
     
     
-    @Bean
-    public StsClient stsClient() {
+    private StsClient stsClient() {
         
         DefaultCredentialsProvider credentials = DefaultCredentialsProvider.builder().build();
         log.info("AccessKeyId: {}", credentials.resolveCredentials().accessKeyId());
@@ -45,8 +43,7 @@ public class AwsConfig {
         
     }
     
-    @Bean
-    public GetWebIdentityTokenResponse getWebIdentityTokenResponse() {
+    public String getWebIdentityToken() {
         try(StsClient stsClient = stsClient()) {
 
             GetWebIdentityTokenRequest request = GetWebIdentityTokenRequest.builder()
@@ -60,9 +57,9 @@ public class AwsConfig {
             LocalDateTime localDateTime = LocalDateTime.now();
             log.info("STS WebIdentityToken issued at: {}", dateFormat.format(localDateTime));
 
-            return response;
+            return response.webIdentityToken();
         } catch (StsException ex) {
-            throw new NotFoundException("Sts connection error: " +  ex.getMessage());
+            throw new TradeDemoBackendException("Sts connection error: " +  ex.getMessage());
         }
         
     }
