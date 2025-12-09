@@ -16,11 +16,11 @@ import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.sts.model.GetWebIdentityTokenResponse;
+import uk.gov.defra.cdp.trade.demo.configuration.AwsConfig;
 import uk.gov.defra.cdp.trade.demo.exceptions.TradeDemoBackendException;
 
 @Slf4j
 @Service
-@Profile({"!integration-test & !dev"})
 public class WebIdentityTokenService {
 
     @Value("${aws.sts.token.audience}")
@@ -32,10 +32,10 @@ public class WebIdentityTokenService {
 
     private static final String CACHE_KEY = "tradeDemoBackend";
 
-    private final GetWebIdentityTokenResponse getWebIdentityTokenResponse;
+    private final AwsConfig awsConfig;
 
-    public WebIdentityTokenService(GetWebIdentityTokenResponse getWebIdentityTokenResponse) {
-        this.getWebIdentityTokenResponse = getWebIdentityTokenResponse;
+    public WebIdentityTokenService(AwsConfig awsConfig) {
+        this.awsConfig = awsConfig;
     }
 
     @PostConstruct
@@ -80,7 +80,7 @@ public class WebIdentityTokenService {
 
     public String fetchAndCacheToken() {
 
-        String token = getWebIdentityTokenResponse.webIdentityToken();
+        String token = awsConfig.getWebIdentityToken();
 
         if (!isTokenValid(token)) {
             log.warn("Web identity token is invalid or expired");

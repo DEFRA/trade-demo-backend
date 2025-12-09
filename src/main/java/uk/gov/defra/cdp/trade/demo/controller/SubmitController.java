@@ -15,21 +15,13 @@ import uk.gov.defra.cdp.trade.demo.service.WebIdentityTokenService;
 @Slf4j
 @RequestMapping("/ipaffs")
 @RestController
-@Profile({"!integration-test & !dev"})
+@AllArgsConstructor
 public class SubmitController {
     
     private final WebIdentityTokenService webIdentityTokenService;
     
-    private final GetWebIdentityTokenResponse getWebIdentityTokenResponse;
+    private final AwsConfig awsConfig;
     
-    @Autowired
-    public SubmitController(
-        WebIdentityTokenService webIdentityTokenService, 
-        GetWebIdentityTokenResponse getWebIdentityTokenResponse
-    ) {
-        this.webIdentityTokenService = webIdentityTokenService;
-        this.getWebIdentityTokenResponse = getWebIdentityTokenResponse;
-    }
     
     @GetMapping("/submit")
     public ResponseEntity<String> submit() {
@@ -41,9 +33,9 @@ public class SubmitController {
 
     @GetMapping("/token")
     public ResponseEntity<String> token() {
+        log.info("New token request /token");
 
-        String token = getWebIdentityTokenResponse.webIdentityToken();
-        log.info("New STS token generated...");
+        String token = awsConfig.getWebIdentityToken();
 
         return ResponseEntity.ok(token);
     }
