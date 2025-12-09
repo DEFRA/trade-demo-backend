@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -28,6 +30,10 @@ import uk.gov.defra.cdp.trade.demo.domain.Species;
 import uk.gov.defra.cdp.trade.demo.domain.Transport;
 import uk.gov.defra.cdp.trade.demo.domain.repository.NotificationRepository;
 import uk.gov.defra.cdp.trade.demo.exceptions.NotFoundException;
+import uk.gov.defra.cdp.trade.demo.exceptions.NotificationSubmissionException;
+import uk.gov.defra.cdp.trade.demo.mapper.ChedaMapper;
+import uk.gov.defra.cdp.trade.demo.client.IpaffsNotificationClient;
+import uk.gov.defra.cdp.trade.demo.domain.ipaffs.IpaffsNotification;
 
 /**
  * Unit tests for NotificationService.
@@ -41,6 +47,12 @@ class NotificationServiceTest {
     @Mock
     private NotificationIdGeneratorService idGeneratorService;
 
+    @Mock
+    private ChedaMapper chedaMapper;
+
+    @Mock
+    private IpaffsNotificationClient ipaffsNotificationClient;
+
     @Captor
     private ArgumentCaptor<Notification> notificationCaptor;
 
@@ -48,7 +60,7 @@ class NotificationServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new NotificationService(repository, idGeneratorService);
+        service = new NotificationService(repository, idGeneratorService, chedaMapper, ipaffsNotificationClient);
     }
 
     @Test
@@ -300,5 +312,121 @@ class NotificationServiceTest {
 
         dto.setTransport(createTestTransport());
         return dto;
+    }
+
+    // Tests for submitNotification - simplified signature: submitNotification(String id)
+
+    @Test
+    void submitNotification_shouldPreventResubmission_whenNotificationAlreadySubmitted() {
+        // Given
+        String notificationId = "CDP.2025.12.09.1";
+
+        Notification existingNotification = createTestNotification(notificationId);
+        existingNotification.setStatus("SUBMITTED");
+        existingNotification.setChedReference("CHEDA.2025.12090100");
+
+        when(repository.findById(notificationId)).thenReturn(Optional.of(existingNotification));
+
+        // When/Then
+        assertThatThrownBy(() -> service.submitNotification(notificationId))
+            .isInstanceOf(NotificationSubmissionException.class)
+            .hasMessageContaining("already submitted");
+
+        verify(ipaffsNotificationClient, never()).submitNotification(any(), anyString());
+        verify(repository, never()).save(any(Notification.class));
+    }
+
+    @Test
+    void submitNotification_shouldThrowException_whenNotificationNotFound() {
+        // Given
+        String notificationId = "CDP.2025.12.09.999";
+
+        when(repository.findById(notificationId)).thenReturn(Optional.empty());
+
+        // When/Then
+        assertThatThrownBy(() -> service.submitNotification(notificationId))
+            .isInstanceOf(NotFoundException.class)
+            .hasMessageContaining("not found");
+
+        verify(ipaffsNotificationClient, never()).submitNotification(any(), anyString());
+        verify(repository, never()).save(any(Notification.class));
+    }
+
+    @Test
+    void submitNotification_shouldMapToIpaffsFormat_andSubmit() {
+        // Given
+        String notificationId = "CDP.2025.12.09.3";
+
+        Notification existingNotification = createTestNotification(notificationId);
+        existingNotification.setStatus("DRAFT");
+
+        when(repository.findById(notificationId)).thenReturn(Optional.of(existingNotification));
+        when(chedaMapper.mapToIpaffsNotification(existingNotification))
+            .thenReturn(new IpaffsNotification());
+        when(ipaffsNotificationClient.submitNotification(any(IpaffsNotification.class), eq(notificationId)))
+            .thenReturn("CHEDA.2025.12090300");
+        when(repository.save(any(Notification.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // When
+        service.submitNotification(notificationId);
+
+        // Then
+        verify(chedaMapper).mapToIpaffsNotification(existingNotification);
+        verify(ipaffsNotificationClient).submitNotification(any(IpaffsNotification.class), eq(notificationId));
+    }
+
+    @Test
+    void submitNotification_shouldUpdateWithChedReference_andSubmittedStatus() {
+        // Given
+        String notificationId = "CDP.2025.12.09.7";
+
+        Notification existingNotification = createTestNotification(notificationId);
+        existingNotification.setStatus("DRAFT");
+
+        when(repository.findById(notificationId)).thenReturn(Optional.of(existingNotification));
+        when(chedaMapper.mapToIpaffsNotification(existingNotification))
+            .thenReturn(new IpaffsNotification());
+        when(ipaffsNotificationClient.submitNotification(any(IpaffsNotification.class), eq(notificationId)))
+            .thenReturn("CHEDA.2025.12090700");
+        when(repository.save(any(Notification.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // When
+        Notification result = service.submitNotification(notificationId);
+
+        // Then
+        assertAll(
+            () -> assertThat(result.getChedReference()).isEqualTo("CHEDA.2025.12090700"),
+            () -> assertThat(result.getStatus()).isEqualTo("SUBMITTED"),
+            () -> assertThat(result.getUpdated()).isNotNull()
+        );
+
+        verify(repository).save(notificationCaptor.capture());
+        Notification saved = notificationCaptor.getValue();
+        assertThat(saved.getStatus()).isEqualTo("SUBMITTED");
+        assertThat(saved.getChedReference()).isEqualTo("CHEDA.2025.12090700");
+    }
+
+    @Test
+    void submitNotification_shouldThrowException_whenIpaffsSubmissionFails() {
+        // Given
+        String notificationId = "CDP.2025.12.09.8";
+
+        Notification existingNotification = createTestNotification(notificationId);
+        existingNotification.setStatus("DRAFT");
+
+        when(repository.findById(notificationId)).thenReturn(Optional.of(existingNotification));
+        when(chedaMapper.mapToIpaffsNotification(existingNotification))
+            .thenReturn(new IpaffsNotification());
+        when(ipaffsNotificationClient.submitNotification(any(IpaffsNotification.class), eq(notificationId)))
+            .thenThrow(new RuntimeException("IPAFFS service unavailable"));
+
+        // When/Then
+        assertThatThrownBy(() -> service.submitNotification(notificationId))
+            .isInstanceOf(NotificationSubmissionException.class)
+            .hasMessageContaining("Failed to submit notification to IPAFFS")
+            .hasCauseInstanceOf(RuntimeException.class);
+
+        // Notification should remain in DRAFT state - not saved with SUBMITTED
+        verify(repository, never()).save(argThat(n -> "SUBMITTED".equals(n.getStatus())));
     }
 }

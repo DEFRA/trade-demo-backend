@@ -23,6 +23,7 @@ import uk.gov.defra.cdp.trade.demo.domain.NotificationDto;
 import uk.gov.defra.cdp.trade.demo.domain.Species;
 import uk.gov.defra.cdp.trade.demo.domain.Transport;
 import uk.gov.defra.cdp.trade.demo.exceptions.NotFoundException;
+import uk.gov.defra.cdp.trade.demo.exceptions.NotificationSubmissionException;
 import uk.gov.defra.cdp.trade.demo.service.NotificationService;
 
 @ExtendWith(MockitoExtension.class)
@@ -209,6 +210,108 @@ class NotificationControllerTest {
         );
 
         verify(notificationService).saveOrUpdate(dto);
+    }
+
+    @Test
+    void submit_shouldSubmitNotificationSuccessfully() {
+        // Given
+        NotificationDto dto = createTestNotificationDto("CDP.2025.12.09.1");
+
+        Notification savedNotification = createTestNotification("CDP.2025.12.09.1");
+        savedNotification.setStatus("DRAFT");
+
+        Notification submittedNotification = createTestNotification("CDP.2025.12.09.1");
+        submittedNotification.setStatus("SUBMITTED");
+        submittedNotification.setChedReference("CHEDA.2025.12090100");
+
+        when(notificationService.saveOrUpdate(dto)).thenReturn(savedNotification);
+        when(notificationService.submitNotification("CDP.2025.12.09.1")).thenReturn(submittedNotification);
+
+        // When
+        Notification result = controller.submit(dto);
+
+        // Then
+        assertAll(
+            () -> assertThat(result).isNotNull(),
+            () -> assertThat(result.getId()).isEqualTo("CDP.2025.12.09.1"),
+            () -> assertThat(result.getStatus()).isEqualTo("SUBMITTED"),
+            () -> assertThat(result.getChedReference()).isEqualTo("CHEDA.2025.12090100")
+        );
+
+        verify(notificationService).saveOrUpdate(dto);
+        verify(notificationService).submitNotification("CDP.2025.12.09.1");
+    }
+
+    @Test
+    void submit_shouldHandleNewNotificationWithoutId() {
+        // Given
+        NotificationDto dto = createTestNotificationDto(null);
+
+        Notification savedNotification = createTestNotification("CDP.2025.12.09.5");
+        savedNotification.setStatus("DRAFT");
+
+        Notification submittedNotification = createTestNotification("CDP.2025.12.09.5");
+        submittedNotification.setStatus("SUBMITTED");
+        submittedNotification.setChedReference("CHEDA.2025.12090500");
+
+        when(notificationService.saveOrUpdate(dto)).thenReturn(savedNotification);
+        when(notificationService.submitNotification("CDP.2025.12.09.5")).thenReturn(submittedNotification);
+
+        // When
+        Notification result = controller.submit(dto);
+
+        // Then
+        assertAll(
+            () -> assertThat(result).isNotNull(),
+            () -> assertThat(result.getId()).isEqualTo("CDP.2025.12.09.5"),
+            () -> assertThat(result.getStatus()).isEqualTo("SUBMITTED"),
+            () -> assertThat(result.getChedReference()).isEqualTo("CHEDA.2025.12090500")
+        );
+
+        verify(notificationService).saveOrUpdate(dto);
+        verify(notificationService).submitNotification("CDP.2025.12.09.5");
+    }
+
+    @Test
+    void submit_shouldThrowException_whenAlreadySubmitted() {
+        // Given
+        NotificationDto dto = createTestNotificationDto("CDP.2025.12.09.1");
+
+        Notification savedNotification = createTestNotification("CDP.2025.12.09.1");
+        savedNotification.setStatus("SUBMITTED");
+
+        when(notificationService.saveOrUpdate(dto)).thenReturn(savedNotification);
+        when(notificationService.submitNotification("CDP.2025.12.09.1"))
+            .thenThrow(new NotificationSubmissionException("Notification already submitted: CDP.2025.12.09.1"));
+
+        // When/Then
+        assertThatThrownBy(() -> controller.submit(dto))
+            .isInstanceOf(NotificationSubmissionException.class)
+            .hasMessageContaining("already submitted");
+
+        verify(notificationService).saveOrUpdate(dto);
+        verify(notificationService).submitNotification("CDP.2025.12.09.1");
+    }
+
+    @Test
+    void submit_shouldThrowException_whenIpaffsSubmissionFails() {
+        // Given
+        NotificationDto dto = createTestNotificationDto("CDP.2025.12.09.3");
+
+        Notification savedNotification = createTestNotification("CDP.2025.12.09.3");
+        savedNotification.setStatus("DRAFT");
+
+        when(notificationService.saveOrUpdate(dto)).thenReturn(savedNotification);
+        when(notificationService.submitNotification("CDP.2025.12.09.3"))
+            .thenThrow(new NotificationSubmissionException("Failed to submit notification to IPAFFS"));
+
+        // When/Then
+        assertThatThrownBy(() -> controller.submit(dto))
+            .isInstanceOf(NotificationSubmissionException.class)
+            .hasMessageContaining("Failed to submit notification to IPAFFS");
+
+        verify(notificationService).saveOrUpdate(dto);
+        verify(notificationService).submitNotification("CDP.2025.12.09.3");
     }
 
     // Helper methods

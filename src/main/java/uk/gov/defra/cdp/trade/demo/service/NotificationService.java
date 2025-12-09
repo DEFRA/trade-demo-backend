@@ -5,16 +5,20 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import uk.gov.defra.cdp.trade.demo.client.IpaffsNotificationClient;
 import uk.gov.defra.cdp.trade.demo.domain.Notification;
 import uk.gov.defra.cdp.trade.demo.domain.NotificationDto;
+import uk.gov.defra.cdp.trade.demo.domain.ipaffs.IpaffsNotification;
 import uk.gov.defra.cdp.trade.demo.domain.repository.NotificationRepository;
 import uk.gov.defra.cdp.trade.demo.exceptions.NotFoundException;
+import uk.gov.defra.cdp.trade.demo.exceptions.NotificationSubmissionException;
+import uk.gov.defra.cdp.trade.demo.mapper.ChedaMapper;
 
 /**
  * Service layer for Notification CRUD operations.
- *
- * Handles business logic for managing import notifications (CHEDs),
- * including validation and persistence.
+ * <p>
+ * Handles business logic for managing import notifications (CHEDs), including validation and
+ * persistence.
  */
 @Service
 @Slf4j
@@ -22,7 +26,9 @@ import uk.gov.defra.cdp.trade.demo.exceptions.NotFoundException;
 public class NotificationService {
 
     private final NotificationRepository repository;
-    private final NotificationIdGeneratorService idGenerator; 
+    private final NotificationIdGeneratorService idGenerator;
+    private final ChedaMapper chedaMapper;
+    private final IpaffsNotificationClient ipaffsNotificationClient;
 
     /**
      * Get all notifications.
@@ -53,9 +59,9 @@ public class NotificationService {
     }
 
     /**
-     * Save or update a notification based on ID.
-     * If an ID is provided in the DTO, the existing notification will be updated.
-     * Otherwise, a new notification will be created with a generated ID.
+     * Save or update a notification based on ID. If an ID is provided in the DTO, the existing
+     * notification will be updated. Otherwise, a new notification will be created with a generated
+     * ID.
      *
      * @param notificationDto the notification DTO to save or update
      * @return the saved notification
@@ -68,6 +74,11 @@ public class NotificationService {
 
             return repository.findById(notificationDto.getId())
                 .map(existing -> {
+                    if ("SUBMITTED".equals(existing.getStatus())) {
+                        log.error("Notification {} is already submitted", notificationDto.getId());
+                        throw new NotificationSubmissionException(
+                            "Notification already submitted: " + notificationDto.getId());
+                    }
                     updateEntityFromDto(existing, notificationDto);
                     existing.setUpdated(LocalDateTime.now());
 
@@ -78,11 +89,13 @@ public class NotificationService {
                 })
                 .orElseThrow(() -> {
                     log.warn("Notification not found with id: {}", notificationDto.getId());
-                    return new NotFoundException("Notification not found with id: " + notificationDto.getId());
+                    return new NotFoundException(
+                        "Notification not found with id: " + notificationDto.getId());
                 });
         } else {
             // CREATE: No ID provided, generate new ID and create notification
-            log.info("Creating new notification with CHED reference: {}", notificationDto.getChedReference());
+            log.info("Creating new notification with CHED reference: {}",
+                notificationDto.getChedReference());
 
             Notification notification = toEntity(notificationDto);
             notification.setCreated(LocalDateTime.now());
@@ -138,11 +151,66 @@ public class NotificationService {
 
     private void setNotificationDetails(NotificationDto dto, Notification notification) {
         notification.setChedReference(dto.getChedReference());
-        notification.setStatus(dto.getStatus());
+        notification.setStatus("DRAFT");
         notification.setOriginCountry(dto.getOriginCountry());
         notification.setCommodity(dto.getCommodity());
         notification.setImportReason(dto.getImportReason());
         notification.setInternalMarketPurpose(dto.getInternalMarketPurpose());
         notification.setTransport(dto.getTransport());
+    }
+
+    /**
+     * Submit a notification to IPAFFS.
+     * <p>
+     * This method: 1. Loads the notification by ID (must exist) 2. Prevents resubmission of already
+     * submitted notifications 3. Maps the notification to IPAFFS CHEDA format 4. Submits to IPAFFS
+     * and receives CHED reference 5. Updates the notification with CHED reference and SUBMITTED
+     * status
+     *
+     * @param id the notification ID to submit
+     * @return the submitted notification with CHED reference
+     * @throws NotFoundException               if notification not found
+     * @throws NotificationSubmissionException if submission fails or already submitted
+     */
+    public Notification submitNotification(String id) {
+        log.debug("Submitting notification with id: {}", id);
+
+        // Step 1: Load notification by ID
+        Notification notification = findById(id);
+
+        // Step 2: Prevent resubmission if already submitted
+        if ("SUBMITTED".equals(notification.getStatus())) {
+            log.error("Notification {} is already submitted", id);
+            throw new NotificationSubmissionException(
+                "Notification already submitted: " + id);
+        }
+
+        try {
+            // Step 3: Map to IPAFFS format
+            log.info("Mapping notification {} to IPAFFS CHEDA format", id);
+            IpaffsNotification ipaffsNotification = chedaMapper.mapToIpaffsNotification(
+                notification);
+
+            // Step 4: Submit to IPAFFS
+            log.info("Submitting notification {} to IPAFFS", id);
+            String chedReference = ipaffsNotificationClient.submitNotification(ipaffsNotification,
+                id);
+            log.info("IPAFFS submission successful. CHED reference: {}", chedReference);
+
+            // Step 5: Update notification with CHED reference and SUBMITTED status
+            notification.setChedReference(chedReference);
+            notification.setStatus("SUBMITTED");
+            notification.setUpdated(LocalDateTime.now());
+
+            Notification submittedNotification = repository.save(notification);
+            log.info("Notification {} submitted successfully with CHED reference: {}",
+                id, chedReference);
+
+            return submittedNotification;
+        } catch (Exception e) {
+            log.error("Failed to submit notification {} to IPAFFS", id, e);
+            throw new NotificationSubmissionException(
+                "Failed to submit notification to IPAFFS: " + e.getMessage(), e);
+        }
     }
 }

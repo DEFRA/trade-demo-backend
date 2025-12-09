@@ -86,4 +86,29 @@ public class NotificationController {
         log.info("DELETE /notifications/{} - Deleting notification", id);
         notificationService.delete(id);
     }
+
+    /**
+     * Submit a notification to IPAFFS.
+     * First saves/updates the notification, then submits to IPAFFS.
+     * If the notification doesn't have an ID, one will be generated during save.
+     * The notification will be mapped to CHEDA format and submitted to IPAFFS.
+     * On successful submission, the CHED reference is stored and status is set to SUBMITTED.
+     *
+     * @param notificationDto the notification data to submit
+     * @return the submitted notification with CHED reference
+     */
+    @PostMapping("/submit")
+    @Operation(summary = "Submit notification to IPAFFS",
+               description = "Submits notification to IPAFFS and returns CHED reference")
+    @Timed("SubmitNotification")
+    public Notification submit(@Valid @RequestBody NotificationDto notificationDto) {
+        log.info("POST /notifications/submit - Submitting notification (ID: {})",
+            notificationDto.getId());
+
+        // Save/update notification first (handles ID generation if needed)
+        Notification savedNotification = notificationService.saveOrUpdate(notificationDto);
+
+        // Submit to IPAFFS using the ID
+        return notificationService.submitNotification(savedNotification.getId());
+    }
 }

@@ -1,0 +1,13 @@
+package uk.gov.defra.cdp.trade.demo.domain.ipaffs;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class KeyDataPair {
+    private String key;
+    private String data;
+}
