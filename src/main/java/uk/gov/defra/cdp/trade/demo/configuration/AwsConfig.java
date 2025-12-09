@@ -53,9 +53,7 @@ public class AwsConfig {
                 .build();
             GetWebIdentityTokenResponse response = stsClient.getWebIdentityToken(request);
 
-            DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-            LocalDateTime localDateTime = LocalDateTime.now();
-            log.info("STS WebIdentityToken issued at: {}", dateFormat.format(localDateTime));
+            log.info("STS WebIdentityToken issued at: {}", LocalDateTime.now());
 
             return response.webIdentityToken();
         } catch (StsException ex) {
