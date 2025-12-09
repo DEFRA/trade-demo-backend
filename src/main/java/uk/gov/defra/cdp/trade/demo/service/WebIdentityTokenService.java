@@ -3,19 +3,15 @@ package uk.gov.defra.cdp.trade.demo.service;
 import static java.util.Objects.isNull;
 
 import com.nimbusds.jwt.SignedJWT;
-import jakarta.annotation.PostConstruct;
 import java.text.ParseException;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
-import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.services.sts.model.GetWebIdentityTokenResponse;
 import uk.gov.defra.cdp.trade.demo.configuration.AwsConfig;
 import uk.gov.defra.cdp.trade.demo.exceptions.TradeDemoBackendException;
 
@@ -26,46 +22,38 @@ public class WebIdentityTokenService {
     @Value("${aws.sts.token.audience}")
     private String audience;
 
-    private Cache tokenCache;
+    private final AwsConfig awsConfig;
+
+    private final CacheManager cacheManager;
 
     private static final String CACHE_NAME = "IDENTITY_TOKEN_CACHE";
 
     private static final String CACHE_KEY = "tradeDemoBackend";
 
-    private final AwsConfig awsConfig;
-
-    public WebIdentityTokenService(AwsConfig awsConfig) {
+    public WebIdentityTokenService(AwsConfig awsConfig, CacheManager cacheManager) {
         this.awsConfig = awsConfig;
+        this.cacheManager = cacheManager;
     }
 
-    @PostConstruct
-    public void init() {
-        log.info("Initializing Cache for WebIdentityTokenService: {}", CACHE_NAME);
-        this.tokenCache = new ConcurrentMapCacheManager().getCache(CACHE_NAME);
-        if (isNull(this.tokenCache)) {
-            throw new IllegalStateException("Cache not found: {}" + CACHE_NAME);
-        }
-        log.info("Successfully initialized cache for WebIdentityTokenService: {}", CACHE_NAME);
-    }
-
-    @Cacheable(cacheNames = CACHE_NAME, key = "'tradeDemoBackend'")
+    @Cacheable(cacheNames = CACHE_NAME, key = "'" + CACHE_KEY +  "'")
     public String getWebIdentityToken() {
         try {
-            Cache.ValueWrapper cachedToken = tokenCache.get(CACHE_KEY);
+            Cache.ValueWrapper cachedToken = cacheManager.getCache(CACHE_NAME).get(CACHE_KEY);
 
             if (!isNull(cachedToken)) {
                 TokenEntry entry = (TokenEntry) cachedToken.get();
 
-                if (isTokenValid(entry.expiry)) {
+                if (isTokenNotExpired(entry.token)) {
                     log.info("Cached token found for audience: {}", audience);
                     return entry.token;
                 } else {
                     log.info("Cached token not found for audience: {}", audience);
-                    evictToken(CACHE_KEY);
+                    cacheManager.getCache(CACHE_NAME).evict(CACHE_KEY);
                 }
             }
 
             // fetch new token
+            log.info("Cache: calling STS getWebIdentityToken");
             return fetchAndCacheToken();
         } catch (Exception e) {
             log.warn("Failed to retrieve web identity token for audience: {}", audience, e);
@@ -73,34 +61,26 @@ public class WebIdentityTokenService {
         }
     }
 
-    @CacheEvict(cacheNames = CACHE_NAME, key = "'tradeDemoBackend'")
-    public void evictToken(String audience) {
-        log.warn("Evicted web identity token for {}", audience);
-    }
-
     public String fetchAndCacheToken() {
 
         String token = awsConfig.getWebIdentityToken();
 
-        if (!isTokenValid(token)) {
-            log.warn("Web identity token is invalid or expired");
-            throw new TradeDemoBackendException("STS token is invalid or expired...!");
+        if (!isTokenNotExpired(token)) {
+            log.warn("The new Web identity token is invalid or expired");
+            throw new TradeDemoBackendException("The new Web identity token is invalid or expired...!");
         }
 
         Instant expiry = getTokenExpiration(token);
-        tokenCache.put(CACHE_KEY, new TokenEntry(token, expiry));
-        log.info("Cached web identity token for audience: {}", audience);
+        cacheManager.getCache(CACHE_NAME).put(CACHE_KEY, new TokenEntry(token, expiry));
+        log.info("Cached new web identity token for audience: {}", audience);
         return token;
     }
 
-    public boolean isTokenValid(String token) {
+    public boolean isTokenNotExpired(String token) {
 
         Instant expiry = getTokenExpiration(token);
-        return expiry != null && !expiry.isBefore(Instant.now());
-    }
-
-    public boolean isTokenValid(Instant expiry) {
-        return expiry != null && !expiry.isBefore(Instant.now());
+        Instant now = Instant.now().plusSeconds(60);
+        return expiry != null && now.isBefore(expiry);
     }
 
     private Instant getTokenExpiration(String token) {
