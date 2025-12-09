@@ -1,19 +1,15 @@
 package uk.gov.defra.cdp.trade.demo.configuration;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sts.StsClient;
 import software.amazon.awssdk.services.sts.model.GetWebIdentityTokenRequest;
 import software.amazon.awssdk.services.sts.model.GetWebIdentityTokenResponse;
 import software.amazon.awssdk.services.sts.model.StsException;
-import uk.gov.defra.cdp.trade.demo.exceptions.NotFoundException;
 import uk.gov.defra.cdp.trade.demo.exceptions.TradeDemoBackendException;
 
 @Slf4j
@@ -31,10 +27,6 @@ public class AwsConfig {
     
     
     private StsClient stsClient() {
-        
-        DefaultCredentialsProvider credentials = DefaultCredentialsProvider.builder().build();
-        log.info("AccessKeyId: {}", credentials.resolveCredentials().accessKeyId());
-        log.info("SecretAccessKey: {}", credentials.resolveCredentials().secretAccessKey());
         
         return StsClient.builder()
             .region(Region.of(region))

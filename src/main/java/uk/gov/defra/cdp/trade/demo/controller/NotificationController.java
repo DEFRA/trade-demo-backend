@@ -4,10 +4,13 @@ import io.micrometer.core.annotation.Timed;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 import uk.gov.defra.cdp.trade.demo.domain.Notification;
 import uk.gov.defra.cdp.trade.demo.domain.NotificationDto;
 import uk.gov.defra.cdp.trade.demo.service.NotificationService;
@@ -24,10 +27,22 @@ import java.util.List;
 @RequestMapping("/notifications")
 @Tag(name = "Notification API", description = "Manage import notifications (CHEDs)")
 @Slf4j
-@AllArgsConstructor
 public class NotificationController {
+    
+    @Value("${ipaffs.api.baseUrl}")
+    private String IPAFFS_API_BASE_URL;
+
+    @Value("${ipaffs.api.relativePath}")
+    private String IPAFFS_API_RELATIVE_PATH;
 
     private final NotificationService notificationService;
+
+    private final WebClient webClient;
+    
+    public NotificationController(NotificationService notificationService, WebClient webClient) {
+        this.notificationService = notificationService;
+        this.webClient = webClient;
+    }
 
     /**
      * Save or update a notification.
@@ -85,5 +100,21 @@ public class NotificationController {
     public void delete(@PathVariable String id) {
         log.info("DELETE /notifications/{} - Deleting notification", id);
         notificationService.delete(id);
+    }
+
+    @PostMapping("/{id}/submit")
+    @Operation(summary = "Submit notification", description = "Submit a notification to IPAFFS")
+    @Timed("SubmitNotification")
+    public Mono<ResponseEntity<String>> submit(@PathVariable String id) {
+        String ipaffsSubmitUrl = IPAFFS_API_BASE_URL + IPAFFS_API_RELATIVE_PATH;
+        
+        log.info("SUBMIT /notifications/{} - Submitting notification to Location: {}",
+            id, ipaffsSubmitUrl);
+
+        return webClient.post()
+            .uri(ipaffsSubmitUrl)
+            .retrieve()
+            .bodyToMono(String.class)
+            .map(ResponseEntity::ok);
     }
 }
