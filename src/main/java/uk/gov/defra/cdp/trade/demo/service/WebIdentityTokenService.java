@@ -13,12 +13,14 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import uk.gov.defra.cdp.trade.demo.configuration.AwsConfig;
+import software.amazon.awssdk.services.sts.model.GetWebIdentityTokenResponse;
 import uk.gov.defra.cdp.trade.demo.exceptions.TradeDemoBackendException;
 
 @Slf4j
 @Service
+@Profile({"!integration-test & !dev"})
 public class WebIdentityTokenService {
 
     @Value("${aws.sts.token.audience}")
@@ -26,14 +28,14 @@ public class WebIdentityTokenService {
 
     private Cache tokenCache;
 
-    private final AwsConfig awsConfig;
-
     private static final String CACHE_NAME = "IDENTITY_TOKEN_CACHE";
-    
+
     private static final String CACHE_KEY = "tradeDemoBackend";
 
-    public WebIdentityTokenService(AwsConfig awsConfig) {
-        this.awsConfig = awsConfig;
+    private final GetWebIdentityTokenResponse getWebIdentityTokenResponse;
+
+    public WebIdentityTokenService(GetWebIdentityTokenResponse getWebIdentityTokenResponse) {
+        this.getWebIdentityTokenResponse = getWebIdentityTokenResponse;
     }
 
     @PostConstruct
@@ -78,7 +80,7 @@ public class WebIdentityTokenService {
 
     public String fetchAndCacheToken() {
 
-        String token = awsConfig.webIdentityToken();
+        String token = getWebIdentityTokenResponse.webIdentityToken();
 
         if (!isTokenValid(token)) {
             log.warn("Web identity token is invalid or expired");
@@ -86,8 +88,8 @@ public class WebIdentityTokenService {
         }
 
         Instant expiry = getTokenExpiration(token);
-        tokenCache.put("cdp-tdb", new TokenEntry(token, expiry));
-        log.info("Cached web identity token for audience: {}", CACHE_NAME);
+        tokenCache.put(CACHE_KEY, new TokenEntry(token, expiry));
+        log.info("Cached web identity token for audience: {}", audience);
         return token;
     }
 

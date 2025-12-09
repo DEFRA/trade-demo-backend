@@ -1,10 +1,12 @@
 package uk.gov.defra.cdp.trade.demo.configuration;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -16,6 +18,7 @@ import uk.gov.defra.cdp.trade.demo.exceptions.NotFoundException;
 
 @Slf4j
 @Configuration
+@Profile({"!integration-test & !dev"})
 public class AwsConfig {
 
     @Value("${aws.region}")
@@ -29,8 +32,11 @@ public class AwsConfig {
     
     
     @Bean
-    @Primary
     public StsClient stsClient() {
+        
+        DefaultCredentialsProvider credentials = DefaultCredentialsProvider.builder().build();
+        log.info("AccessKeyId: {}", credentials.resolveCredentials().accessKeyId());
+        log.info("SecretAccessKey: {}", credentials.resolveCredentials().secretAccessKey());
         
         return StsClient.builder()
             .region(Region.of(region))
@@ -40,8 +46,7 @@ public class AwsConfig {
     }
     
     @Bean
-    @Profile({"!integration-test"})
-    public String webIdentityToken() {
+    public GetWebIdentityTokenResponse getWebIdentityTokenResponse() {
         try(StsClient stsClient = stsClient()) {
 
             GetWebIdentityTokenRequest request = GetWebIdentityTokenRequest.builder()
@@ -51,9 +56,11 @@ public class AwsConfig {
                 .build();
             GetWebIdentityTokenResponse response = stsClient.getWebIdentityToken(request);
 
-            log.info("WebIdentityToken: {}", response.webIdentityToken());
+            DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+            LocalDateTime localDateTime = LocalDateTime.now();
+            log.info("STS WebIdentityToken issued at: {}", dateFormat.format(localDateTime));
 
-            return response.webIdentityToken();
+            return response;
         } catch (StsException ex) {
             throw new NotFoundException("Sts connection error: " +  ex.getMessage());
         }
