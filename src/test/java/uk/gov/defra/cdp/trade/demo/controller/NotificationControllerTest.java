@@ -35,7 +35,7 @@ class NotificationControllerTest {
 
     @BeforeEach
     void setUp() {
-        controller = new NotificationController(notificationService, null);
+        controller = new NotificationController(notificationService);
     }
 
     @Test
