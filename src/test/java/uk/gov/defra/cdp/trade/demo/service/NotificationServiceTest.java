@@ -31,7 +31,7 @@ import uk.gov.defra.cdp.trade.demo.domain.Transport;
 import uk.gov.defra.cdp.trade.demo.domain.repository.NotificationRepository;
 import uk.gov.defra.cdp.trade.demo.exceptions.NotFoundException;
 import uk.gov.defra.cdp.trade.demo.exceptions.NotificationSubmissionException;
-import uk.gov.defra.cdp.trade.demo.mapper.ChedaMapper;
+import uk.gov.defra.cdp.trade.demo.mapper.IpaffsNotificationMapper;
 import uk.gov.defra.cdp.trade.demo.client.IpaffsNotificationClient;
 import uk.gov.defra.cdp.trade.demo.domain.ipaffs.IpaffsNotification;
 
@@ -48,7 +48,7 @@ class NotificationServiceTest {
     private NotificationIdGeneratorService idGeneratorService;
 
     @Mock
-    private ChedaMapper chedaMapper;
+    private IpaffsNotificationMapper ipaffsNotificationMapper;
 
     @Mock
     private IpaffsNotificationClient ipaffsNotificationClient;
@@ -60,7 +60,7 @@ class NotificationServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new NotificationService(repository, idGeneratorService, chedaMapper, ipaffsNotificationClient);
+        service = new NotificationService(repository, idGeneratorService, ipaffsNotificationMapper, ipaffsNotificationClient);
     }
 
     @Test
@@ -361,7 +361,7 @@ class NotificationServiceTest {
         existingNotification.setStatus("DRAFT");
 
         when(repository.findById(notificationId)).thenReturn(Optional.of(existingNotification));
-        when(chedaMapper.mapToIpaffsNotification(existingNotification))
+        when(ipaffsNotificationMapper.mapToIpaffsNotification(existingNotification))
             .thenReturn(new IpaffsNotification());
         when(ipaffsNotificationClient.submitNotification(any(IpaffsNotification.class), eq(notificationId)))
             .thenReturn("CHEDA.2025.12090300");
@@ -371,7 +371,7 @@ class NotificationServiceTest {
         service.submitNotification(notificationId);
 
         // Then
-        verify(chedaMapper).mapToIpaffsNotification(existingNotification);
+        verify(ipaffsNotificationMapper).mapToIpaffsNotification(existingNotification);
         verify(ipaffsNotificationClient).submitNotification(any(IpaffsNotification.class), eq(notificationId));
     }
 
@@ -384,7 +384,7 @@ class NotificationServiceTest {
         existingNotification.setStatus("DRAFT");
 
         when(repository.findById(notificationId)).thenReturn(Optional.of(existingNotification));
-        when(chedaMapper.mapToIpaffsNotification(existingNotification))
+        when(ipaffsNotificationMapper.mapToIpaffsNotification(existingNotification))
             .thenReturn(new IpaffsNotification());
         when(ipaffsNotificationClient.submitNotification(any(IpaffsNotification.class), eq(notificationId)))
             .thenReturn("CHEDA.2025.12090700");
@@ -415,7 +415,7 @@ class NotificationServiceTest {
         existingNotification.setStatus("DRAFT");
 
         when(repository.findById(notificationId)).thenReturn(Optional.of(existingNotification));
-        when(chedaMapper.mapToIpaffsNotification(existingNotification))
+        when(ipaffsNotificationMapper.mapToIpaffsNotification(existingNotification))
             .thenReturn(new IpaffsNotification());
         when(ipaffsNotificationClient.submitNotification(any(IpaffsNotification.class), eq(notificationId)))
             .thenThrow(new RuntimeException("IPAFFS service unavailable"));

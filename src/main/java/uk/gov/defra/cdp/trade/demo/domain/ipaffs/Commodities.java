@@ -13,7 +13,5 @@ public class Commodities {
     private Integer numberOfAnimals;
     private List<CommodityComplement> commodityComplement;
     private List<ComplementParameterSet> complementParameterSet;
-    private Boolean includeNonAblactedAnimals;
     private String countryOfOrigin;
-    private String animalsCertifiedAs;
 }

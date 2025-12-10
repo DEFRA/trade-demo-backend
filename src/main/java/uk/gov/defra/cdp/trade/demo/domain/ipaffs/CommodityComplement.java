@@ -15,7 +15,5 @@ public class CommodityComplement {
     private String speciesID;
     private String speciesName;
     private String speciesTypeName;
-    private String speciesType;
-    private String speciesClass;
     private String speciesNomination;
 }

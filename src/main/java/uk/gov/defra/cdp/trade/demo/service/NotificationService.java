@@ -12,7 +12,7 @@ import uk.gov.defra.cdp.trade.demo.domain.ipaffs.IpaffsNotification;
 import uk.gov.defra.cdp.trade.demo.domain.repository.NotificationRepository;
 import uk.gov.defra.cdp.trade.demo.exceptions.NotFoundException;
 import uk.gov.defra.cdp.trade.demo.exceptions.NotificationSubmissionException;
-import uk.gov.defra.cdp.trade.demo.mapper.ChedaMapper;
+import uk.gov.defra.cdp.trade.demo.mapper.IpaffsNotificationMapper;
 
 /**
  * Service layer for Notification CRUD operations.
@@ -27,7 +27,7 @@ public class NotificationService {
 
     private final NotificationRepository repository;
     private final NotificationIdGeneratorService idGenerator;
-    private final ChedaMapper chedaMapper;
+    private final IpaffsNotificationMapper ipaffsNotificationMapper;
     private final IpaffsNotificationClient ipaffsNotificationClient;
 
     /**
@@ -188,7 +188,7 @@ public class NotificationService {
         try {
             // Step 3: Map to IPAFFS format
             log.info("Mapping notification {} to IPAFFS CHEDA format", id);
-            IpaffsNotification ipaffsNotification = chedaMapper.mapToIpaffsNotification(
+            IpaffsNotification ipaffsNotification = ipaffsNotificationMapper.mapToIpaffsNotification(
                 notification);
 
             // Step 4: Submit to IPAFFS

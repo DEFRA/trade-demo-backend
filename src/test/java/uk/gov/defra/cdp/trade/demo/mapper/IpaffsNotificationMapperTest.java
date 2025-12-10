@@ -1,10 +1,9 @@
 package uk.gov.defra.cdp.trade.demo.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Arrays;
 import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,17 +16,17 @@ import uk.gov.defra.cdp.trade.demo.domain.ipaffs.IpaffsNotification;
 /**
  * Unit tests for ChedaMapper.
  */
-class ChedaMapperTest {
+class IpaffsNotificationMapperTest {
 
-    private ChedaMapper mapper;
+    private IpaffsNotificationMapper mapper;
 
     @BeforeEach
     void setUp() {
-        mapper = new ChedaMapper(new ObjectMapper());
+        mapper = new IpaffsNotificationMapper();
     }
 
     @Test
-    void mapToIpaffsNotification_shouldLoadTemplateAndMapOriginCountry() {
+    void mapToIpaffsNotification_shouldMapOriginCountry() {
         // Given
         Notification notification = createMinimalNotification();
         notification.setOriginCountry("FR");
@@ -124,20 +123,32 @@ class ChedaMapperTest {
     }
 
     @Test
-    void mapToIpaffsNotification_shouldPreserveTemplateDefaults() {
+    void mapToIpaffsNotification_shouldSetDefaultValues() {
         // Given
         Notification notification = createMinimalNotification();
 
         // When
         IpaffsNotification result = mapper.mapToIpaffsNotification(notification);
 
-        // Then - verify template values are preserved
+        // Then - verify default values are set
         assertAll(
             () -> assertThat(result.getType()).isEqualTo("CVEDA"),
-            () -> assertThat(result.getStatus()).isEqualTo("DRAFT"),
-            () -> assertThat(result.getVersion()).isEqualTo(0),
-            () -> assertThat(result.getIsHighRiskEuImport()).isTrue()
+            () -> assertThat(result.getStatus()).isEqualTo("SUBMITTED"),
+            () -> assertThat(result.getPartOne().getPurpose().getPurposeGroup()).isEqualTo("For Import")
         );
+    }
+
+    @Test
+    void mapToIpaffsNotification_shouldMapStatusFromNotification() {
+        // Given
+        Notification notification = createMinimalNotification();
+        notification.setStatus("SUBMITTED");
+
+        // When
+        IpaffsNotification result = mapper.mapToIpaffsNotification(notification);
+
+        // Then
+        assertThat(result.getStatus()).isEqualTo("SUBMITTED");
     }
 
     @Test
@@ -173,9 +184,98 @@ class ChedaMapperTest {
         // When
         IpaffsNotification result = mapper.mapToIpaffsNotification(notification);
 
-        // Then - should not throw exception, template defaults should be preserved
+        // Then - should not throw exception, default values should be set
         assertThat(result).isNotNull();
         assertThat(result.getPartOne()).isNotNull();
+    }
+
+    @Test
+    void mapToIpaffsNotification_shouldMapMultipleSpeciesToCommodityComplements() {
+        // Given
+        Notification notification = createMinimalNotification();
+
+        Species species1 = new Species();
+        species1.setName("Bibos spp.");
+        species1.setCode("587923");
+        species1.setNoOfAnimals(1);
+        species1.setNoOfPackages(2);
+
+        Species species2 = new Species();
+        species2.setName("Bison bison");
+        species2.setCode("41481");
+        species2.setNoOfAnimals(3);
+        species2.setNoOfPackages(4);
+
+        Commodity commodity = new Commodity();
+        commodity.setCode("0102");
+        commodity.setDescription("Live bovine animals");
+        commodity.setType("Domestic");
+        commodity.setSpecies(Arrays.asList(species1, species2));
+
+        notification.setCommodity(commodity);
+
+        // When
+        IpaffsNotification result = mapper.mapToIpaffsNotification(notification);
+
+        // Then - verify commodity complements
+        assertThat(result.getPartOne().getCommodities().getCommodityComplement()).hasSize(2);
+
+        var complement1 = result.getPartOne().getCommodities().getCommodityComplement().get(0);
+        assertAll(
+            () -> assertThat(complement1.getCommodityID()).isEqualTo("0102"),
+            () -> assertThat(complement1.getCommodityDescription()).isEqualTo("Live bovine animals"),
+            () -> assertThat(complement1.getComplementID()).isEqualTo(1),
+            () -> assertThat(complement1.getSpeciesID()).isEqualTo("587923"),
+            () -> assertThat(complement1.getSpeciesName()).isEqualTo("Bibos spp."),
+            () -> assertThat(complement1.getComplementName()).isEqualTo("Bibos spp."),
+            () -> assertThat(complement1.getSpeciesNomination()).isEqualTo("Bibos spp."),
+            () -> assertThat(complement1.getSpeciesTypeName()).isEqualTo("Domestic")
+        );
+
+        var complement2 = result.getPartOne().getCommodities().getCommodityComplement().get(1);
+        assertAll(
+            () -> assertThat(complement2.getCommodityID()).isEqualTo("0102"),
+            () -> assertThat(complement2.getCommodityDescription()).isEqualTo("Live bovine animals"),
+            () -> assertThat(complement2.getComplementID()).isEqualTo(2),
+            () -> assertThat(complement2.getSpeciesID()).isEqualTo("41481"),
+            () -> assertThat(complement2.getSpeciesName()).isEqualTo("Bison bison"),
+            () -> assertThat(complement2.getComplementName()).isEqualTo("Bison bison"),
+            () -> assertThat(complement2.getSpeciesNomination()).isEqualTo("Bison bison"),
+            () -> assertThat(complement2.getSpeciesTypeName()).isEqualTo("Domestic")
+        );
+
+        // Verify complement parameter sets
+        assertThat(result.getPartOne().getCommodities().getComplementParameterSet()).hasSize(2);
+
+        var paramSet1 = result.getPartOne().getCommodities().getComplementParameterSet().get(0);
+        assertAll(
+            () -> assertThat(paramSet1.getComplementID()).isEqualTo(1),
+            () -> assertThat(paramSet1.getSpeciesID()).isEqualTo("587923"),
+            () -> assertThat(paramSet1.getUniqueComplementID()).isNotNull(),
+            () -> assertThat(paramSet1.getKeyDataPair()).hasSize(2),
+            () -> assertThat(paramSet1.getKeyDataPair().get(0).getKey()).isEqualTo("number_package"),
+            () -> assertThat(paramSet1.getKeyDataPair().get(0).getData()).isEqualTo("2"),
+            () -> assertThat(paramSet1.getKeyDataPair().get(1).getKey()).isEqualTo("number_animal"),
+            () -> assertThat(paramSet1.getKeyDataPair().get(1).getData()).isEqualTo("1")
+        );
+
+        var paramSet2 = result.getPartOne().getCommodities().getComplementParameterSet().get(1);
+        assertAll(
+            () -> assertThat(paramSet2.getComplementID()).isEqualTo(2),
+            () -> assertThat(paramSet2.getSpeciesID()).isEqualTo("41481"),
+            () -> assertThat(paramSet2.getUniqueComplementID()).isNotNull(),
+            () -> assertThat(paramSet2.getKeyDataPair()).hasSize(2),
+            () -> assertThat(paramSet2.getKeyDataPair().get(0).getKey()).isEqualTo("number_package"),
+            () -> assertThat(paramSet2.getKeyDataPair().get(0).getData()).isEqualTo("4"),
+            () -> assertThat(paramSet2.getKeyDataPair().get(1).getKey()).isEqualTo("number_animal"),
+            () -> assertThat(paramSet2.getKeyDataPair().get(1).getData()).isEqualTo("3")
+        );
+
+        // Verify totals
+        assertAll(
+            () -> assertThat(result.getPartOne().getCommodities().getNumberOfAnimals()).isEqualTo(4),
+            () -> assertThat(result.getPartOne().getCommodities().getNumberOfPackages()).isEqualTo(6)
+        );
     }
 
     // Helper methods
