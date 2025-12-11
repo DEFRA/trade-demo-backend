@@ -5,12 +5,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -26,18 +22,17 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.defra.cdp.trade.demo.client.IpaffsApiClient;
+import uk.gov.defra.cdp.trade.demo.client.IpaffsNotificationClient;
 import uk.gov.defra.cdp.trade.demo.domain.Commodity;
 import uk.gov.defra.cdp.trade.demo.domain.Notification;
 import uk.gov.defra.cdp.trade.demo.domain.NotificationDto;
 import uk.gov.defra.cdp.trade.demo.domain.Species;
 import uk.gov.defra.cdp.trade.demo.domain.Transport;
+import uk.gov.defra.cdp.trade.demo.domain.ipaffs.IpaffsNotification;
 import uk.gov.defra.cdp.trade.demo.domain.repository.NotificationRepository;
 import uk.gov.defra.cdp.trade.demo.exceptions.NotFoundException;
 import uk.gov.defra.cdp.trade.demo.exceptions.NotificationSubmissionException;
 import uk.gov.defra.cdp.trade.demo.mapper.IpaffsNotificationMapper;
-import uk.gov.defra.cdp.trade.demo.client.IpaffsNotificationClient;
-import uk.gov.defra.cdp.trade.demo.domain.ipaffs.IpaffsNotification;
 
 /**
  * Unit tests for NotificationService.
@@ -50,15 +45,12 @@ class NotificationServiceTest {
 
     @Mock
     private NotificationIdGeneratorService idGeneratorService;
-    
-    @Mock
-    private IpaffsApiClient ipaffsApiClient;
-
-    @Mock
-    private IpaffsNotificationMapper ipaffsNotificationMapper;
 
     @Mock
     private IpaffsNotificationClient ipaffsNotificationClient;
+
+    @Mock
+    private IpaffsNotificationMapper ipaffsNotificationMapper;
 
     @Captor
     private ArgumentCaptor<Notification> notificationCaptor;
@@ -67,7 +59,8 @@ class NotificationServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new NotificationService(repository, idGeneratorService, ipaffsNotificationMapper, ipaffsNotificationClient, ipaffsApiClient);
+        service = new NotificationService(repository, idGeneratorService, ipaffsNotificationMapper,
+            ipaffsNotificationClient);
     }
 
     @Test
@@ -198,7 +191,8 @@ class NotificationServiceTest {
         existing.setCreated(LocalDateTime.now().minusDays(1));
         existing.setUpdated(LocalDateTime.now().minusDays(1));
 
-        NotificationDto dto = createTestNotificationDto("test-id-123"); // ID provided - update existing
+        NotificationDto dto = createTestNotificationDto(
+            "test-id-123"); // ID provided - update existing
         dto.setChedReference("CHED-UPDATED");
         dto.setOriginCountry("France");
         dto.setImportReason("re-entry");
@@ -253,7 +247,8 @@ class NotificationServiceTest {
     @Test
     void saveOrUpdate_shouldThrowNotFoundException_whenIdProvidedButNotExists() {
         // Given
-        NotificationDto dto = createTestNotificationDto("non-existent-id"); // ID provided but doesn't exist
+        NotificationDto dto = createTestNotificationDto(
+            "non-existent-id"); // ID provided but doesn't exist
         when(repository.findById("non-existent-id")).thenReturn(Optional.empty());
 
         // When/Then
@@ -264,15 +259,6 @@ class NotificationServiceTest {
 
         verify(repository).findById("non-existent-id");
         verify(repository, never()).save(any(Notification.class));
-    }
-    
-    @Test
-    void test_submitNotification() {
-        
-        service.submit("test-id-123");
-        
-        verify(ipaffsApiClient, times(1)).submitNotification();
-        
     }
 
     // Helper methods
@@ -348,7 +334,7 @@ class NotificationServiceTest {
             .isInstanceOf(NotificationSubmissionException.class)
             .hasMessageContaining("already submitted");
 
-        verify(ipaffsNotificationClient, never()).submitNotification(any(), anyString());
+        verify(ipaffsNotificationClient, never()).submitNotification(any(IpaffsNotification.class));
         verify(repository, never()).save(any(Notification.class));
     }
 
@@ -364,7 +350,7 @@ class NotificationServiceTest {
             .isInstanceOf(NotFoundException.class)
             .hasMessageContaining("not found");
 
-        verify(ipaffsNotificationClient, never()).submitNotification(any(), anyString());
+        verify(ipaffsNotificationClient, never()).submitNotification(any(IpaffsNotification.class));
         verify(repository, never()).save(any(Notification.class));
     }
 
@@ -376,10 +362,12 @@ class NotificationServiceTest {
         Notification existingNotification = createTestNotification(notificationId);
         existingNotification.setStatus("DRAFT");
 
+        IpaffsNotification ipaffsNotification = new IpaffsNotification();
+
         when(repository.findById(notificationId)).thenReturn(Optional.of(existingNotification));
         when(ipaffsNotificationMapper.mapToIpaffsNotification(existingNotification))
-            .thenReturn(new IpaffsNotification());
-        when(ipaffsNotificationClient.submitNotification(any(IpaffsNotification.class), eq(notificationId)))
+            .thenReturn(ipaffsNotification);
+        when(ipaffsNotificationClient.submitNotification(ipaffsNotification))
             .thenReturn("CHEDA.2025.12090300");
         when(repository.save(any(Notification.class))).thenAnswer(inv -> inv.getArgument(0));
 
@@ -388,7 +376,7 @@ class NotificationServiceTest {
 
         // Then
         verify(ipaffsNotificationMapper).mapToIpaffsNotification(existingNotification);
-        verify(ipaffsNotificationClient).submitNotification(any(IpaffsNotification.class), eq(notificationId));
+        verify(ipaffsNotificationClient).submitNotification(ipaffsNotification);
     }
 
     @Test
@@ -400,9 +388,10 @@ class NotificationServiceTest {
         existingNotification.setStatus("DRAFT");
 
         when(repository.findById(notificationId)).thenReturn(Optional.of(existingNotification));
+        IpaffsNotification ipaffsNotification = new IpaffsNotification();
         when(ipaffsNotificationMapper.mapToIpaffsNotification(existingNotification))
-            .thenReturn(new IpaffsNotification());
-        when(ipaffsNotificationClient.submitNotification(any(IpaffsNotification.class), eq(notificationId)))
+            .thenReturn(ipaffsNotification);
+        when(ipaffsNotificationClient.submitNotification(ipaffsNotification))
             .thenReturn("CHEDA.2025.12090700");
         when(repository.save(any(Notification.class))).thenAnswer(inv -> inv.getArgument(0));
 
@@ -431,9 +420,10 @@ class NotificationServiceTest {
         existingNotification.setStatus("DRAFT");
 
         when(repository.findById(notificationId)).thenReturn(Optional.of(existingNotification));
+        IpaffsNotification ipaffsNotification = new IpaffsNotification();
         when(ipaffsNotificationMapper.mapToIpaffsNotification(existingNotification))
-            .thenReturn(new IpaffsNotification());
-        when(ipaffsNotificationClient.submitNotification(any(IpaffsNotification.class), eq(notificationId)))
+            .thenReturn(ipaffsNotification);
+        when(ipaffsNotificationClient.submitNotification(ipaffsNotification))
             .thenThrow(new RuntimeException("IPAFFS service unavailable"));
 
         // When/Then

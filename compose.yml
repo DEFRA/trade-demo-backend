@@ -76,8 +76,8 @@ services:
       # Metrics (disabled locally)
       ENABLE_METRICS: true
 
-      # Spring profile (dev = exposes debugging actuator endpoints)
-      SPRING_PROFILES_ACTIVE: dev
+      # Spring profile (local = exposes debugging actuator endpoints)
+      SPRING_PROFILES_ACTIVE: local
 
       # Java Debug (optional - uncomment to enable remote debugging)
       # JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005

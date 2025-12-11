@@ -150,10 +150,6 @@ coverage/
 .env.test.local
 .env.production.local
 
-# Application specific - local overrides only
-application-local.yml
-application-local.yaml
-
 # Testing
 *.coveragexml
 .coverage

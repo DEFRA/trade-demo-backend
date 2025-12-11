@@ -11,8 +11,7 @@ public interface IpaffsNotificationClient {
      * Submit a notification to IPAFFS.
      *
      * @param notification   the IPAFFS notification to submit
-     * @param notificationId the CDP notification ID (used for INS-ConversationId header)
      * @return the CHED reference returned by IPAFFS
      */
-    String submitNotification(IpaffsNotification notification, String notificationId);
+    String submitNotification(IpaffsNotification notification);
 }

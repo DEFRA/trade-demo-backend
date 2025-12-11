@@ -5,9 +5,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
 import uk.gov.defra.cdp.trade.demo.client.IpaffsNotificationClient;
-import uk.gov.defra.cdp.trade.demo.client.IpaffsApiClient;
 import uk.gov.defra.cdp.trade.demo.domain.Notification;
 import uk.gov.defra.cdp.trade.demo.domain.NotificationDto;
 import uk.gov.defra.cdp.trade.demo.domain.ipaffs.IpaffsNotification;
@@ -31,7 +29,6 @@ public class NotificationService {
     private final NotificationIdGeneratorService idGenerator;
     private final IpaffsNotificationMapper ipaffsNotificationMapper;
     private final IpaffsNotificationClient ipaffsNotificationClient;
-    private final IpaffsApiClient ipaffsApiClient;
 
     /**
      * Get all notifications.
@@ -126,51 +123,6 @@ public class NotificationService {
         repository.deleteById(id);
         log.info("Deleted notification with id: {}", id);
     }
-    
-    /**
-     * Submit notification
-     * */
-    public boolean submit(String id) {
-        log.info("Submit notification with id: {}", id);
-        
-        ipaffsApiClient.submitNotification();
-        return true;
-    }
-
-    /**
-     * Convert NotificationDto to Notification entity.
-     *
-     * @param dto the notification DTO
-     * @return the notification entity
-     */
-    private Notification toEntity(NotificationDto dto) {
-        Notification notification = new Notification();
-        String generatedId = idGenerator.generateId();
-        notification.setId(generatedId);
-
-        setNotificationDetails(dto, notification);
-        return notification;
-    }
-
-    /**
-     * Update Notification entity from NotificationDto.
-     *
-     * @param entity the notification entity to update
-     * @param dto    the notification DTO with updated data
-     */
-    private void updateEntityFromDto(Notification entity, NotificationDto dto) {
-        setNotificationDetails(dto, entity);
-    }
-
-    private void setNotificationDetails(NotificationDto dto, Notification notification) {
-        notification.setChedReference(dto.getChedReference());
-        notification.setStatus("DRAFT");
-        notification.setOriginCountry(dto.getOriginCountry());
-        notification.setCommodity(dto.getCommodity());
-        notification.setImportReason(dto.getImportReason());
-        notification.setInternalMarketPurpose(dto.getInternalMarketPurpose());
-        notification.setTransport(dto.getTransport());
-    }
 
     /**
      * Submit a notification to IPAFFS.
@@ -206,8 +158,7 @@ public class NotificationService {
 
             // Step 4: Submit to IPAFFS
             log.info("Submitting notification {} to IPAFFS", id);
-            String chedReference = ipaffsNotificationClient.submitNotification(ipaffsNotification,
-                id);
+            String chedReference = ipaffsNotificationClient.submitNotification(ipaffsNotification);
             log.info("IPAFFS submission successful. CHED reference: {}", chedReference);
 
             // Step 5: Update notification with CHED reference and SUBMITTED status
@@ -225,5 +176,40 @@ public class NotificationService {
             throw new NotificationSubmissionException(
                 "Failed to submit notification to IPAFFS: " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * Convert NotificationDto to Notification entity.
+     *
+     * @param dto the notification DTO
+     * @return the notification entity
+     */
+    private Notification toEntity(NotificationDto dto) {
+        Notification notification = new Notification();
+        String generatedId = idGenerator.generateId();
+        notification.setId(generatedId);
+
+        setNotificationDetails(dto, notification);
+        return notification;
+    }
+
+    /**
+     * Update Notification entity from NotificationDto.
+     *
+     * @param entity the notification entity to update
+     * @param dto    the notification DTO with updated data
+     */
+    private void updateEntityFromDto(Notification entity, NotificationDto dto) {
+        setNotificationDetails(dto, entity);
+    }
+
+    private void setNotificationDetails(NotificationDto dto, Notification notification) {
+        notification.setChedReference(dto.getChedReference());
+        notification.setStatus("DRAFT");
+        notification.setOriginCountry(dto.getOriginCountry());
+        notification.setCommodity(dto.getCommodity());
+        notification.setImportReason(dto.getImportReason());
+        notification.setInternalMarketPurpose(dto.getInternalMarketPurpose());
+        notification.setTransport(dto.getTransport());
     }
 }

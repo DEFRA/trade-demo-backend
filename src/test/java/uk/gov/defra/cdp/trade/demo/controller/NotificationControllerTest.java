@@ -3,7 +3,6 @@ package uk.gov.defra.cdp.trade.demo.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -18,8 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import uk.gov.defra.cdp.trade.demo.domain.Commodity;
 import uk.gov.defra.cdp.trade.demo.domain.Notification;
 import uk.gov.defra.cdp.trade.demo.domain.NotificationDto;
@@ -34,7 +31,7 @@ class NotificationControllerTest {
 
     @Mock
     private NotificationService notificationService;
-    
+
     private NotificationController controller;
 
     @BeforeEach
@@ -214,20 +211,6 @@ class NotificationControllerTest {
 
         verify(notificationService).saveOrUpdate(dto);
     }
-    
-    @Test
-    void test_submitNotification() {
-        
-        String notificationId = "test-id-999";
-        when(notificationService.submit(notificationId)).thenReturn(true);
-        
-        ResponseEntity<String> response = controller.submit(notificationId);
-        
-        assertAll(
-            () -> assertNotNull(response),
-            () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK)
-        );
-    }
 
     @Test
     void submit_shouldSubmitNotificationSuccessfully() {
@@ -242,7 +225,8 @@ class NotificationControllerTest {
         submittedNotification.setChedReference("CHEDA.2025.12090100");
 
         when(notificationService.saveOrUpdate(dto)).thenReturn(savedNotification);
-        when(notificationService.submitNotification("CDP.2025.12.09.1")).thenReturn(submittedNotification);
+        when(notificationService.submitNotification("CDP.2025.12.09.1")).thenReturn(
+            submittedNotification);
 
         // When
         Notification result = controller.submit(dto);
@@ -272,7 +256,8 @@ class NotificationControllerTest {
         submittedNotification.setChedReference("CHEDA.2025.12090500");
 
         when(notificationService.saveOrUpdate(dto)).thenReturn(savedNotification);
-        when(notificationService.submitNotification("CDP.2025.12.09.5")).thenReturn(submittedNotification);
+        when(notificationService.submitNotification("CDP.2025.12.09.5")).thenReturn(
+            submittedNotification);
 
         // When
         Notification result = controller.submit(dto);
@@ -299,7 +284,8 @@ class NotificationControllerTest {
 
         when(notificationService.saveOrUpdate(dto)).thenReturn(savedNotification);
         when(notificationService.submitNotification("CDP.2025.12.09.1"))
-            .thenThrow(new NotificationSubmissionException("Notification already submitted: CDP.2025.12.09.1"));
+            .thenThrow(new NotificationSubmissionException(
+                "Notification already submitted: CDP.2025.12.09.1"));
 
         // When/Then
         assertThatThrownBy(() -> controller.submit(dto))
@@ -320,7 +306,8 @@ class NotificationControllerTest {
 
         when(notificationService.saveOrUpdate(dto)).thenReturn(savedNotification);
         when(notificationService.submitNotification("CDP.2025.12.09.3"))
-            .thenThrow(new NotificationSubmissionException("Failed to submit notification to IPAFFS"));
+            .thenThrow(
+                new NotificationSubmissionException("Failed to submit notification to IPAFFS"));
 
         // When/Then
         assertThatThrownBy(() -> controller.submit(dto))

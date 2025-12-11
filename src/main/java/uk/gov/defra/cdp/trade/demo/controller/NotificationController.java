@@ -4,32 +4,34 @@ import io.micrometer.core.annotation.Timed;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import uk.gov.defra.cdp.trade.demo.domain.Notification;
 import uk.gov.defra.cdp.trade.demo.domain.NotificationDto;
 import uk.gov.defra.cdp.trade.demo.service.NotificationService;
 
-import java.util.List;
-
 /**
  * REST API for Notification (CHED) operations.
- *
- * Provides endpoints for managing import notifications submitted
- * through the trade-demo-frontend application.
+ * <p>
+ * Provides endpoints for managing import notifications submitted through the trade-demo-frontend
+ * application.
  */
 @RestController
 @RequestMapping("/notifications")
 @Tag(name = "Notification API", description = "Manage import notifications (CHEDs)")
 @Slf4j
 public class NotificationController {
-    
+
     private final NotificationService notificationService;
 
     public NotificationController(NotificationService notificationService) {
@@ -37,9 +39,8 @@ public class NotificationController {
     }
 
     /**
-     * Save or update a notification.
-     * If the DTO contains an ID, the existing notification will be updated.
-     * Otherwise, a new notification will be created with a generated ID.
+     * Save or update a notification. If the DTO contains an ID, the existing notification will be
+     * updated. Otherwise, a new notification will be created with a generated ID.
      *
      * @param notificationDto the notification data to save or update
      * @return the saved notification
@@ -48,7 +49,8 @@ public class NotificationController {
     @Operation(summary = "Save or update notification", description = "Creates a new notification or updates an existing one based on ID")
     @Timed("PutNotificationUpsert")
     public Notification saveOrUpdate(@Valid @RequestBody NotificationDto notificationDto) {
-        log.info("PUT /notifications - Saving or updating notification (ID: {}, CHED reference: {})",
+        log.info(
+            "PUT /notifications - Saving or updating notification (ID: {}, CHED reference: {})",
             notificationDto.getId(), notificationDto.getChedReference());
         return notificationService.saveOrUpdate(notificationDto);
     }
@@ -95,18 +97,17 @@ public class NotificationController {
     }
 
     /**
-     * Submit a notification to IPAFFS.
-     * First saves/updates the notification, then submits to IPAFFS.
-     * If the notification doesn't have an ID, one will be generated during save.
-     * The notification will be mapped to CHEDA format and submitted to IPAFFS.
-     * On successful submission, the CHED reference is stored and status is set to SUBMITTED.
+     * Submit a notification to IPAFFS. First saves/updates the notification, then submits to
+     * IPAFFS. If the notification doesn't have an ID, one will be generated during save. The
+     * notification will be mapped to CHEDA format and submitted to IPAFFS. On successful
+     * submission, the CHED reference is stored and status is set to SUBMITTED.
      *
      * @param notificationDto the notification data to submit
      * @return the submitted notification with CHED reference
      */
     @PostMapping("/submit")
     @Operation(summary = "Submit notification to IPAFFS",
-               description = "Submits notification to IPAFFS and returns CHED reference")
+        description = "Submits notification to IPAFFS and returns CHED reference")
     @Timed("SubmitNotification")
     public Notification submit(@Valid @RequestBody NotificationDto notificationDto) {
         log.info("POST /notifications/submit - Submitting notification (ID: {})",
