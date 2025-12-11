@@ -3,6 +3,7 @@ package uk.gov.defra.cdp.trade.demo.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -17,6 +18,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import uk.gov.defra.cdp.trade.demo.domain.Commodity;
 import uk.gov.defra.cdp.trade.demo.domain.Notification;
 import uk.gov.defra.cdp.trade.demo.domain.NotificationDto;
@@ -30,7 +33,7 @@ class NotificationControllerTest {
 
     @Mock
     private NotificationService notificationService;
-
+    
     private NotificationController controller;
 
     @BeforeEach
@@ -132,7 +135,7 @@ class NotificationControllerTest {
 
         verify(notificationService).delete("non-existent-id");
     }
-    
+
     @Test
     void saveOrUpdate_shouldCreateNotification_whenNotExists() {
         // Given
@@ -209,6 +212,20 @@ class NotificationControllerTest {
         );
 
         verify(notificationService).saveOrUpdate(dto);
+    }
+    
+    @Test
+    void test_submitNotification() {
+        
+        String notificationId = "test-id-999";
+        when(notificationService.submit(notificationId)).thenReturn(true);
+        
+        ResponseEntity<String> response = controller.submit(notificationId);
+        
+        assertAll(
+            () -> assertNotNull(response),
+            () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK)
+        );
     }
 
     // Helper methods
