@@ -4,10 +4,14 @@ import io.micrometer.core.annotation.Timed;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 import uk.gov.defra.cdp.trade.demo.domain.Notification;
 import uk.gov.defra.cdp.trade.demo.domain.NotificationDto;
 import uk.gov.defra.cdp.trade.demo.service.NotificationService;
@@ -24,10 +28,13 @@ import java.util.List;
 @RequestMapping("/notifications")
 @Tag(name = "Notification API", description = "Manage import notifications (CHEDs)")
 @Slf4j
-@AllArgsConstructor
 public class NotificationController {
-
+    
     private final NotificationService notificationService;
+
+    public NotificationController(NotificationService notificationService) {
+        this.notificationService = notificationService;
+    }
 
     /**
      * Save or update a notification.

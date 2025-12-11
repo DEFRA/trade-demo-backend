@@ -5,9 +5,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -23,6 +26,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.defra.cdp.trade.demo.client.IpaffsApiClient;
 import uk.gov.defra.cdp.trade.demo.domain.Commodity;
 import uk.gov.defra.cdp.trade.demo.domain.Notification;
 import uk.gov.defra.cdp.trade.demo.domain.NotificationDto;
@@ -46,6 +50,9 @@ class NotificationServiceTest {
 
     @Mock
     private NotificationIdGeneratorService idGeneratorService;
+    
+    @Mock
+    private IpaffsApiClient ipaffsApiClient;
 
     @Mock
     private IpaffsNotificationMapper ipaffsNotificationMapper;
@@ -60,7 +67,7 @@ class NotificationServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new NotificationService(repository, idGeneratorService, ipaffsNotificationMapper, ipaffsNotificationClient);
+        service = new NotificationService(repository, idGeneratorService, ipaffsNotificationMapper, ipaffsNotificationClient, ipaffsApiClient);
     }
 
     @Test
@@ -257,6 +264,15 @@ class NotificationServiceTest {
 
         verify(repository).findById("non-existent-id");
         verify(repository, never()).save(any(Notification.class));
+    }
+    
+    @Test
+    void test_submitNotification() {
+        
+        service.submit("test-id-123");
+        
+        verify(ipaffsApiClient, times(1)).submitNotification();
+        
     }
 
     // Helper methods

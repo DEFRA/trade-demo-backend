@@ -21,8 +21,6 @@ spring:
         enabled: true
   lifecycle:
     timeout-per-shutdown-phase: 30s
-  cache:
-    type: simple
 
 
 # CDP platform configuration
@@ -36,6 +34,12 @@ cdp:
   cloudwatch:
     endpoint: ${AWS_EMF_AGENT_ENDPOINT:http://localhost:4566}
   proxyUrl: ${HTTP_PROXY:}
+  
+# ipaffs configuration
+ipaffs:
+  api:
+    environment: ${IPAFFS_API_ENVIRONMENT:snd}
+    baseUrl: ${IPAFFS_API_BASE_URL:https://importnotification-api-static-snd.azure.defra.cloud}
   
 # Trade auth api configuration
 trade-auth:
@@ -72,7 +76,7 @@ aws:
 # Logging configuration
 logging:
   level:
-    root: ${LOG_LEVEL:DEBUG}
+    root: ${LOG_LEVEL:INFO}
     uk.gov.defra.cdp.trade.demo: ${LOG_LEVEL:DEBUG}
     uk.gov.defra.cdp.trade.demo.common.metrics: ${LOGGING_LEVEL_UK_GOV_DEFRA_CDP_TRADE_DEMO_COMMON_METRICS:INFO}
     org.springframework: ${LOGGING_LEVEL_ORG_SPRINGFRAMEWORK:INFO}
@@ -88,7 +92,7 @@ management:
     web:
       base-path: /
       exposure:
-        include: health,metrics,info, cache
+        include: health,metrics,info,cache
   endpoint:
     health:
       show-details: never
@@ -99,7 +103,7 @@ management:
     mongo:
       enabled: false
   metrics:
-    enabled: ${METRICS_ENABLED:true}
+    enabled: ${METRICS_ENABLED:false}
   
 # Application info (exposed via /info endpoint)
 info:
