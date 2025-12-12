@@ -160,7 +160,7 @@ public class NotificationService {
             // Step 4: Submit to IPAFFS
             log.info("Submitting notification {} to IPAFFS", id);
             ResponseEntity<String> submissionResponse = ipaffsNotificationClient
-                .submitNotification(ipaffsNotification);
+                .submitNotification(ipaffsNotification, notification.getId());
             if (!submissionResponse.getStatusCode().is2xxSuccessful()) {
                 throw new NotificationSubmissionException(
                     "Failed to submit notification to IPAFFS. Status: "

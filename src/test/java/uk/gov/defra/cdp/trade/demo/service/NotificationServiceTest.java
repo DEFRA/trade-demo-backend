@@ -336,7 +336,8 @@ class NotificationServiceTest {
             .isInstanceOf(NotificationSubmissionException.class)
             .hasMessageContaining("already submitted");
 
-        verify(ipaffsNotificationClient, never()).submitNotification(any(IpaffsNotification.class));
+        verify(ipaffsNotificationClient, never())
+            .submitNotification(any(IpaffsNotification.class), anyString());
         verify(repository, never()).save(any(Notification.class));
     }
 
@@ -352,7 +353,8 @@ class NotificationServiceTest {
             .isInstanceOf(NotFoundException.class)
             .hasMessageContaining("not found");
 
-        verify(ipaffsNotificationClient, never()).submitNotification(any(IpaffsNotification.class));
+        verify(ipaffsNotificationClient, never())
+            .submitNotification(any(IpaffsNotification.class), anyString());
         verify(repository, never()).save(any(Notification.class));
     }
 
@@ -369,7 +371,7 @@ class NotificationServiceTest {
         when(repository.findById(notificationId)).thenReturn(Optional.of(existingNotification));
         when(ipaffsNotificationMapper.mapToIpaffsNotification(existingNotification))
             .thenReturn(ipaffsNotification);
-        when(ipaffsNotificationClient.submitNotification(ipaffsNotification))
+        when(ipaffsNotificationClient.submitNotification(ipaffsNotification, notificationId))
             .thenReturn(new ResponseEntity<>("CHEDA.2025.12090300", HttpStatus.CREATED));
         when(repository.save(any(Notification.class))).thenAnswer(inv -> inv.getArgument(0));
 
@@ -378,7 +380,7 @@ class NotificationServiceTest {
 
         // Then
         verify(ipaffsNotificationMapper).mapToIpaffsNotification(existingNotification);
-        verify(ipaffsNotificationClient).submitNotification(ipaffsNotification);
+        verify(ipaffsNotificationClient).submitNotification(ipaffsNotification, notificationId);
     }
 
     @Test
@@ -393,7 +395,7 @@ class NotificationServiceTest {
         IpaffsNotification ipaffsNotification = new IpaffsNotification();
         when(ipaffsNotificationMapper.mapToIpaffsNotification(existingNotification))
             .thenReturn(ipaffsNotification);
-        when(ipaffsNotificationClient.submitNotification(ipaffsNotification))
+        when(ipaffsNotificationClient.submitNotification(ipaffsNotification, notificationId))
             .thenReturn(new ResponseEntity<>("CHEDA.2025.12090700", HttpStatus.CREATED));
         when(repository.save(any(Notification.class))).thenAnswer(inv -> inv.getArgument(0));
 
@@ -425,7 +427,7 @@ class NotificationServiceTest {
         IpaffsNotification ipaffsNotification = new IpaffsNotification();
         when(ipaffsNotificationMapper.mapToIpaffsNotification(existingNotification))
             .thenReturn(ipaffsNotification);
-        when(ipaffsNotificationClient.submitNotification(ipaffsNotification))
+        when(ipaffsNotificationClient.submitNotification(ipaffsNotification, notificationId))
             .thenThrow(new RuntimeException("IPAFFS service unavailable"));
 
         // When/Then
