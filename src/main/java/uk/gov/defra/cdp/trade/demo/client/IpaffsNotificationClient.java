@@ -1,5 +1,6 @@
 package uk.gov.defra.cdp.trade.demo.client;
 
+import org.springframework.http.ResponseEntity;
 import uk.gov.defra.cdp.trade.demo.domain.ipaffs.IpaffsNotification;
 
 /**
@@ -13,5 +14,5 @@ public interface IpaffsNotificationClient {
      * @param notification   the IPAFFS notification to submit
      * @return the CHED reference returned by IPAFFS
      */
-    String submitNotification(IpaffsNotification notification);
+    ResponseEntity<String> submitNotification(IpaffsNotification notification);
 }

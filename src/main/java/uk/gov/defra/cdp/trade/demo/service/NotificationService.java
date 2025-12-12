@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import uk.gov.defra.cdp.trade.demo.client.IpaffsNotificationClient;
 import uk.gov.defra.cdp.trade.demo.domain.Notification;
@@ -158,7 +159,15 @@ public class NotificationService {
 
             // Step 4: Submit to IPAFFS
             log.info("Submitting notification {} to IPAFFS", id);
-            String chedReference = ipaffsNotificationClient.submitNotification(ipaffsNotification);
+            ResponseEntity<String> submissionResponse = ipaffsNotificationClient
+                .submitNotification(ipaffsNotification);
+            if (!submissionResponse.getStatusCode().is2xxSuccessful()) {
+                throw new NotificationSubmissionException(
+                    "Failed to submit notification to IPAFFS. Status: "
+                        + submissionResponse.getStatusCode()
+                        + ", Body: " + submissionResponse.getBody());
+            }
+            String chedReference = submissionResponse.getBody();
             log.info("IPAFFS submission successful. CHED reference: {}", chedReference);
 
             // Step 5: Update notification with CHED reference and SUBMITTED status

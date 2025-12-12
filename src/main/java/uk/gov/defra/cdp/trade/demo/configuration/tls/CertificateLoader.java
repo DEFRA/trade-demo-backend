@@ -1,4 +1,4 @@
-package uk.gov.defra.cdp.trade.demo.config.tls;
+package uk.gov.defra.cdp.trade.demo.configuration.tls;
 
 import java.util.Base64;
 import lombok.extern.slf4j.Slf4j;

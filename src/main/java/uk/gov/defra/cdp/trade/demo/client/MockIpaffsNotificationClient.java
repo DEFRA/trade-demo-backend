@@ -2,6 +2,8 @@ package uk.gov.defra.cdp.trade.demo.client;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import uk.gov.defra.cdp.trade.demo.domain.ipaffs.IpaffsNotification;
 
@@ -26,7 +28,7 @@ public class MockIpaffsNotificationClient implements IpaffsNotificationClient {
      * @return the generated CHED reference (e.g., CHEDA.2025.12050600)
      */
     @Override
-    public String submitNotification(IpaffsNotification notification) {
+    public ResponseEntity<String> submitNotification(IpaffsNotification notification) {
         String notificationId = notification.getExternalReferences().getFirst().getReference();
         log.info("Mock IPAFFS submission for notification: {}", notificationId);
         log.debug("INS-ConversationId header would be set to: {}", notificationId);
@@ -34,7 +36,7 @@ public class MockIpaffsNotificationClient implements IpaffsNotificationClient {
         String chedReference = generateChedReference(notificationId);
         log.info("Generated CHED reference: {}", chedReference);
 
-        return chedReference;
+        return new ResponseEntity<>(chedReference, HttpStatus.CREATED);
     }
 
     /**

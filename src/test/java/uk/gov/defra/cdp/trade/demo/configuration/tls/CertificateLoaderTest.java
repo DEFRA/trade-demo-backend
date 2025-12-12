@@ -1,9 +1,8 @@
-package uk.gov.defra.cdp.trade.demo.config.tls;
+package uk.gov.defra.cdp.trade.demo.configuration.tls;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Base64;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class CertificateLoaderTest {

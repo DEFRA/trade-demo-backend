@@ -7,7 +7,7 @@ import java.util.Base64;
 import javax.net.ssl.SSLContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import uk.gov.defra.cdp.trade.demo.config.tls.CertificateLoader;
+import uk.gov.defra.cdp.trade.demo.configuration.tls.CertificateLoader;
 
 /**
  * Integration tests for TLS certificate handling and SSLContext configuration.

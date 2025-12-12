@@ -1,8 +1,6 @@
-package uk.gov.defra.cdp.trade.demo.config.tls;
+package uk.gov.defra.cdp.trade.demo.configuration.tls;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -17,7 +15,6 @@ import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Configures SSL/TLS for the CDP Java Backend Template.

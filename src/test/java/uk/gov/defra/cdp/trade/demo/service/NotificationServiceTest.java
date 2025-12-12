@@ -22,6 +22,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import uk.gov.defra.cdp.trade.demo.client.IpaffsNotificationClient;
 import uk.gov.defra.cdp.trade.demo.domain.Commodity;
 import uk.gov.defra.cdp.trade.demo.domain.Notification;
@@ -368,7 +370,7 @@ class NotificationServiceTest {
         when(ipaffsNotificationMapper.mapToIpaffsNotification(existingNotification))
             .thenReturn(ipaffsNotification);
         when(ipaffsNotificationClient.submitNotification(ipaffsNotification))
-            .thenReturn("CHEDA.2025.12090300");
+            .thenReturn(new ResponseEntity<>("CHEDA.2025.12090300", HttpStatus.CREATED));
         when(repository.save(any(Notification.class))).thenAnswer(inv -> inv.getArgument(0));
 
         // When
@@ -392,7 +394,7 @@ class NotificationServiceTest {
         when(ipaffsNotificationMapper.mapToIpaffsNotification(existingNotification))
             .thenReturn(ipaffsNotification);
         when(ipaffsNotificationClient.submitNotification(ipaffsNotification))
-            .thenReturn("CHEDA.2025.12090700");
+            .thenReturn(new ResponseEntity<>("CHEDA.2025.12090700", HttpStatus.CREATED));
         when(repository.save(any(Notification.class))).thenAnswer(inv -> inv.getArgument(0));
 
         // When

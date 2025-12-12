@@ -11,8 +11,8 @@ import uk.gov.defra.cdp.trade.demo.service.WebIdentityTokenService;
 
 @AllArgsConstructor
 public class IpaffsApiClientInterceptor {
-    
-    private final String IPAFFS_TRACING_HEADER = "INS-ConversationId";
+
+    private static final String IPAFFS_TRACING_HEADER = "INS-ConversationId";
     
     private final WebIdentityTokenService webIdentityTokenService;
     
