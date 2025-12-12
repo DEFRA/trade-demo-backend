@@ -9,12 +9,11 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.connection.ConnectionPoolSettings;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.ssl.SslBundles;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import javax.net.ssl.SSLContext;
 import java.util.concurrent.TimeUnit;
-import uk.gov.defra.cdp.trade.demo.config.tls.TrustStoreConfiguration;
+import uk.gov.defra.cdp.trade.demo.configuration.tls.TrustStoreConfiguration;
 
 /**
  * MongoDB configuration for CDP Java Backend Template.

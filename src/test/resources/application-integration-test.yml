@@ -68,7 +68,7 @@ logging:
 
 # Actuator endpoints
 # Production: Only health endpoint exposed (secure by default)
-# Development: Use dev profile (application-dev.yml) for debugging endpoints
+# Development: Use dev profile (application-local.yml) for debugging endpoints
 management:
   endpoints:
     web:

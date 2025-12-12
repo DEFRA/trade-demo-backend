@@ -13,6 +13,7 @@ import uk.gov.defra.cdp.trade.demo.domain.Commodity;
 import uk.gov.defra.cdp.trade.demo.domain.Notification;
 import uk.gov.defra.cdp.trade.demo.domain.NotificationDto;
 import uk.gov.defra.cdp.trade.demo.domain.Species;
+import uk.gov.defra.cdp.trade.demo.domain.Transport;
 import uk.gov.defra.cdp.trade.demo.domain.repository.NotificationRepository;
 
 @Slf4j
@@ -71,7 +72,8 @@ class NotificationIT extends IntegrationBase {
         String createdId = createResult.getResponseBody().getId();
 
         // When - update using the ID
-        NotificationDto updateDto = createNotificationDto(createdId, "France"); // Provide ID for update
+        NotificationDto updateDto = createNotificationDto(createdId,
+            "France"); // Provide ID for update
         updateDto.setChedReference("CHED-UPDATED");
         updateDto.setImportReason("re-entry");
 
@@ -230,7 +232,8 @@ class NotificationIT extends IntegrationBase {
             });
 
         // 3. Update notification using ID
-        NotificationDto updateDto = createNotificationDto(created.getId(), "Belgium"); // Provide ID for update
+        NotificationDto updateDto = createNotificationDto(created.getId(),
+            "Belgium"); // Provide ID for update
         updateDto.setChedReference("CHED-UPDATED");
         updateDto.setImportReason("re-entry");
         updateDto.setInternalMarketPurpose("slaughter");
@@ -348,7 +351,240 @@ class NotificationIT extends IntegrationBase {
         assertThat(allNotifications.get(0).getChedReference()).isEqualTo(duplicateChedRef);
         assertThat(allNotifications.get(0).getOriginCountry()).isEqualTo("United Kingdom");
     }
-    
+
+    // ========================================
+    // Notification Submission Tests
+    // ========================================
+
+    @Test
+    void submit_shouldSubmitNewNotificationSuccessfully() {
+        // Given - new notification without ID
+        NotificationDto dto = createNotificationDto(null, "United Kingdom", null);
+        
+        // When - submit notification
+        EntityExchangeResult<Notification> result = webClient("NoAuth")
+            .post()
+            .uri(NOTIFICATIONS_ENDPOINT + "/submit")
+            .bodyValue(dto)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(Notification.class)
+            .returnResult();
+
+        // Then
+        Notification submitted = result.getResponseBody();
+        assertThat(submitted).isNotNull();
+        assertThat(submitted.getId()).isNotNull();
+        assertThat(submitted.getStatus()).isEqualTo("SUBMITTED");
+        assertThat(submitted.getChedReference()).isNotNull();
+        assertThat(submitted.getChedReference()).startsWith("CHEDA.");
+        assertThat(submitted.getOriginCountry()).isEqualTo("United Kingdom");
+
+        // Verify notification is persisted in database
+        Notification persisted = notificationRepository.findById(submitted.getId()).orElse(null);
+        assertThat(persisted).isNotNull();
+        assertThat(persisted.getStatus()).isEqualTo("SUBMITTED");
+        assertThat(persisted.getChedReference()).isEqualTo(submitted.getChedReference());
+    }
+
+    @Test
+    void submit_shouldSubmitExistingNotificationSuccessfully() {
+        // Given - create a notification first
+        NotificationDto createDto = createNotificationDto(null, "Ireland", null);
+        EntityExchangeResult<Notification> createResult = webClient("NoAuth")
+            .put()
+            .uri(NOTIFICATIONS_ENDPOINT)
+            .bodyValue(createDto)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(Notification.class)
+            .returnResult();
+
+        String notificationId = createResult.getResponseBody().getId();
+
+        // When - submit the existing notification
+        NotificationDto submitDto = createNotificationDto(notificationId, "Ireland", null);
+
+        EntityExchangeResult<Notification> result = webClient("NoAuth")
+            .post()
+            .uri(NOTIFICATIONS_ENDPOINT + "/submit")
+            .bodyValue(submitDto)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(Notification.class)
+            .returnResult();
+
+        // Then
+        Notification submitted = result.getResponseBody();
+        assertThat(submitted).isNotNull();
+        assertThat(submitted.getId()).isEqualTo(notificationId);
+        assertThat(submitted.getStatus()).isEqualTo("SUBMITTED");
+        assertThat(submitted.getChedReference()).isNotNull();
+        assertThat(submitted.getChedReference()).startsWith("CHEDA.");
+
+        // Verify only one notification exists
+        assertThat(findAllNotifications()).hasSize(1);
+    }
+
+    @Test
+    void submit_shouldGenerateChedReferenceFromNotificationId() {
+        // Given - new notification
+        NotificationDto dto = createNotificationDto(null, "France", null);
+
+        // When - submit notification
+        EntityExchangeResult<Notification> result = webClient("NoAuth")
+            .post()
+            .uri(NOTIFICATIONS_ENDPOINT + "/submit")
+            .bodyValue(dto)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(Notification.class)
+            .returnResult();
+
+        // Then - verify CHED reference format
+        Notification submitted = result.getResponseBody();
+        assertThat(submitted).isNotNull();
+        assertThat(submitted.getId()).isNotNull();
+        assertThat(submitted.getChedReference()).isNotNull();
+
+        // CHED reference should follow pattern: CHEDA.YYYY.MMDDSSSS
+        // Example: CDP.2025.12.09.1 -> CHEDA.2025.12090100
+        assertThat(submitted.getChedReference()).matches("CHEDA\\.\\d{4}\\.\\d{8,9}");
+
+        log.info("Notification ID: {}", submitted.getId());
+        log.info("Generated CHED reference: {}", submitted.getChedReference());
+    }
+
+    @Test
+    void submit_shouldPreventResubmission_whenAlreadySubmitted() {
+        // Given - create and submit a notification
+        NotificationDto dto = createNotificationDto(null, "Spain", null);
+
+        EntityExchangeResult<Notification> firstSubmit = webClient("NoAuth")
+            .post()
+            .uri(NOTIFICATIONS_ENDPOINT + "/submit")
+            .bodyValue(dto)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(Notification.class)
+            .returnResult();
+
+        String notificationId = firstSubmit.getResponseBody().getId();
+        String originalChedRef = firstSubmit.getResponseBody().getChedReference();
+
+        // When - attempt to resubmit the same notification
+        NotificationDto resubmitDto = createNotificationDto(notificationId, "Spain",
+            originalChedRef);
+
+        // Then - expect error
+        webClient("NoAuth")
+            .post()
+            .uri(NOTIFICATIONS_ENDPOINT + "/submit")
+            .bodyValue(resubmitDto)
+            .exchange()
+            .expectStatus().is5xxServerError();
+
+        // Verify the notification still has original CHED reference and status
+        Notification notification = notificationRepository.findById(notificationId).orElse(null);
+        assertThat(notification).isNotNull();
+        assertThat(notification.getStatus()).isEqualTo("SUBMITTED");
+        assertThat(notification.getChedReference()).isEqualTo(originalChedRef);
+    }
+
+    @Test
+    void submit_shouldUpdateNotificationWithChedReferenceAndStatus() {
+        // Given - new notification
+        NotificationDto dto = createNotificationDto(null, "Germany", null);
+
+        // When - submit notification
+        EntityExchangeResult<Notification> result = webClient("NoAuth")
+            .post()
+            .uri(NOTIFICATIONS_ENDPOINT + "/submit")
+            .bodyValue(dto)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(Notification.class)
+            .returnResult();
+
+        // Then - verify notification was saved with CHED reference and status
+        Notification submitted = result.getResponseBody();
+        assertThat(submitted).isNotNull();
+        assertThat(submitted.getChedReference()).isNotNull();
+        assertThat(submitted.getStatus()).isEqualTo("SUBMITTED");
+        assertThat(submitted.getUpdated()).isNotNull();
+
+        // Verify in database
+        Notification persisted = notificationRepository.findById(submitted.getId()).orElse(null);
+        assertThat(persisted).isNotNull();
+        assertThat(persisted.getChedReference()).isEqualTo(submitted.getChedReference());
+        assertThat(persisted.getStatus()).isEqualTo("SUBMITTED");
+    }
+
+    @Test
+    void submit_shouldWorkInFullSubmissionFlow() {
+        // 1. Create notification as draft
+        NotificationDto draftDto = createNotificationDto(null, "Belgium", null);
+
+        EntityExchangeResult<Notification> draftResult = webClient("NoAuth")
+            .put()
+            .uri(NOTIFICATIONS_ENDPOINT)
+            .bodyValue(draftDto)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(Notification.class)
+            .returnResult();
+
+        Notification draft = draftResult.getResponseBody();
+        assertThat(draft.getId()).isNotNull();
+        assertThat(draft.getChedReference()).isNull(); // No CHED reference yet
+
+        // 2. Update the draft notification
+        NotificationDto updateDto = createNotificationDto(draft.getId(), "Belgium", null);
+        updateDto.setImportReason("re-entry");
+
+        webClient("NoAuth")
+            .put()
+            .uri(NOTIFICATIONS_ENDPOINT)
+            .bodyValue(updateDto)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(Notification.class)
+            .value(updated -> {
+                assertThat(updated.getId()).isEqualTo(draft.getId());
+                assertThat(updated.getImportReason()).isEqualTo("re-entry");
+            });
+
+        // 3. Submit the notification
+        NotificationDto submitDto = createNotificationDto(draft.getId(), "Belgium", null);
+        submitDto.setImportReason("re-entry");
+
+        EntityExchangeResult<Notification> submitResult = webClient("NoAuth")
+            .post()
+            .uri(NOTIFICATIONS_ENDPOINT + "/submit")
+            .bodyValue(submitDto)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(Notification.class)
+            .returnResult();
+
+        Notification submitted = submitResult.getResponseBody();
+        assertThat(submitted.getId()).isEqualTo(draft.getId()); // Same ID
+        assertThat(submitted.getStatus()).isEqualTo("SUBMITTED");
+        assertThat(submitted.getChedReference()).isNotNull();
+        assertThat(submitted.getChedReference()).startsWith("CHEDA.");
+
+        // 4. Verify final state in database
+        Notification finalNotification = notificationRepository.findById(draft.getId())
+            .orElse(null);
+        assertThat(finalNotification).isNotNull();
+        assertThat(finalNotification.getStatus()).isEqualTo("SUBMITTED");
+        assertThat(finalNotification.getChedReference()).isEqualTo(submitted.getChedReference());
+        assertThat(finalNotification.getImportReason()).isEqualTo("re-entry");
+
+        // 5. Verify only one notification exists
+        assertThat(findAllNotifications()).hasSize(1);
+    }
+
     private List<Notification> findAllNotifications() {
         return webClient("NoAuth")
             .get()
@@ -364,7 +600,8 @@ class NotificationIT extends IntegrationBase {
         return createNotificationDto(id, originCountry, id != null ? "CHED-" + id : "CHED-NEW");
     }
 
-    private NotificationDto createNotificationDto(String id, String originCountry, String chedReference) {
+    private NotificationDto createNotificationDto(String id, String originCountry,
+        String chedReference) {
         Species species = new Species();
         species.setName("Cattle");
         species.setNoOfAnimals(10);
@@ -375,6 +612,11 @@ class NotificationIT extends IntegrationBase {
         commodity.setDescription("Live bovine animals");
         commodity.setSpecies(Collections.singletonList(species));
 
+        Transport transport = new Transport();
+        transport.setBcpCode("GBLHR1");
+        transport.setTransportToBcp("road");
+        transport.setVehicleId("ABC123");
+
         NotificationDto dto = new NotificationDto();
         dto.setId(id);
         dto.setChedReference(chedReference);
@@ -382,6 +624,7 @@ class NotificationIT extends IntegrationBase {
         dto.setCommodity(commodity);
         dto.setImportReason("internalmarket");
         dto.setInternalMarketPurpose("breeding");
+        dto.setTransport(transport);
 
         return dto;
     }

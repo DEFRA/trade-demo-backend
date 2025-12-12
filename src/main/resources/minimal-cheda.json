@@ -1,0 +1,63 @@
+{
+  "type": "CVEDA",
+  "status": "SUBMITTED",
+  "externalReferences": [
+    {
+      "system": "E-NOTIFICATION",
+      "reference": "cdpNotificationReference",
+      "exactMatch": false,
+      "verifiedByImporter": true,
+      "verifiedByInspector": true
+    }
+  ],
+  "partOne": {
+    "commodities": {
+      "numberOfPackages": 1,
+      "numberOfAnimals": 12,
+      "commodityComplement": [
+        {
+          "commodityID": "0102",
+          "commodityDescription": "Live bovine animals",
+          "complementID": 1,
+          "complementName": "Bos taurus",
+          "speciesID": "1148346",
+          "speciesName": "Bos taurus",
+          "speciesTypeName": "Domestic",
+          "speciesNomination": "Bos taurus"
+        }
+      ],
+      "complementParameterSet": [
+        {
+          "uniqueComplementID": "0d9172a7-813f-48ab-8e1a-5d428c206fc1",
+          "complementID": 1,
+          "speciesID": "1148346",
+          "keyDataPair": [
+            {
+              "key": "number_package",
+              "data": "1"
+            },
+            {
+              "key": "number_animal",
+              "data": "12"
+            }
+          ]
+        }
+      ],
+      "countryOfOrigin": "FR"
+    },
+    "purpose": {
+      "internalMarketPurpose": "Production",
+      "purposeGroup": "For Import"
+    },
+    "pointOfEntry": "GBAPHA1A",
+    "meansOfTransport": {
+      "id": "flight-number",
+      "type": "Aeroplane"
+    },
+    "submissionDate": "2021-11-12T14:47:25.675719Z",
+    "submittedBy": {
+      "displayName": "Percy Inspector-Tester",
+      "userId": "79f6dc68-2144-e911-a96a-000d3a29ba60"
+    }
+  }
+}

@@ -29,7 +29,7 @@ test: check-java ## Run unit tests (no Docker required)
 	mvn test
 
 verify: check-java ## Run all tests including integration tests (requires Docker)
-	mvn clean verify -Dspring.profiles.active=dev,integration-test
+	mvn clean verify -Dspring.profiles.active=local,integration-test
 
 build: check-java ## Build the project
 	mvn clean install
