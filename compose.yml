@@ -1,42 +1,4 @@
 services:
-  localstack:
-    image: localstack/localstack:3.0.2
-    ports:
-      - '4566:4566' # LocalStack Gateway
-      - '4510-4559:4510-4559' # external services port range
-    env_file:
-      - 'compose/aws.env'
-    environment:
-      DEBUG: ${DEBUG:-1}
-      LS_LOG: WARN # Localstack DEBUG Level
-      SERVICES: s3,sqs,sns,cloudwatch
-      LOCALSTACK_HOST: 127.0.0.1
-    volumes:
-      - localstack-data:/var/lib/localstack
-      - ./compose/start-localstack.sh:/etc/localstack/init/ready.d/start-localstack.sh
-    healthcheck:
-      test: ['CMD', 'curl', 'localhost:4566']
-      interval: 5s
-      start_period: 5s
-      retries: 3
-    networks:
-      - cdp-tenant
-
-  mongodb:
-    image: mongo:7.0
-    networks:
-      - cdp-tenant
-    volumes:
-      - mongodb-data:/data/db
-    restart: always
-    ports:
-      - '27017:27017'
-    healthcheck:
-      test: ['CMD', 'mongosh', '--eval', 'db.adminCommand("ping")']
-      interval: 5s
-      start_period: 10s
-      retries: 3
-
   trade-demo-backend:
     build:
       context: .
@@ -44,14 +6,6 @@ services:
     ports:
       - '8085:8085'
       - '5005:5005' # Java debug port
-    links:
-      - 'localstack:localstack'
-      - 'mongodb:mongodb'
-    depends_on:
-      localstack:
-        condition: service_healthy
-      mongodb:
-        condition: service_healthy
     env_file:
       - 'compose/aws.env'
     environment:
@@ -88,11 +42,7 @@ services:
 
 ################################################################################
 
-volumes:
-  localstack-data:
-  mongodb-data:
-
 networks:
   cdp-tenant:
-    driver: bridge
+    external: true
     name: cdp-tenant
