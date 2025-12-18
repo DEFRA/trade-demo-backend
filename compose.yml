@@ -6,8 +6,6 @@ services:
     ports:
       - '8085:8085'
       - '5005:5005' # Java debug port
-    env_file:
-      - 'compose/aws.env'
     environment:
       # Server
       PORT: 8085
