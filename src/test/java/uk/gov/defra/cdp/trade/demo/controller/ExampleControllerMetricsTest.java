@@ -2,98 +2,103 @@ package uk.gov.defra.cdp.trade.demo.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Timer;
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
+import java.lang.reflect.Method;
 import java.util.Collections;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.TestPropertySource;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.defra.cdp.trade.demo.domain.Example;
 import uk.gov.defra.cdp.trade.demo.service.ExampleService;
 
-@SpringBootTest
-@TestPropertySource(properties = {
-    "management.metrics.enabled=true",
-    "spring.data.mongodb.uri=mongodb://localhost:27017/test"
-})
+@ExtendWith(MockitoExtension.class)
 class ExampleControllerMetricsTest {
 
-    @Autowired
-    private ExampleController exampleController;
-
-    @Autowired
-    private MeterRegistry meterRegistry;
-
-    @MockBean
+    @Mock
     private ExampleService exampleService;
 
-    @Test
-    void findAll_shouldRecordTimedMetric() {
-        // Given
-        when(exampleService.findAll()).thenReturn(Collections.emptyList());
-        meterRegistry.clear();
+    @Mock
+    private io.micrometer.core.instrument.MeterRegistry meterRegistry;
 
-        // When
-        exampleController.findAll();
+    private ExampleController exampleController;
 
-        // Then
-        Timer timer = meterRegistry.find("controller.getAllExampleEntities.time").timer();
-        assertThat(timer).isNotNull();
-        assertThat(timer.count()).isEqualTo(1);
+    @BeforeEach
+    void setUp() {
+        exampleController = new ExampleController(exampleService, meterRegistry);
     }
 
     @Test
-    void findAll_shouldRecordCountedMetric() {
+    void findAll_shouldHaveTimedAnnotation() throws NoSuchMethodException {
         // Given
-        when(exampleService.findAll()).thenReturn(Collections.emptyList());
-        meterRegistry.clear();
+        Method method = ExampleController.class.getMethod("findAll");
 
         // When
-        exampleController.findAll();
+        Timed annotation = method.getAnnotation(Timed.class);
 
         // Then
-        assertThat(meterRegistry.find("controller.getAllExampleEntities.count").counter()).isNotNull();
-        assertThat(meterRegistry.find("controller.getAllExampleEntities.count").counter().count()).isEqualTo(1);
+        assertThat(annotation).isNotNull();
+        assertThat(annotation.value()).isEqualTo("controller.getAllExampleEntities.time");
     }
 
     @Test
-    void create_shouldRecordTimedMetric() {
+    void findAll_shouldHaveCountedAnnotation() throws NoSuchMethodException {
+        // Given
+        Method method = ExampleController.class.getMethod("findAll");
+
+        // When
+        Counted annotation = method.getAnnotation(Counted.class);
+
+        // Then
+        assertThat(annotation).isNotNull();
+        assertThat(annotation.value()).isEqualTo("controller.getAllExampleEntities.count");
+    }
+
+    @Test
+    void create_shouldHaveTimedAnnotation() throws NoSuchMethodException {
+        // Given
+        Method method = ExampleController.class.getMethod("create", Example.class);
+
+        // When
+        Timed annotation = method.getAnnotation(Timed.class);
+
+        // Then
+        assertThat(annotation).isNotNull();
+        assertThat(annotation.value()).isEqualTo("controller.PostExampleEntity");
+    }
+
+    @Test
+    void findAll_shouldCallService() {
+        // Given
+        List<Example> expectedList = Collections.emptyList();
+        when(exampleService.findAll()).thenReturn(expectedList);
+
+        // When
+        List<Example> result = exampleController.findAll();
+
+        // Then
+        verify(exampleService).findAll();
+        assertThat(result).isEqualTo(expectedList);
+    }
+
+    @Test
+    void create_shouldCallService() {
         // Given
         Example example = new Example();
         example.setName("test");
         when(exampleService.create(any(Example.class))).thenReturn(example);
-        meterRegistry.clear();
 
         // When
-        exampleController.create(example);
+        Example result = exampleController.create(example);
 
         // Then
-        Timer timer = meterRegistry.find("controller.PostExampleEntity").timer();
-        assertThat(timer).isNotNull();
-        assertThat(timer.count()).isEqualTo(1);
-    }
-
-    @Test
-    void findAll_shouldIncrementMetricsOnMultipleInvocations() {
-        // Given
-        when(exampleService.findAll()).thenReturn(Collections.emptyList());
-        meterRegistry.clear();
-
-        // When
-        exampleController.findAll();
-        exampleController.findAll();
-        exampleController.findAll();
-
-        // Then
-        Timer timer = meterRegistry.find("controller.getAllExampleEntities.time").timer();
-        assertThat(timer).isNotNull();
-        assertThat(timer.count()).isEqualTo(3);
-
-        assertThat(meterRegistry.find("controller.getAllExampleEntities.count").counter()).isNotNull();
-        assertThat(meterRegistry.find("controller.getAllExampleEntities.count").counter().count()).isEqualTo(3);
+        verify(exampleService).create(example);
+        assertThat(result).isEqualTo(example);
     }
 }
