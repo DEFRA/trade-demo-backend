@@ -1,7 +1,25 @@
 package uk.gov.defra.cdp.trade.demo.configuration;
 
+import io.micrometer.core.aop.CountedAspect;
 import io.micrometer.core.aop.TimedAspect;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.DistributionSummary;
+import io.micrometer.core.instrument.FunctionCounter;
+import io.micrometer.core.instrument.FunctionTimer;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.Measurement;
+import io.micrometer.core.instrument.Meter;
+import io.micrometer.core.instrument.Meter.Id;
+import io.micrometer.core.instrument.Meter.Type;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
+import io.micrometer.core.instrument.composite.CompositeMeterRegistry;
+import io.micrometer.core.instrument.distribution.DistributionStatisticConfig;
+import io.micrometer.core.instrument.distribution.pause.PauseDetector;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import java.util.concurrent.TimeUnit;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToLongFunction;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,9 +42,14 @@ import org.springframework.context.annotation.Configuration;
 public class MetricsConfig {
 
     @Bean
-    public TimedAspect timedAspect(MeterRegistry registry) {
-        log.debug("Creating TimedAspect for {}", registry.getClass().getSimpleName());
-        return new TimedAspect(registry);
+    public TimedAspect timedAspect(MeterRegistry meterRegistry) {
+        log.debug("Creating TimedAspect for {}", meterRegistry.getClass().getSimpleName());
+        return new TimedAspect(meterRegistry);
+    }
+
+    @Bean
+    CountedAspect countedAspect(MeterRegistry registry) {
+        return new CountedAspect(registry);
     }
  
 }
