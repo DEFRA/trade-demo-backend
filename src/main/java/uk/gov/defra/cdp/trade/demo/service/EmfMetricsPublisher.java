@@ -1,6 +1,8 @@
 package uk.gov.defra.cdp.trade.demo.service;
 
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.composite.CompositeMeterRegistry;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -12,10 +14,9 @@ import software.amazon.cloudwatchlogs.emf.logger.MetricsLogger;
 @Slf4j
 @ConditionalOnProperty(name = "management.metrics.enabled", havingValue = "true")
 public class EmfMetricsPublisher {
-
   private final String namespace;
   private final MeterRegistry meterRegistry;
-
+  
   EmfMetricsPublisher(
       @Value("${aws.emf.namespace}") String namespace,
       MeterRegistry meterRegistry) {
@@ -30,18 +31,15 @@ public class EmfMetricsPublisher {
     meterRegistry
         .getMeters()
         .forEach(
-            meter -> {
-                // TODO Potentially need to filter out some meters from publishing.
-              meter
-                  .measure()
-                  .forEach(
-                      measurement -> {
-                        var name = meter.getId().getName();
-                        var value = measurement.getValue();
-                        log.debug("Publishing metrics for {} with a value of {}", name, value);
-                        metricsLogger.putMetric(name, value);
-                      });
-            });
+            meter -> meter
+                .measure()
+                .forEach(
+                    measurement -> {
+                      var name = meter.getId().getName();
+                      var value = measurement.getValue();
+                      log.debug("Publishing metrics for {} with a value of {}", name, value);
+                      metricsLogger.putMetric(name, value);
+                    }));
     metricsLogger.flush();
   }
 }

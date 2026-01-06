@@ -1,5 +1,6 @@
 package uk.gov.defra.cdp.trade.demo.controller;
 
+import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.swagger.v3.oas.annotations.Operation;
@@ -45,9 +46,8 @@ public class ExampleController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create example", description = "Creates a new example with unique name")
-    @Timed("PostExampleEntity")
+    @Timed("controller.PostExampleEntity")
     public Example create(@Valid @RequestBody Example entity) {
-        meterRegistry.counter("post.example").increment();
         log.info("POST /example - Creating example with name: {}", entity.getName());
         return exampleService.create(entity);
     }
@@ -59,9 +59,9 @@ public class ExampleController {
      */
     @GetMapping
     @Operation(summary = "List examples", description = "Returns all examples")
-    @Timed("GetAllExampleEntities")
+    @Timed("controller.getAllExampleEntities.time")
+    @Counted(value="controller.getAllExampleEntities.count", description = "Total number of examples fetched")
     public List<Example> findAll() {
-        meterRegistry.counter("get.examples").increment();
         log.debug("GET /example - Fetching all examples");
         return exampleService.findAll();
     }
@@ -74,9 +74,8 @@ public class ExampleController {
      */
     @GetMapping("/{id}")
     @Operation(summary = "Get example by ID", description = "Returns a single example by ID")
-    @Timed("GetExampleEntity")
+    @Timed("controller.GetExampleEntity")
     public Example findById(@PathVariable String id) {
-        meterRegistry.counter("get.example").increment();
         log.debug("GET /example/{} - Fetching example", id);
         return exampleService.findById(id);
     }
@@ -91,7 +90,7 @@ public class ExampleController {
     @ManagedMetric(metricType = MetricType.COUNTER, displayName = "put.example")
     @PutMapping("/{id}")
     @Operation(summary = "Update example", description = "Updates an existing example")
-    @Timed("PutExampleEntity")
+    @Timed("controller.PutExampleEntity")
     public Example update(@PathVariable String id, @Valid @RequestBody Example entity) {
         log.info("PUT /example/{} - Updating example", id);
         return exampleService.update(id, entity);
@@ -105,9 +104,8 @@ public class ExampleController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Delete example", description = "Deletes an example by ID")
-    @Timed("DeleteExampleEntity")
+    @Timed("controller.DeleteExampleEntity")
     public void delete(@PathVariable String id) {
-        meterRegistry.counter("delete.example").increment();
         log.info("DELETE /example/{} - Deleting example", id);
         exampleService.delete(id);
     }

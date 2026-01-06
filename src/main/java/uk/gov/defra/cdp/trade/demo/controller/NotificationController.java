@@ -47,7 +47,7 @@ public class NotificationController {
      */
     @PutMapping
     @Operation(summary = "Save or update notification", description = "Creates a new notification or updates an existing one based on ID")
-    @Timed("PutNotificationUpsert")
+    @Timed("controller.putNotificationUpsert.time")
     public Notification saveOrUpdate(@Valid @RequestBody NotificationDto notificationDto) {
         log.info(
             "PUT /notifications - Saving or updating notification (ID: {}, CHED reference: {})",
@@ -62,7 +62,7 @@ public class NotificationController {
      */
     @GetMapping
     @Operation(summary = "List notifications", description = "Returns all import notifications")
-    @Timed("GetAllNotifications")
+    @Timed("controller.getAllNotifications.time")
     public List<Notification> findAll() {
         log.debug("GET /notifications - Fetching all notifications");
         return notificationService.findAll();
@@ -76,7 +76,7 @@ public class NotificationController {
      */
     @GetMapping("/{id}")
     @Operation(summary = "Get notification by ID", description = "Returns a single notification by ID")
-    @Timed("GetNotification")
+    @Timed("controller.getNotification.time")
     public Notification findById(@PathVariable String id) {
         log.debug("GET /notifications/{} - Fetching notification", id);
         return notificationService.findById(id);
@@ -90,7 +90,7 @@ public class NotificationController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Delete notification", description = "Deletes a notification by ID")
-    @Timed("DeleteNotification")
+    @Timed("controller.deleteNotification.time")
     public void delete(@PathVariable String id) {
         log.info("DELETE /notifications/{} - Deleting notification", id);
         notificationService.delete(id);
@@ -108,7 +108,7 @@ public class NotificationController {
     @PostMapping("/submit")
     @Operation(summary = "Submit notification to IPAFFS",
         description = "Submits notification to IPAFFS and returns CHED reference")
-    @Timed("SubmitNotification")
+    @Timed("controller.submitNotification.time")
     public Notification submit(@Valid @RequestBody NotificationDto notificationDto) {
         log.info("POST /notifications/submit - Submitting notification (ID: {})",
             notificationDto.getId());

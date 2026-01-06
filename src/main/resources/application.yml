@@ -76,9 +76,8 @@ aws:
 # Logging configuration
 logging:
   level:
-    root: ${LOG_LEVEL:INFO}
+    root: ${LOG_LEVEL:info}
     uk.gov.defra.cdp.trade.demo: ${LOG_LEVEL:DEBUG}
-    uk.gov.defra.cdp.trade.demo.common.metrics: ${LOGGING_LEVEL_UK_GOV_DEFRA_CDP_TRADE_DEMO_COMMON_METRICS:INFO}
     org.springframework: ${LOGGING_LEVEL_ORG_SPRINGFRAMEWORK:INFO}
     org.springframework.web: ${LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB:INFO}
     org.mongodb: ${LOGGING_LEVEL_ORG_MONGODB_DRIVER:WARN}
@@ -103,7 +102,21 @@ management:
     mongo:
       enabled: false
   metrics:
-    enabled: ${METRICS_ENABLED:false}
+    enabled: ${METRICS_ENABLED:true}
+    enable:
+      all: false
+      controller: true
+      jvm:
+        memory:
+          committed: true
+          used: true
+        threads:
+          live: true
+          peak: true
+      http:
+        server:
+          requests:
+            active: true
   
 # Application info (exposed via /info endpoint)
 info:
