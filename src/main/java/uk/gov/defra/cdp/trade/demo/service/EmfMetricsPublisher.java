@@ -40,6 +40,10 @@ public class EmfMetricsPublisher {
                       log.debug("Publishing metrics for {} with a value of {}", name, value);
                       metricsLogger.putMetric(name, value);
                     }));
+    meterRegistry.getMeters()
+        .stream()
+        .filter(meter -> meter.getId().getName().startsWith("controller"))
+        .forEach(meterRegistry::remove);
     metricsLogger.flush();
   }
 }
