@@ -110,6 +110,7 @@ management:
         memory:
           committed: true
           used: true
+          max: true
         threads:
           live: true
           peak: true
