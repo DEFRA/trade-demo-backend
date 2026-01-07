@@ -46,7 +46,7 @@ public class ExampleController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create example", description = "Creates a new example with unique name")
-    @Timed("controller.PostExampleEntity")
+    @Timed("controller.postExampleEntity.time")
     public Example create(@Valid @RequestBody Example entity) {
         log.info("POST /example - Creating example with name: {}", entity.getName());
         return exampleService.create(entity);
@@ -74,7 +74,7 @@ public class ExampleController {
      */
     @GetMapping("/{id}")
     @Operation(summary = "Get example by ID", description = "Returns a single example by ID")
-    @Timed("controller.GetExampleEntity")
+    @Timed("controller.getExampleEntity.time")
     public Example findById(@PathVariable String id) {
         log.debug("GET /example/{} - Fetching example", id);
         return exampleService.findById(id);
@@ -90,7 +90,7 @@ public class ExampleController {
     @ManagedMetric(metricType = MetricType.COUNTER, displayName = "put.example")
     @PutMapping("/{id}")
     @Operation(summary = "Update example", description = "Updates an existing example")
-    @Timed("controller.PutExampleEntity")
+    @Timed("controller.putExampleEntity.time")
     public Example update(@PathVariable String id, @Valid @RequestBody Example entity) {
         log.info("PUT /example/{} - Updating example", id);
         return exampleService.update(id, entity);
@@ -104,7 +104,7 @@ public class ExampleController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Delete example", description = "Deletes an example by ID")
-    @Timed("controller.DeleteExampleEntity")
+    @Timed("controller.deleteExampleEntity.time")
     public void delete(@PathVariable String id) {
         log.info("DELETE /example/{} - Deleting example", id);
         exampleService.delete(id);

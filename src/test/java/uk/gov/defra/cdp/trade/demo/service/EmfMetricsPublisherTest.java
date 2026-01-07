@@ -52,7 +52,7 @@ class EmfMetricsPublisherTest {
         emfMetricsPublisher.publishMetrics();
 
         // Then
-        verify(meterRegistry, times(1)).getMeters();
+        verify(meterRegistry, times(2)).getMeters();
     }
 
     @Test
@@ -88,7 +88,7 @@ class EmfMetricsPublisherTest {
         emfMetricsPublisher.publishMetrics();
 
         // Then
-        verify(meterRegistry, times(1)).getMeters();
+        verify(meterRegistry, times(2)).getMeters();
         verify(mockMeter, times(1)).measure();
     }
 }

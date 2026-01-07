@@ -70,7 +70,7 @@ class ExampleControllerMetricsTest {
 
         // Then
         assertThat(annotation).isNotNull();
-        assertThat(annotation.value()).isEqualTo("controller.PostExampleEntity");
+        assertThat(annotation.value()).isEqualTo("controller.postExampleEntity.time");
     }
 
     @Test
