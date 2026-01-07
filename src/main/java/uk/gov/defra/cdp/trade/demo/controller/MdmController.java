@@ -1,5 +1,6 @@
 package uk.gov.defra.cdp.trade.demo.controller;
 
+import io.micrometer.core.annotation.Timed;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ public class MdmController {
     private final MdmService mdmService;
     
     @GetMapping(value = "/bcps")
+    @Timed("controller.getBcps.time")
     public ResponseEntity<MdmResponse> getBcps() {
       
           return ResponseEntity.ok(mdmService.getBcps());
