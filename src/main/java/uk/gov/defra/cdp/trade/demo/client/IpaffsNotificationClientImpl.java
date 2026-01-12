@@ -19,7 +19,7 @@ import uk.gov.defra.cdp.trade.demo.interceptor.IpaffsApiClientInterceptor;
 public interface IpaffsNotificationClientImpl extends IpaffsNotificationClient {
     
     @Override
-    @PostMapping("/notificationapi/snd/protected/notifications")
+    @PostMapping("/notificationapi/vnet/notificationapi")
     ResponseEntity<String> submitNotification(
         @RequestBody IpaffsNotification ipaffsNotification, 
         @RequestHeader(INS_CONVERSATION_ID_HEADER_KEY) String conversationId
