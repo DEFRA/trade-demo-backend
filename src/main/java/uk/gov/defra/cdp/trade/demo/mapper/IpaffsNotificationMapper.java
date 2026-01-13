@@ -193,8 +193,15 @@ public class IpaffsNotificationMapper {
             if (notification.getTransport().getVehicleId() != null) {
                 meansOfTransport.setId(notification.getTransport().getVehicleId());
             }
+            
             if (notification.getTransport().getTransportToBcp() != null) {
-                meansOfTransport.setType(notification.getTransport().getTransportToBcp());
+                switch (notification.getTransport().getTransportToBcp()) {
+                    case "Airplane" : meansOfTransport.setType("Aeroplane"); break;
+                    case "Railway" : meansOfTransport.setType("Railway Wagon"); break;
+                    case "Vessel" : meansOfTransport.setType("Ship"); break;
+                    case "Road Vehicle" : meansOfTransport.setType("Road Vehicle"); break;
+                    default : meansOfTransport.setType("Other");
+                }
             }
         }
 
