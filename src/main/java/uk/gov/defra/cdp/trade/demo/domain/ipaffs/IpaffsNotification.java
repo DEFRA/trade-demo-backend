@@ -14,6 +14,5 @@ public class IpaffsNotification {
     private String status;
     private List<ExternalReference> externalReferences;
     private PartOne partOne;
-    private LocalDateTime submissionDate;
-    private User submittedBy;
+
 }
