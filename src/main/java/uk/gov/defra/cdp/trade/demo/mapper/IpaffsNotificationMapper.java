@@ -50,9 +50,7 @@ public class IpaffsNotificationMapper {
         // Build part one
         ipaffsNotification.setPartOne(buildPartOne(notification));
 
-        ipaffsNotification.setSubmissionDate(LocalDateTime.now());
-        ipaffsNotification.setSubmittedBy(
-            User.builder().userId("abc123").displayName("Ian from CDP").build());
+
 
         log.debug("Successfully mapped notification {} to IPAFFS format", notification.getId());
         return ipaffsNotification;
@@ -87,6 +85,9 @@ public class IpaffsNotificationMapper {
         // Build means of transport
         partOne.setMeansOfTransport(buildMeansOfTransport(notification));
 
+        partOne.setSubmissionDate(LocalDateTime.now());
+        partOne.setSubmittedBy(
+            User.builder().userId("abc123").displayName("Ian from CDP").build());
         return partOne;
     }
 
