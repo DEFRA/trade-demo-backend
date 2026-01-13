@@ -91,7 +91,7 @@ class IpaffsNotificationMapperTest {
 
         Transport transport = new Transport();
         transport.setBcpCode("GBAPHA1A");
-        transport.setTransportToBcp("Aeroplane");
+        transport.setTransportToBcp("Airplane");
         transport.setVehicleId("flight-123");
 
         notification.setTransport(transport);
@@ -303,7 +303,7 @@ class IpaffsNotificationMapperTest {
 
         Transport transport = new Transport();
         transport.setBcpCode("GBAPHA1A");
-        transport.setTransportToBcp("Aeroplane");
+        transport.setTransportToBcp("Airplane");
         transport.setVehicleId("flight-number");
         notification.setTransport(transport);
 
