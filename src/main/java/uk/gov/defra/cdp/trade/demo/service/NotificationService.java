@@ -1,5 +1,6 @@
 package uk.gov.defra.cdp.trade.demo.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class NotificationService {
     private final NotificationIdGeneratorService idGenerator;
     private final IpaffsNotificationMapper ipaffsNotificationMapper;
     private final IpaffsNotificationClient ipaffsNotificationClient;
+    private final ObjectMapper objectMapper;
 
     /**
      * Get all notifications.
@@ -156,6 +158,8 @@ public class NotificationService {
             log.info("Mapping notification {} to IPAFFS CHEDA format", id);
             IpaffsNotification ipaffsNotification = ipaffsNotificationMapper.mapToIpaffsNotification(
                 notification);
+            
+            log.info("IPAFFS notification is: {}", objectMapper.writeValueAsString(ipaffsNotification));
 
             // Step 4: Submit to IPAFFS
             log.info("Submitting notification {} to IPAFFS", id);

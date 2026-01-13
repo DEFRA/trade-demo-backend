@@ -1,6 +1,6 @@
 package uk.gov.defra.cdp.trade.demo.domain.ipaffs;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,6 +13,6 @@ public class PartOne {
     private Purpose purpose;
     private String pointOfEntry;
     private MeansOfTransport meansOfTransport;
-    private LocalDateTime submissionDate;
+    private ZonedDateTime submissionDate;
     private User submittedBy;
 }

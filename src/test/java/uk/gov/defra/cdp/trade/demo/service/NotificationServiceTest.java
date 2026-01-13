@@ -10,6 +10,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -53,6 +54,9 @@ class NotificationServiceTest {
 
     @Mock
     private IpaffsNotificationMapper ipaffsNotificationMapper;
+    
+    @Mock
+    private ObjectMapper objectMapper;
 
     @Captor
     private ArgumentCaptor<Notification> notificationCaptor;
@@ -62,7 +66,7 @@ class NotificationServiceTest {
     @BeforeEach
     void setUp() {
         service = new NotificationService(repository, idGeneratorService, ipaffsNotificationMapper,
-            ipaffsNotificationClient);
+            ipaffsNotificationClient, objectMapper);
     }
 
     @Test

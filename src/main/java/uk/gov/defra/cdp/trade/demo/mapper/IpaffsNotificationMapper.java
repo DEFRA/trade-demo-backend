@@ -1,6 +1,7 @@
 package uk.gov.defra.cdp.trade.demo.mapper;
 
-import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -85,7 +86,7 @@ public class IpaffsNotificationMapper {
         // Build means of transport
         partOne.setMeansOfTransport(buildMeansOfTransport(notification));
 
-        partOne.setSubmissionDate(LocalDateTime.now());
+        partOne.setSubmissionDate(ZonedDateTime.now(ZoneId.of("UTC")));
         partOne.setSubmittedBy(
             User.builder().userId("abc123").displayName("Ian from CDP").build());
         return partOne;
