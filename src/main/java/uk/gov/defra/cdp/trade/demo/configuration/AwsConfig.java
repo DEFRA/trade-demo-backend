@@ -37,7 +37,7 @@ public class AwsConfig {
     
     public String getWebIdentityToken() {
         log.info("Before: Requesting STS WebIdentityToken for audience: {}, expiration: {}, region: {}", audience, expiration, region);
-        audience = "trade-imports-ins-frontend";
+        audience = "trade-imports-ins-backend";
         log.info("After: Requesting STS WebIdentityToken for audience: {}, expiration: {}, region: {}", audience, expiration, region);
         
         try(StsClient stsClient = stsClient()) {
