@@ -36,6 +36,8 @@ public class AwsConfig {
     }
     
     public String getWebIdentityToken() {
+        log.info("Requesting STS WebIdentityToken for audience: {}, expiration: {}, region: {}", audience, expiration, region);
+
         try(StsClient stsClient = stsClient()) {
 
             GetWebIdentityTokenRequest request = GetWebIdentityTokenRequest.builder()
