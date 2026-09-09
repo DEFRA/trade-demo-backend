@@ -43,7 +43,7 @@ public class AwsConfig {
         try(StsClient stsClient = stsClient()) {
 
             GetWebIdentityTokenRequest request = GetWebIdentityTokenRequest.builder()
-                .audience(audience)
+                .audience("trade-imports-ins-backend")
                 .signingAlgorithm("RS256")
                 .durationSeconds(expiration)
                 .build();
